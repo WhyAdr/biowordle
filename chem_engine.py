@@ -6,18 +6,21 @@ standard library so builds are 100% identical across developer machines, CI, and
 
 from __future__ import annotations
 
+import hashlib
+import itertools
 import math
 import os
 import re
+import statistics
 import sys
 from collections import Counter
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-import rdkit
 from rdkit import Chem, DataStructs, RDConfig
 from rdkit.Chem import (
     Crippen,
     Descriptors,
+    Draw,
     Lipinski,
     QED,
     rdDepictor,
@@ -39,7 +42,7 @@ except Exception:
     _sascorer = None
 
 # ---------------------------------------------------------------------------
-# 1. Explicit Fingerprint & Standardization Specifications
+# 1. Explicit Fingerprint, Standardization & Peptide Specifications
 # ---------------------------------------------------------------------------
 FINGERPRINT_SPEC: Dict[str, Any] = {
     "algorithm": "Morgan (ECFP4-like circular fingerprint)",
@@ -98,6 +101,40 @@ _PAINS_CATALOG = FilterCatalog(_PAINS_PARAMS)
 _BRENK_PARAMS = FilterCatalogParams()
 _BRENK_PARAMS.AddCatalog(FilterCatalogParams.FilterCatalogs.BRENK)
 _BRENK_CATALOG = FilterCatalog(_BRENK_PARAMS)
+
+# ---------------------------------------------------------------------------
+# 2. Split Non-Overlapping Functional Group SMARTS Catalog (P1-5)
+# ---------------------------------------------------------------------------
+FUNCTIONAL_GROUP_SMARTS: List[Tuple[str, str]] = [
+    ("Aliphatic Alcohol (-OH)", "[OX2H1][CX4]"),
+    ("Phenol / Enol (-OH)", "[OX2H1][c,CX3]"),
+    ("Carboxylic Acid (-COOH)", "[CX3](=O)[OX2H1,OX1-]"),
+    ("Aldehyde (-CHO)", "[CX3H1](=O)[#6,#1]"),
+    ("Ketone (C-C(=O)-C)", "[#6][CX3](=O)[#6]"),
+    ("Ester / Lactone", "[#6,#1][CX3](=O)[OX2H0][#6]"),
+    ("Ether / Methoxy (C-O-C)", "[OD2]([#6;!$(C=O)])[#6;!$(C=O)]"),
+    ("Primary / Secondary Amine", "[NX3;H2,H1;!$(NC=O)]"),
+    ("Tertiary Amine", "[NX3;H0;!$(NC=O);!$(N=O)]"),
+    ("Amide / Lactam", "[NX3][CX3](=[OX1])[#6,#1]"),
+    ("Indole / Pyrrole Ring", "[nH1]1cccc1"),
+    ("Heteroaromatic N", "[n]"),
+    ("Halogen (F/Cl/Br)", "[F,Cl,Br,I]"),
+    ("Sulfur / Thioether", "[#16]"),
+]
+
+COMPILED_FG_SMARTS = [
+    (name, Chem.MolFromSmarts(smarts))
+    for name, smarts in FUNCTIONAL_GROUP_SMARTS
+]
+
+
+def detect_functional_groups(mol: Chem.Mol) -> List[str]:
+    """Detects functional groups present in `mol` using split non-overlapping SMARTS."""
+    matched: List[str] = []
+    for name, pattern in COMPILED_FG_SMARTS:
+        if pattern is not None and mol.HasSubstructMatch(pattern):
+            matched.append(name)
+    return matched
 
 
 def standardize_and_audit(smiles: str) -> Tuple[Chem.Mol, Dict[str, Any]]:
@@ -167,7 +204,11 @@ def compute_descriptors_and_insights(mol: Chem.Mol) -> Dict[str, Any]:
     s_tpsa = (
         1.0
         if 40.0 <= tpsa <= 90.0
-        else ((tpsa - 20.0) / 20.0 if 20.0 < tpsa < 40.0 else (_ramp(tpsa, 90.0, 120.0) if 90.0 < tpsa < 120.0 else 0.0))
+        else (
+            (tpsa - 20.0) / 20.0
+            if 20.0 < tpsa < 40.0
+            else (_ramp(tpsa, 90.0, 120.0) if 90.0 < tpsa < 120.0 else 0.0)
+        )
     )
     cns_mpo = round(
         _ramp(clogp, 3.0, 5.0)
@@ -196,8 +237,19 @@ def compute_descriptors_and_insights(mol: Chem.Mol) -> Dict[str, Any]:
     if any(math.isnan(v) or math.isinf(v) for v in values):
         raise ValueError(f"NaN or Inf descriptor encountered for {Chem.MolToSmiles(mol)}")
 
+    cns_mpo_4prop = round(
+        _ramp(clogp, 3.0, 5.0)
+        + _ramp(mw, 360.0, 500.0)
+        + s_tpsa
+        + _ramp(float(hbd), 0.5, 3.5),
+        2,
+    )
+    formula_str = rdMolDescriptors.CalcMolFormula(mol)
+    combined_alerts = [f"PAINS: {p}" for p in pains_hits] + [f"Brenk: {b}" for b in brenk_hits]
+
     return {
-        "formula": rdMolDescriptors.CalcMolFormula(mol),
+        "formula": formula_str,
+        "Formula": formula_str,
         "exact_mass": round(exact_mass, 2),
         "MW": round(mw, 1),
         "cLogP": round(clogp, 2),
@@ -214,12 +266,20 @@ def compute_descriptors_and_insights(mol: Chem.Mol) -> Dict[str, Any]:
         "QED": round(qed_val, 2),
         "SA_Score": round(sa_val, 2),
         "CNS_MPO": cns_mpo,
-        "CNS_MPO_Method": "Heuristic Wager 6-term desirability (SMARTS basic-amine pKa proxy)",
+        "CNS_MPO_4prop": cns_mpo_4prop,
+        "CNS_MPO_Method": "4-parameter RDKit CNS desirability (cLogP, MW, TPSA, HBD; max 4.0) + 6-term heuristic proxy (max 6.0)",
         "Ro5_Violations": len(ro5_violations),
+        "Lipinski_Violations": len(ro5_violations),
         "Ro5_Details": ro5_violations,
         "PAINS_Alerts": pains_hits,
         "Brenk_Alerts": brenk_hits,
+        "Alerts": combined_alerts,
     }
+
+
+def _normalize_svg_floats(svg: str) -> str:
+    """Rounds floating-point SVG coordinates to 1 decimal place to suppress platform float noise."""
+    return re.sub(r"(-?\d+\.\d)\d+", lambda m: f"{float(m.group(0)):.1f}", svg)
 
 
 def render_responsive_svg(
@@ -229,18 +289,19 @@ def render_responsive_svg(
     highlight_atoms: Optional[List[int]] = None,
     dark_mode: bool = False,
 ) -> str:
-    """Renders an ACS-1996 styled responsive SVG string."""
+    """Renders an authentic ACS-1996 styled responsive SVG string (P1-5)."""
     rdDepictor.SetPreferCoordGen(True)
     mol_copy = Chem.Mol(mol)
     if not mol_copy.GetNumConformers():
         rdDepictor.Compute2DCoords(mol_copy)
     drawer = rdMolDraw2D.MolDraw2DSVG(width, height)
     opts = drawer.drawOptions()
+    mean_bl = Draw.MeanBondLength(mol_copy)
+    if mean_bl > 0:
+        rdMolDraw2D.SetACS1996Mode(opts, mean_bl)
     if dark_mode:
         rdMolDraw2D.SetDarkMode(opts)
     opts.clearBackground = not dark_mode
-    opts.bondLineWidth = 1.8
-    opts.multipleBondOffset = 0.18
     opts.padding = 0.08
     drawer.DrawMolecule(mol_copy, highlightAtoms=highlight_atoms or [])
     drawer.FinishDrawing()
@@ -253,21 +314,11 @@ def render_responsive_svg(
         svg,
         count=1,
     )
-    return svg.strip()
+    return _normalize_svg_floats(svg.strip())
 
 
 def build_scaffold_clue_svg(mol: Chem.Mol) -> Tuple[str, str, str]:
-    """Builds a progressive intermediate 2D clue SVG without leaking acyclic structures.
-
-    Returns:
-      (svg_scaffold, scaffold_smiles, scaffold_mode)
-      where `scaffold_mode` is:
-        - "bemis_murcko": Ring-containing molecule with a distinct Bemis-Murcko scaffold
-        - "ring_core": Molecule equals its own unsubstituted ring framework (e.g. Naphthalene)
-        - "carbon_skeleton": Acyclic molecule (e.g. Citric acid, Pyruvic acid); strips
-          terminal heteroatoms/substituents to show the stripped carbon chain skeleton
-          rather than revealing the full functional molecule!
-    """
+    """Builds a progressive intermediate 2D clue SVG without leaking acyclic structures."""
     scaffold_mol = MurckoScaffold.GetScaffoldForMol(mol)
     if scaffold_mol is not None and scaffold_mol.GetNumHeavyAtoms() >= 3:
         scaf_smi = Chem.MolToSmiles(scaffold_mol, isomericSmiles=False)
@@ -275,8 +326,6 @@ def build_scaffold_clue_svg(mol: Chem.Mol) -> Tuple[str, str, str]:
         mode = "bemis_murcko" if scaf_smi != full_flat_smi else "ring_core"
         return render_responsive_svg(scaffold_mol, width=320, height=220), scaf_smi, mode
 
-    # Acyclic fallback: build an unfunctionalized carbon-chain skeleton so Clue 2
-    # shows chain connectivity without leaking carbonyls/hydroxyls
     rw = Chem.RWMol()
     old_to_new: Dict[int, int] = {}
     for atom in mol.GetAtoms():
@@ -297,20 +346,213 @@ def build_scaffold_clue_svg(mol: Chem.Mol) -> Tuple[str, str, str]:
 
 
 # ---------------------------------------------------------------------------
-# 2. Seqle Two-Pass Wordle Evaluator & Documented Peptide Biophysics
+# 3. Authoritative Spec-Driven Feedback Engine (P1-1 & P0-2)
+# ---------------------------------------------------------------------------
+def evaluate_delta_from_field_spec(
+    guess_val: float, target_val: float, field_spec: Dict[str, Any]
+) -> Dict[str, str]:
+    """Evaluates a single numeric descriptor comparison strictly from `feedback_spec.json`."""
+    diff = abs(float(guess_val) - float(target_val))
+    exact_tol = float(field_spec["exact_tol"])
+    close_tol = float(field_spec["close_tol"])
+    close_dir = bool(field_spec.get("close_directional", False))
+    far_dir = bool(field_spec.get("far_directional", True))
+
+    if diff <= exact_tol + 1e-9:
+        return {"code": "E", "cls": "match-exact", "arrow": "✓"}
+
+    direction = "U" if float(target_val) > float(guess_val) else "D"
+    dir_arrow = "↑" if direction == "U" else "↓"
+
+    if diff <= close_tol + 1e-9:
+        if close_dir:
+            return {"code": f"C{direction}", "cls": "match-close", "arrow": dir_arrow}
+        return {"code": "C", "cls": "match-close", "arrow": "≈"}
+
+    if far_dir:
+        return {"code": f"F{direction}", "cls": "match-far", "arrow": dir_arrow}
+    return {"code": "F", "cls": "match-far", "arrow": "≠"}
+
+
+def evaluate_chemle_feedback_from_spec(
+    guess: Dict[str, Any],
+    target: Dict[str, Any],
+    sim_pct: int,
+    profile_spec: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Computes the exact feedback signature and display cells for a Chemle guess."""
+    is_win = guess["inchikey"] == target["inchikey"] or guess["id"] == target["id"]
+    t_spec = profile_spec["tanimoto_bucket"]
+    edges = t_spec["edges"]
+    codes = t_spec.get("codes", ["LO", "MD", "HI"])
+    labels = t_spec.get("labels", ["Low", "Moderate", "High"])
+
+    if is_win or sim_pct == 100:
+        sim_code = "WIN"
+        sim_label = "Exact (100%)"
+        sim_badge_cls = "badge-emerald"
+    elif sim_pct >= edges[1]:
+        sim_code = codes[2]
+        sim_label = labels[2]
+        sim_badge_cls = "badge-emerald"
+    elif sim_pct >= edges[0]:
+        sim_code = codes[1]
+        sim_label = labels[1]
+        sim_badge_cls = "badge-amber"
+    else:
+        sim_code = codes[0]
+        sim_label = labels[0]
+        sim_badge_cls = "badge-indigo"
+
+    sig_parts: List[str] = []
+    if is_win:
+        sig_parts.append("WIN")
+    else:
+        if profile_spec.get("show_category_match_live", False):
+            sig_parts.append("CAT_EQ" if guess["Category"] == target["Category"] else "CAT_NE")
+        if t_spec.get("shown", True):
+            sig_parts.append(sim_code)
+
+    cells: List[Dict[str, Any]] = []
+    for f_spec in profile_spec["chemle_fields"]:
+        if not f_spec.get("shown", True):
+            continue
+        col = f_spec["name"]
+        res = evaluate_delta_from_field_spec(guess[col], target[col], f_spec)
+        if not is_win:
+            sig_parts.append(res["code"])
+        cells.append(
+            {
+                "name": col,
+                "label": f_spec["label"],
+                "decimals": f_spec.get("decimals", 1),
+                "value": guess[col],
+                **res,
+            }
+        )
+
+    return {
+        "signature": "|".join(sig_parts),
+        "sim_code": sim_code,
+        "sim_label": sim_label,
+        "sim_badge_cls": sim_badge_cls,
+        "cells": cells,
+    }
+
+
+def run_chemle_greedy_solver(
+    records: Sequence[Dict[str, Any]],
+    sim_matrix: Dict[str, Dict[str, int]],
+    profile_spec: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Runs the greedy max-entropy solver against `profile_spec` and returns gate statistics."""
+    ids = [r["id"] for r in records]
+    by_id = {r["id"]: r for r in records}
+    n_total = len(ids)
+
+    sig_table: Dict[Tuple[str, str], str] = {}
+    for g_id in ids:
+        for t_id in ids:
+            sig_table[(g_id, t_id)] = evaluate_chemle_feedback_from_spec(
+                by_id[g_id], by_id[t_id], sim_matrix[g_id][t_id], profile_spec
+            )["signature"]
+
+    # Opening-probe information metrics for this profile
+    h_prior = math.log2(n_total) if n_total > 1 else 0.0
+    probe_metrics: Dict[str, Dict[str, float]] = {}
+    min_exp_rem = float("inf")
+    for g_id in ids:
+        cnts = Counter(sig_table[(g_id, t_id)] for t_id in ids)
+        exp_post_h = sum((c / n_total) * math.log2(c) for c in cnts.values() if c > 1)
+        ig = round(h_prior - exp_post_h, 2)
+        exp_rem = round(sum((c * c) / n_total for c in cnts.values()), 2)
+        min_exp_rem = min(min_exp_rem, exp_rem)
+        probe_metrics[g_id] = {
+            "information_gain_bits": ig,
+            "expected_remaining_candidates": exp_rem,
+        }
+
+    def pick_probe(cands: List[str]) -> str:
+        best_g = cands[0]
+        best_key: Optional[Tuple[float, bool, str]] = None
+        n_c = len(cands)
+        for g_id in ids:
+            parts = Counter(sig_table[(g_id, t_id)] for t_id in cands)
+            h = -sum((c / n_c) * math.log2(c / n_c) for c in parts.values())
+            # Prefer highest entropy, then in-candidate guess, then lexicographical stability
+            key = (round(h, 9), g_id in cands, g_id)
+            if best_key is None or key > best_key:
+                best_g, best_key = g_id, key
+        return best_g
+
+    guess_counts: Dict[str, int] = {}
+    for t_id in ids:
+        cands = list(ids)
+        steps = 0
+        while True:
+            g_id = pick_probe(cands)
+            steps += 1
+            if g_id == t_id or steps >= 12:
+                break
+            obs_sig = sig_table[(g_id, t_id)]
+            cands = [c for c in cands if sig_table[(g_id, c)] == obs_sig]
+        guess_counts[t_id] = steps
+
+    vals = sorted(guess_counts.values())
+    dist = dict(sorted(Counter(vals).items()))
+    mean_v = round(statistics.mean(vals), 2)
+    median_v = round(float(statistics.median(vals)), 2)
+    p95_idx = min(len(vals) - 1, int(math.ceil(0.95 * len(vals))) - 1)
+    p95_v = vals[p95_idx]
+    max_v = max(vals)
+    le2_pct = round(100.0 * sum(x <= 2 for x in vals) / len(vals), 2)
+    le6_pct = round(100.0 * sum(x <= 6 for x in vals) / len(vals), 2)
+
+    return {
+        "distribution": {str(k): v for k, v in dist.items()},
+        "mean": mean_v,
+        "median": median_v,
+        "p95": p95_v,
+        "max": max_v,
+        "pct_solved_le2": le2_pct,
+        "pct_solved_le6": le6_pct,
+        "min_opening_expected_remaining": round(min_exp_rem, 2),
+        "probe_metrics": probe_metrics,
+        "per_target_guesses": guess_counts,
+    }
+
+
+def assert_solver_gate(solver_stats: Dict[str, Any], gate: Dict[str, Any], profile_id: str) -> None:
+    """Asserts that `solver_stats` passes all thresholds in `gate` (P0-2)."""
+    if not (gate["mean_min"] <= solver_stats["mean"] <= gate["mean_max"]):
+        raise AssertionError(
+            f"[{profile_id}] Solver mean {solver_stats['mean']} outside gate "
+            f"[{gate['mean_min']}, {gate['mean_max']}]"
+        )
+    if solver_stats["pct_solved_le2"] >= gate["max_le2_pct"]:
+        raise AssertionError(
+            f"[{profile_id}] Solver <=2-guess rate {solver_stats['pct_solved_le2']}% "
+            f"exceeds max {gate['max_le2_pct']}%"
+        )
+    if solver_stats["pct_solved_le6"] < gate["min_le6_pct"]:
+        raise AssertionError(
+            f"[{profile_id}] Solver <=6-guess rate {solver_stats['pct_solved_le6']}% "
+            f"below min {gate['min_le6_pct']}%"
+        )
+    if solver_stats["min_opening_expected_remaining"] < gate["min_expected_remaining"]:
+        raise AssertionError(
+            f"[{profile_id}] Min opening expected remaining {solver_stats['min_opening_expected_remaining']} "
+            f"below min {gate['min_expected_remaining']}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# 4. Seqle Two-Pass Evaluator, Validator & Peptide Biophysics (P0-4)
 # ---------------------------------------------------------------------------
 def evaluate_seqle_guess(
     guess_seq: str, target_seq: str, aa_props: Dict[str, Dict[str, Any]]
 ) -> List[str]:
-    """Deterministic 3-tier Seqle feedback with strict two-pass duplicate handling.
-
-    Precedence:
-      1. 'exact'   — guess[i] == target[i] (consumes target[i])
-      2. 'present' — guess[i] occurs at an unconsumed position in target (consumes 1 instance)
-      3. 'class'   — guess[i] is not 'exact' or 'present', and primary biochemical group
-                     of guess[i] equals primary biochemical group of target[i]
-      4. 'absent'  — no match
-    """
+    """Deterministic 3-tier Seqle feedback with strict two-pass duplicate handling."""
     if len(guess_seq) != 5 or len(target_seq) != 5:
         raise ValueError("Both guess_seq and target_seq must be 5 amino acids.")
 
@@ -340,6 +582,127 @@ def evaluate_seqle_guess(
                 evals[i] = "class"
 
     return evals
+
+
+def evaluate_seqle_feedback_from_spec(
+    guess_biochem: Dict[str, Any],
+    target_biochem: Dict[str, Any],
+    guess_seq: str,
+    target_seq: str,
+    aa_props: Dict[str, Dict[str, Any]],
+    profile_spec: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Computes full Seqle tile + strip feedback from `feedback_spec.json`."""
+    tiles = evaluate_seqle_guess(guess_seq, target_seq, aa_props)
+    strip_cells: List[Dict[str, Any]] = []
+    sig_parts = ["".join(t[0].upper() for t in tiles)]
+
+    for f_spec in profile_spec["seqle_strip_fields"]:
+        if not f_spec.get("shown", True):
+            continue
+        col = f_spec["name"]
+        res = evaluate_delta_from_field_spec(guess_biochem[col], target_biochem[col], f_spec)
+        if guess_seq != target_seq:
+            sig_parts.append(res["code"])
+        strip_cells.append(
+            {
+                "name": col,
+                "label": f_spec["label"],
+                "decimals": f_spec.get("decimals", 2),
+                "value": guess_biochem[col],
+                **res,
+            }
+        )
+    return {
+        "tiles": tiles,
+        "strip": strip_cells,
+        "signature": "|".join(sig_parts),
+    }
+
+
+def _consensus_tokens(consensus: str) -> List[str]:
+    """Splits a PROSITE-style consensus like 'G-X-S-X-G' or '[V/I]-D-F-G-[L/M]' into tokens."""
+    tokens: List[str] = []
+    for part in consensus.split("-"):
+        part = part.strip()
+        if not part:
+            continue
+        m = re.match(r"^X\((\d+)(?:,(\d+))?\)$", part)
+        if m:
+            count = int(m.group(1))
+            tokens.extend(["[A-Z]"] * count)
+            continue
+        m2 = re.match(r"^X(\d+)$", part)
+        if m2:
+            tokens.extend(["[A-Z]"] * int(m2.group(1)))
+            continue
+        if part == "X":
+            tokens.append("[A-Z]")
+        elif part.startswith("[") and part.endswith("]"):
+            inner = part[1:-1].replace("/", "")
+            tokens.append(f"[{inner}]")
+        else:
+            tokens.append(re.escape(part))
+    return tokens
+
+
+def validate_seqle_motif_record(item: Dict[str, Any], aa_props: Dict[str, Any]) -> None:
+    """Validates a Seqle motif record against P0-4 schema and biological constraints."""
+    seq = item.get("seq", "")
+    if len(seq) != 5 or any(ch not in aa_props for ch in seq):
+        raise ValueError(f"Invalid 5-AA sequence: {seq!r}")
+
+    kind = item.get("kind")
+    if kind not in ("exact", "fragment", "abstraction"):
+        raise ValueError(f"[{seq}] Invalid kind {kind!r}; expected exact|fragment|abstraction")
+
+    terminal = item.get("terminal")
+    if terminal not in ("N", "C", "none"):
+        raise ValueError(f"[{seq}] Invalid terminal {terminal!r}; expected N|C|none")
+
+    exemplar = item.get("exemplar_source", "")
+    if not re.search(r"(UniProt|PDB|PROSITE|ELM):[A-Za-z0-9_-]+", exemplar):
+        raise ValueError(f"[{seq}] exemplar_source {exemplar!r} must cite a UniProt/PDB/PROSITE/ELM accession")
+
+    parent_seq = item.get("parent_sequence", "")
+    offset = item.get("window_offset", 0)
+    if not isinstance(parent_seq, str) or len(parent_seq) < 5:
+        raise ValueError(f"[{seq}] parent_sequence must be at least 5 residues")
+    if not isinstance(offset, int) or offset < 0 or offset + 5 > len(parent_seq):
+        raise ValueError(f"[{seq}] window_offset {offset} out of bounds for parent_sequence {parent_seq!r}")
+    if parent_seq[offset : offset + 5] != seq:
+        raise ValueError(
+            f"[{seq}] parent_sequence[{offset}:{offset+5}] = {parent_seq[offset:offset+5]!r} != {seq!r}"
+        )
+
+    if terminal == "C" and offset + 5 != len(parent_seq):
+        raise ValueError(
+            f"[{seq}] terminal='C' requires 5-mer window at the extreme C-terminus of parent_sequence {parent_seq!r}"
+        )
+    if terminal == "N" and offset != 0:
+        raise ValueError(
+            f"[{seq}] terminal='N' requires 5-mer window at offset 0 of parent_sequence {parent_seq!r}"
+        )
+
+    consensus = item.get("consensus", "")
+    tokens = _consensus_tokens(consensus)
+    if kind == "exact":
+        if len(tokens) != 5:
+            raise ValueError(
+                f"[{seq}] kind='exact' requires a 5-position consensus, got {len(tokens)} in {consensus!r}"
+            )
+        regex = "^" + "".join(tokens) + "$"
+        if not re.match(regex, seq):
+            raise ValueError(f"[{seq}] Sequence does not match its exact consensus {consensus!r} ({regex})")
+    elif kind == "fragment":
+        if len(tokens) < 5:
+            raise ValueError(f"[{seq}] kind='fragment' consensus {consensus!r} shorter than 5 positions")
+
+    elig = item.get("game_eligibility", [])
+    if not elig or not set(elig).issubset({"learn", "ranked"}):
+        raise ValueError(f"[{seq}] Invalid game_eligibility {elig!r}")
+    if kind == "abstraction" and "ranked" in elig:
+        raise ValueError(f"[{seq}] kind='abstraction' cannot be eligible for 'ranked' mode")
 
 
 def compute_peptide_biochem(seq: str, aa_props: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
@@ -391,85 +754,6 @@ def compute_peptide_biochem(seq: str, aa_props: Dict[str, Dict[str, Any]]) -> Di
     }
 
 
-# ---------------------------------------------------------------------------
-# 3. Build-Time Shannon Entropy Information Gain & Puzzle Difficulty Evaluator
-# ---------------------------------------------------------------------------
-def _delta_code(g_val: float, t_val: float, exact_tol: float, close_tol: float) -> str:
-    diff = abs(g_val - t_val)
-    if diff <= exact_tol:
-        return "E"
-    bucket = "C" if diff <= close_tol else "F"
-    direction = "U" if t_val > g_val else "D"
-    return bucket + direction
-
-
-def chemle_feedback_signature(
-    guess: Dict[str, Any], target: Dict[str, Any], sim_pct: int
-) -> Tuple[Any, ...]:
-    """Returns the discrete feedback tuple f(g, t) observed by a player in Chemle."""
-    sim_bucket = "100" if sim_pct == 100 else ("HI" if sim_pct >= 35 else ("MD" if sim_pct >= 18 else "LO"))
-    return (
-        guess["Category"] == target["Category"],
-        sim_bucket,
-        _delta_code(guess["MW"], target["MW"], 5.0, 35.0),
-        _delta_code(guess["cLogP"], target["cLogP"], 0.25, 1.0),
-        _delta_code(guess["TPSA"], target["TPSA"], 5.0, 25.0),
-        _delta_code(guess["HBD"], target["HBD"], 0, 1),
-        _delta_code(guess["HBA"], target["HBA"], 0, 1),
-        _delta_code(guess["Rings"], target["Rings"], 0, 1),
-        _delta_code(guess["AromaticRings"], target["AromaticRings"], 0, 1),
-    )
-
-
-def compute_chemle_information_metrics(
-    records: List[Dict[str, Any]], sim_matrix: Dict[str, Dict[str, int]]
-) -> Dict[str, Dict[str, Any]]:
-    """Computes Shannon entropy information gain IG(g) = H(T) - E_f[H(T|f)] for every molecule."""
-    n = len(records)
-    h_prior = math.log2(n) if n > 1 else 0.0
-    metrics: Dict[str, Dict[str, Any]] = {}
-
-    for g in records:
-        g_id = g["id"]
-        sig_counts: Counter[Tuple[Any, ...]] = Counter()
-        for t in records:
-            t_id = t["id"]
-            sim = sim_matrix[g_id][t_id]
-            sig = chemle_feedback_signature(g, t, sim)
-            sig_counts[sig] += 1
-
-        # Expected posterior entropy E_f[H(T|f)] = sum_f (|T_f|/N) * log2(|T_f|)
-        expected_post_h = sum((cnt / n) * math.log2(cnt) for cnt in sig_counts.values() if cnt > 1)
-        ig_bits = round(h_prior - expected_post_h, 2)
-        expected_remaining = round(sum((cnt * cnt) / n for cnt in sig_counts.values()), 2)
-
-        # Nearest neighbor Tanimoto similarity (excluding self)
-        other_sims = sorted(
-            (sim_matrix[g_id][other["id"]], other["name"])
-            for other in records
-            if other["id"] != g_id
-        )
-        max_sim, nearest_name = other_sims[-1] if other_sims else (0, "None")
-
-        # Difficulty classification based on chemical-space neighborhood & uniqueness
-        if max_sim >= 45:
-            difficulty = "Hard (Close Analogues)"
-        elif max_sim >= 25:
-            difficulty = "Balanced"
-        else:
-            difficulty = "Distinctive"
-
-        metrics[g_id] = {
-            "prior_entropy_bits": round(h_prior, 2),
-            "information_gain_bits": ig_bits,
-            "expected_remaining_candidates": expected_remaining,
-            "nearest_neighbor": nearest_name,
-            "nearest_neighbor_tanimoto": max_sim,
-            "difficulty_tier": difficulty,
-        }
-    return metrics
-
-
 def compute_seqle_information_metrics(
     records: List[Dict[str, Any]], aa_props: Dict[str, Dict[str, Any]]
 ) -> Dict[str, Dict[str, Any]]:
@@ -502,3 +786,93 @@ def compute_seqle_information_metrics(
             "difficulty_tier": difficulty,
         }
     return metrics
+
+
+# ---------------------------------------------------------------------------
+# 5. Opening-Clue k-Anonymity Selector & Hint Leakage Audit (P0-1 & P2-3)
+# ---------------------------------------------------------------------------
+def select_k_anonymous_level0_features(
+    records: Sequence[Dict[str, Any]],
+    candidate_extractors: List[Tuple[str, Callable[[Dict[str, Any]], str]]],
+    min_k: int,
+    max_features: int = 2,
+) -> Tuple[List[str], Dict[int, str], int, List[int]]:
+    """Searches feature subsets of size 1..max_features to maximize group count subject to k_min >= min_k."""
+    best_choice: Optional[Tuple[int, int, List[str], Dict[int, str], List[int]]] = None
+
+    for r_size in range(1, min(max_features, len(candidate_extractors)) + 1):
+        for combo in itertools.combinations(candidate_extractors, r_size):
+            names = [c[0] for c in combo]
+            funcs = [c[1] for c in combo]
+            labels_by_idx: Dict[int, str] = {}
+            counts: Counter[str] = Counter()
+            for idx, rec in enumerate(records):
+                val = " · ".join(fn(rec) for fn in funcs)
+                labels_by_idx[idx] = val
+                counts[val] += 1
+            k_min = min(counts.values()) if counts else 0
+            if k_min >= min_k:
+                num_groups = len(counts)
+                score = (num_groups, k_min)
+                if best_choice is None or score > (best_choice[0], best_choice[1]):
+                    best_choice = (
+                        num_groups,
+                        k_min,
+                        names,
+                        labels_by_idx,
+                        sorted(counts.values()),
+                    )
+
+    if best_choice is None:
+        raise AssertionError(
+            f"No Level-0 opening clue feature subset satisfies k_min >= {min_k} across {len(records)} records!"
+        )
+    return best_choice[2], best_choice[3], best_choice[1], best_choice[4]
+
+
+def audit_hint_text_leakage(record: Dict[str, Any], text_fields: Sequence[str], id_key: str) -> None:
+    """Asserts that no pre-reveal hint text contains the target's name, ID, sequence, or >=5-char stem (P2-3)."""
+    generic_structural_words = {
+        "acid",
+        "acids",
+    }
+    forbidden_tokens: set[str] = set()
+    raw_id = str(record.get(id_key, "")).lower()
+    if len(raw_id) >= 4:
+        forbidden_tokens.add(raw_id)
+
+    if id_key == "seq":
+        seq_up = str(record.get("seq", "")).upper()
+        if len(seq_up) == 5:
+            forbidden_tokens.add(seq_up.lower())
+            forbidden_tokens.add(seq_up[:4].lower())
+            forbidden_tokens.add(seq_up[1:].lower())
+            aa3 = {
+                "A": "ala", "C": "cys", "D": "asp", "E": "glu", "F": "phe",
+                "G": "gly", "H": "his", "I": "ile", "K": "lys", "L": "leu",
+                "M": "met", "N": "asn", "P": "pro", "Q": "gln", "R": "arg",
+                "S": "ser", "T": "thr", "V": "val", "W": "trp", "Y": "tyr",
+            }
+            for i in range(3):
+                tri = f"{aa3[seq_up[i]]}-{aa3[seq_up[i+1]]}-{aa3[seq_up[i+2]]}"
+                forbidden_tokens.add(tri)
+    else:
+        for part in re.findall(r"[a-z0-9]{5,}", raw_id):
+            if part not in generic_structural_words:
+                forbidden_tokens.add(part)
+                forbidden_tokens.add(part[:6] if len(part) >= 6 else part[:5])
+
+        name = str(record.get("name") or "").lower()
+        for word in re.findall(r"[a-z0-9]{5,}", name):
+            if word not in generic_structural_words:
+                forbidden_tokens.add(word)
+                if len(word) >= 6:
+                    forbidden_tokens.add(word[:6])
+
+    for field in text_fields:
+        val = str(record.get(field, "")).lower()
+        for tok in forbidden_tokens:
+            if re.search(rf"\b{re.escape(tok)}", val):
+                raise AssertionError(
+                    f"[P2-3 Hint Leakage] Record {record.get(id_key)!r} leaks token/stem {tok!r} in field {field!r}: {record.get(field)!r}"
+                )

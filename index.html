@@ -3,41 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BioWordle — Chemle &amp; Seqle (RDKit Edition)</title>
+  <title>BioWordle v0.2 — Chemle &amp; Seqle (RDKit Edition)</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-shell">
-    <!-- Top Navigation & Mode Switcher -->
+    <!-- Top Navigation, Game Switcher & Profile Switcher -->
     <header class="topbar">
       <div class="brand">
         <div class="brand-badge">BW</div>
         <div>
-          <h1 class="brand-title">BioWordle</h1>
+          <h1 class="brand-title">BioWordle <span class="badge badge-indigo" style="font-size:10px;vertical-align:middle;">v0.2 Restraint</span></h1>
           <p class="brand-subtitle" id="app-meta-subtitle">RDKit-Compiled Molecule &amp; Peptide Motif Deduction Suite</p>
         </div>
       </div>
 
-      <div class="mode-tabs" role="tablist">
-        <button id="tab-chemle" class="mode-tab active" role="tab">
+      <div class="mode-tabs" role="tablist" aria-label="Game Mode">
+        <button id="tab-chemle" class="mode-tab active" role="tab" aria-selected="true">
           <span>🧪 Chemle</span>
-          <span class="badge badge-indigo">36 Mols</span>
+          <span id="badge-chemle-count" class="badge badge-indigo">36 Mols</span>
         </button>
-        <button id="tab-seqle" class="mode-tab" role="tab">
+        <button id="tab-seqle" class="mode-tab" role="tab" aria-selected="false">
           <span>🧬 Seqle</span>
-          <span class="badge badge-cyan">30 Motifs</span>
+          <span id="badge-seqle-count" class="badge badge-cyan">28 Ranked</span>
         </button>
       </div>
 
       <div class="top-actions">
-        <span class="stat-pill">Chemle: <strong id="stat-chem">0</strong></span>
-        <span class="stat-pill">Seqle: <strong id="stat-seq">0</strong></span>
-        <span class="stat-pill">Streak: <strong id="stat-streak">0</strong> 🔥</span>
-        <button id="btn-playstyle" class="btn" title="Switch between UTC Daily Seeded Puzzle and Infinite Free Play">Mode: Daily (UTC)</button>
-        <button id="btn-new-puzzle" class="btn" title="Roll a random new puzzle in the active pack">🎲 Random</button>
-        <button id="btn-hint" class="btn" title="Unlock next structural or biochemical clue">💡 Hint</button>
-        <button id="btn-giveup" class="btn" title="Reveal the target answer &amp; Molecular Insights">👁️ Reveal</button>
-        <button id="btn-theme" class="btn" title="Toggle Dark/Light Theme">🌗</button>
+        <span class="stat-pill" title="Completed puzzles in Chemle">Chemle: <strong id="stat-chem">0</strong></span>
+        <span class="stat-pill" title="Completed puzzles in Seqle">Seqle: <strong id="stat-seq">0</strong></span>
+        <span class="stat-pill" title="Consecutive UTC days with a Ranked Daily win">Streak: <strong id="stat-streak">0</strong> 🔥 <small id="utc-countdown" style="opacity:0.75;margin-left:4px;"></small></span>
+        <button id="btn-playstyle" class="btn btn-primary" title="Switch between Ranked Daily (UTC, k-anonymous clues, tight feedback) and Learn Mode (pack filter, scaffold hints, rich feedback)">🏆 Profile: Ranked (UTC)</button>
+        <button id="btn-new-puzzle" class="btn" title="Roll a random new puzzle in Learn Mode (disabled in Ranked Daily)">🎲 Random</button>
+        <button id="btn-hint" class="btn" title="Unlock next clue in the progressive Clue Ladder">💡 Hint</button>
+        <button id="btn-share" class="btn" title="Copy color-independent emoji &amp; ASCII share card to clipboard">📋 Share</button>
+        <button id="btn-giveup" class="btn" title="Reveal the target answer, Opening-Probe Quality &amp; Molecular Insights">👁️ Reveal</button>
+        <button id="btn-theme" class="btn" title="Toggle Dark/Light Theme" aria-label="Toggle Dark or Light Theme">🌗</button>
       </div>
     </header>
 
@@ -51,30 +52,36 @@
           <div>
             <h2 class="panel-title">Guess the Target Molecule</h2>
             <div class="legend-bar">
-              <span><i class="legend-dot" style="background:#10b981"></i>Exact / Very Close</span>
-              <span><i class="legend-dot" style="background:#f59e0b"></i>Close</span>
+              <span><i class="legend-dot" style="background:#10b981"></i>✓ Exact / Match</span>
+              <span><i class="legend-dot" style="background:#f59e0b"></i>≈ Close</span>
               <span><b>↑ / ↓</b> Target is Higher / Lower</span>
               <span title="Chiral Morgan Fingerprint (ECFP4-like, radius=2, 2048 bits, includeChirality=True). Measures Tanimoto coefficient T(A,B) = |A ∩ B| / |A ∪ B| of circular atom neighborhoods, not % structural identity."><b>Tanimoto %</b> Chiral ECFP4 Similarity ⓘ</span>
             </div>
           </div>
           <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-            <span id="chemle-candidates-pill" class="badge badge-cyan" title="Number of compounds in the pool consistent with all directional clues so far">Candidates: 36</span>
+            <span id="chemle-profile-badge" class="badge badge-amber">🏆 Ranked Profile</span>
+            <span id="chemle-candidates-pill" class="badge badge-cyan" title="Compounds in the active answer pool whose feedback signature against every prior guess matches the observed feedback exactly">Candidates: 36</span>
             <span id="chemle-try-counter" class="badge badge-indigo">Guesses: 0 / 6</span>
           </div>
         </div>
 
-        <div id="chemle-banner" class="toast-banner"></div>
+        <div id="chemle-banner" class="toast-banner" role="status" aria-live="polite"></div>
 
         <div class="chemle-search-bar">
-          <select id="chemle-cat-filter" class="btn" style="min-width:170px;" title="Filter candidate pack / biochemical class"></select>
+          <select id="chemle-cat-filter" class="btn" style="min-width:185px;" aria-label="Biochemical Pack Filter"></select>
           <input
             id="chemle-search-input"
             type="text"
             class="chemle-input"
-            placeholder="Search by molecule name, formula (e.g. C7H6O4), or functional group (IG bits shown)..."
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="chemle-dropdown"
+            aria-autocomplete="list"
+            aria-label="Search all 36 molecules by name, formula, or functional group"
+            placeholder="Search all 36 molecules by name, formula (e.g. C8H10N4O2), or functional group..."
             autocomplete="off"
           />
-          <div id="chemle-dropdown" class="chemle-dropdown"></div>
+          <div id="chemle-dropdown" class="chemle-dropdown" role="listbox" aria-label="Molecule Suggestions"></div>
         </div>
 
         <div id="chemle-guesses" class="chemle-guesses-list"></div>
@@ -84,7 +91,7 @@
       <aside class="panel-card">
         <div class="panel-header">
           <h3 class="panel-title">Target Molecule Inspector</h3>
-          <span id="chemle-clue-stage" class="badge badge-indigo">Hidden</span>
+          <span id="chemle-clue-stage" class="badge badge-indigo">Level 0 · k-Anonymous</span>
         </div>
 
         <div id="chemle-structure-well" class="chem-svg-well silhouette"></div>
@@ -104,33 +111,37 @@
           <div>
             <h2 class="panel-title">Guess the 5-Residue Functional Motif</h2>
             <div class="legend-bar">
-              <span><i class="legend-dot" style="background:#10b981"></i>1. Exact Residue</span>
-              <span><i class="legend-dot" style="background:#f59e0b"></i>2. Present Elsewhere (2-Pass Count)</span>
-              <span><i class="legend-dot" style="background:#06b6d4"></i>3. Same Primary Class at Position</span>
+              <span><i class="legend-dot" style="background:#10b981"></i>✓ Exact Residue</span>
+              <span><i class="legend-dot" style="background:#f59e0b"></i>⇄ Elsewhere (2-Pass Count)</span>
+              <span><i class="legend-dot" style="background:#06b6d4"></i>≈ Same Class at Pos (Learn)</span>
               <span title="Henderson-Hasselbalch model at pH 7.4 including N-terminus (pKa 8.0), C-terminus (pKa 3.1), and ionizable side chains (Asp 3.9, Glu 4.1, His 6.0, Cys 8.3, Tyr 10.1, Lys 10.5, Arg 12.5)."><b>↑ / ↓</b> H-H Net Charge / GRAVY / pI ⓘ</span>
             </div>
           </div>
-          <span id="seqle-try-counter" class="badge badge-cyan">Guesses: 0 / 6</span>
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <span id="seqle-profile-badge" class="badge badge-amber">🏆 Ranked Profile</span>
+            <span id="seqle-candidates-pill" class="badge badge-cyan" title="Curated motifs in the active answer pool consistent with all tile &amp; property feedback so far">Candidates: 28</span>
+            <span id="seqle-try-counter" class="badge badge-indigo">Guesses: 0 / 6</span>
+          </div>
         </div>
 
-        <div id="seqle-banner" class="toast-banner"></div>
+        <div id="seqle-banner" class="toast-banner" role="status" aria-live="polite"></div>
 
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
-          <select id="seqle-motif-picker" class="chemle-input" style="padding:7px 10px; font-size:12.5px;"></select>
-          <button id="seqle-btn-backspace" class="btn">⌫ Backspace</button>
-          <button id="seqle-btn-submit" class="btn btn-primary">⏎ Submit 5-Mer</button>
+          <select id="seqle-motif-picker" class="chemle-input" style="padding:7px 10px; font-size:12.5px;" aria-label="Quick-fill from all 30 curated 5-AA motifs"></select>
+          <button id="seqle-btn-backspace" class="btn" aria-label="Backspace">⌫ Backspace</button>
+          <button id="seqle-btn-submit" class="btn btn-primary" aria-label="Submit 5-Mer Guess">⏎ Submit 5-Mer</button>
         </div>
 
-        <div id="seqle-board" class="seqle-board"></div>
+        <div id="seqle-board" class="seqle-board" role="grid" aria-label="Seqle 5 by 6 Guess Grid"></div>
 
-        <div id="seqle-keyboard" class="aa-keyboard"></div>
+        <div id="seqle-keyboard" class="aa-keyboard" aria-label="Amino Acid Keyboard"></div>
       </section>
 
       <!-- Right Column: RDKit 2D Pentapeptide Structure & Motif Clues -->
       <aside class="panel-card">
         <div class="panel-header">
           <h3 class="panel-title">Target Pentapeptide Inspector</h3>
-          <span id="seqle-clue-stage" class="badge badge-indigo">Hidden</span>
+          <span id="seqle-clue-stage" class="badge badge-indigo">Level 0 · k-Anonymous</span>
         </div>
 
         <div id="seqle-structure-well" class="chem-svg-well silhouette"></div>

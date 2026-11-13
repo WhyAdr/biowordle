@@ -1,49 +1,72 @@
-# BioWordle (`Chemle` + `Seqle`) — Audited RDKit Edition
+# BioWordle v0.2 ("Restraint") — Chemle & Seqle (RDKit Edition)
 
-An interactive cheminformatics and sequence-biophysics deduction suite where **RDKit** validates molecular identities, stereochemistry, chiral circular fingerprints, progressive scaffold depictions, peptide Henderson-Hasselbalch properties, and Shannon-entropy information gain at build time, compiling them into a zero-runtime-dependency browser application.
-
----
-
-## Architecture & Scientific Specifications
-
-1. **100% Independent Build Compiler (`chem_engine.py` + `build_puzzles.py`)**
-   - Uses only public RDKit APIs and the Python standard library (zero external plugin/skill path dependencies).
-   - Deterministic dataset version hashing (`SHA-256` over sorted canonical InChIKeys and motif sequences) paired with UTC calendar dates (`YYYY-MM-DD`) so daily challenges are identical across timezones.
-
-2. **Molecular Identity vs. Chiral Morgan Fingerprint Similarity (`Chemle`)**
-   - **Standardization Policy:** `rdMolStandardize.Cleanup` + `FragmentParent` + explicit `AssignStereochemistry` without destructive tautomer mutation, preserving curated keto/enol states and $(R)/(S)$ or $(E)/(Z)$ stereocenters. Both `curated_smiles` / `curated_inchikey` and `canonical_smiles` / `inchikey` are recorded in `data/puzzles.json`.
-   - **Chiral ECFP4-like Fingerprint Spec:**
-     ```python
-     rdFingerprintGenerator.GetMorganGenerator(
-         radius=2,
-         fpSize=2048,
-         includeChirality=True,
-         useBondTypes=True,
-     )
-     ```
-     Pairwise similarity uses the Tanimoto coefficient $T(A,B) = \frac{|A \cap B|}{|A \cup B|}$ over shared circular substructural features, while win detection strictly checks molecular identity (`inchikey`).
-   - **Acyclic Scaffold Fallback:** Ring-containing molecules use their Bemis-Murcko framework (`MurckoScaffold.GetScaffoldForMol`) for intermediate visual clues; acyclic compounds (e.g., Citric Acid) fall back to an unfunctionalized carbon-chain skeleton (`scaffold_mode: "carbon_skeleton"`) so intermediate clues never leak the full functional structure.
-   - **Post-Game Molecular Insights & Structure Explorer:** Advanced medicinal chemistry indicators (`Heuristic CNS-MPO Desirability` using Wager 2010 monotonic ramps and `PAINS / Brenk` screening catalogs) are presented in a dedicated post-game educational panel alongside positional-isomer notes (e.g., Protocatechuic Acid `3,4-DHB` vs. Gentisic Acid `2,5-DHB`) and a closest-probe functional group comparison.
-
-3. **Build-Time Shannon Entropy Information Gain Evaluator**
-   - For every molecule and peptide motif, `chem_engine.py` simulates all $N \times N$ feedback signatures $f(g, t)$ and computes the expected Shannon information gain in bits:
-     $$IG(g) = H(T) - \mathbb{E}_f[H(T \mid f)]$$
-   - Displays each puzzle's difficulty tier, nearest chemical-space neighbor, opening-probe $IG(g)$ ranking, and live candidate-pool reduction after every guess.
-
-4. **Seqle Two-Pass Counting, Primary vs. Secondary AA Traits & Peptide $pK_a$ Model**
-   - **Precedence & Multiplicity:** Strictly evaluates `exact` matches first, `present` (misplaced) matches second via a two-pass residue counter, and positional `class` matches third (`exact > present > class > absent`).
-   - **Primary Class vs. Overlapping Secondary Traits:** Each of the 20 standard amino acids has one deterministic **Primary Class** (`Aliphatic`, `Aromatic`, `Polar`, `Positive`, `Negative`, `Special`) for gameplay rules plus explicit **Secondary Chemical Traits** (e.g., Histidine: `Positive (Imidazole, pKa 6.0) · Aromatic (Heteroaryl) · Metal Ligand`; Tyrosine: `Aromatic · Polar (Phenolic -OH)`).
-   - **Motif Provenance & Context:** Every 5-residue puzzle stores its `pattern`, `context_requirement` (structural fold or terminal topology required for biological activity), and experimental `exemplar_source` (UniProt/PDB reference).
-   - **Documented Peptide $pK_a$ Model:** Net charge at $\text{pH } 7.4$ and isoelectric point ($pI$) are computed via the Henderson-Hasselbalch equation for a free pentapeptide ($\text{N-terminus } pK_a = 8.0$, $\text{C-terminus } pK_a = 3.1$, $\text{Asp } 3.9$, $\text{Glu } 4.1$, $\text{His } 6.0$, $\text{Cys } 8.3$, $\text{Tyr } 10.1$, $\text{Lys } 10.5$, $\text{Arg } 12.5$).
+**BioWordle** is a two-layer interactive cheminformatics and structural biology deduction suite comprising:
+1. **🧪 Chemle**: Deduce a target metabolite, hydrocarbon degradation intermediate, natural product, or therapeutic drug (36 curated molecules) from **Chiral Morgan (`ECFP4`-like) Tanimoto similarity**, physicochemical directional deltas, functional group overlap, and progressive **Bemis–Murcko / Carbon-Skeleton 2D scaffolds**.
+2. **🧬 Seqle**: Decode a 5-residue functional protein motif (`EKDEL`, `DEVDG`, `GRGDS`, `LPETG`, `HEIGH`, `KCVIM`, `DEADE`, `GVGKS`, `VDFGL`, `HRDLA`, `WSEWS`, `PPPVP`, `INFEK`, `YQRLN`, `KKMPQ`, `CAACH`, `NLTGY`, `DSGLD`, `KENIP`, `KKKRK`, `FGGFT`, `YGGFM`, `SYSGY`, `NPLYR`, `GHHPH`, plus Learn-only pedagogical abstractions `CCHHC` and `LDLAS`) using two-pass multiplicity-aware residue feedback and **Henderson–Hasselbalch** net charge at pH 7.4, Kyte–Doolittle GRAVY, and isoelectric point ($\text{pI}$).
 
 ---
 
-## Rebuilding & Running the Audit Test Suite
+## What's New in v0.2 ("Restraint")
 
-```powershell
-# 1. Compile the puzzle database and standalone HTML bundle
-& ".\.venv\Scripts\python.exe" build_puzzles.py
+- **Two Explicit Gameplay Profiles (`🏆 Ranked Daily` vs `🎓 Learn Mode`)** driven by a single authoritative shared specification (`data/feedback_spec.json`):
+  - **Ranked Daily (`ranked`)**: 6 guesses, $k$-anonymous opening clues ($k_{\min} \ge 4$), 3-tier Tanimoto bands (`LO <61%`, `MD 61–84%`, `HI ≥85%`), calibrated descriptor tolerances (`MW`, `cLogP` in Chemle; `net_charge_ph74`, `gravy` in Seqle), and scaffold reveal gated until Guess 3.
+  - **Learn Mode (`learn`)**: Pack-selectable practice mode, $k$-anonymous opening clues ($k_{\min} \ge 3$), exact Tanimoto %, live shared functional group chips, `TPSA` & `pI` strips, and free progressive hint/scaffold unlocks.
+- **Build-Time $k$-Anonymity & Solver-Bot Calibration Gates (`tools/solver_bot.py`)**:
+  - Level-0 opening clues are automatically selected and verified at build time so every equivalence class has size $\ge 4$ in `ranked` ($k_{\min}=10$ Chemle, $k_{\min}=8$ Seqle) and $\ge 3$ in `learn` ($k_{\min}=4$ Chemle, $k_{\min}=3$ Seqle). Pre-guess UI never exposes exact `MW`, exact `Category`/`family`, `difficulty_tier`, or `information_gain_bits`.
+  - Greedy max-entropy solver (`tools/solver_bot.py`) enforces build-time difficulty gates:
+    - **Ranked**: mean guesses $= 3.89 \in [3.5, 4.5]$, median $= 4.0$, $\le 2$-guess solves $= 2.78\% < 5\%$, $\le 6$-guess solves $= 100\% \ge 98\%$, minimum opening expected remaining $= 7.56 \ge 2.5$.
+    - **Learn**: mean guesses $= 3.17 \le 3.5$, median $= 3.0$, $\le 2$-guess solves $= 19.44\% < 25\%$, $\le 6$-guess solves $= 100\%$.
+- **Strict Separation of `guessPool` and `answerPool`**:
+  - `guessPool` is **always** the full 36-molecule / 30-motif catalog so a puzzle is never locked out by a category filter.
+  - In `ranked` Daily mode, `answerPool` is the full eligible catalog (`36` molecules in Chemle; `28` native/fragment motifs in Seqle) and category filtering is disabled with an explanatory tooltip.
+- **Audited Seqle Motif Schema (`kind`, `consensus`, `parent_sequence`, `window_offset`, `terminal`, `exemplar_source`, `game_eligibility`)**:
+  - Every motif is classified as `"exact"`, `"fragment"` (a 5-mer window of a longer biological motif), or `"abstraction"` (Learn-only compressed teaching representation) and validated at build time against its parent sequence, terminal placement, and PROSITE/ELM/UniProt/PDB citation.
+- **Cross-Language Golden Vector Parity (`tests/golden_feedback.json` & `tests/verify_golden_and_dom.mjs`)**:
+  - All **2,592 Chemle** (`36 × 36 × 2`) and **1,800 Seqle** (`30 × 30 × 2`) feedback signatures are verified byte-for-byte between Python (`chem_engine.py`) and browser JavaScript (`app.js`).
+- **True ACS-1996 SVG Rendering & Non-Overlapping Carbonyl SMARTS**:
+  - Calls `rdMolDraw2D.SetACS1996Mode(opts, Draw.MeanBondLength(mol))` with normalized 1-decimal SVG coordinates and per-record `svg_sha256`.
+  - Splits generic carbonyl detection into non-overlapping SMARTS for `Aldehyde (-CHO)`, `Ketone (C-C(=O)-C)`, `Carboxylic Acid (-COOH)`, `Ester / Lactone`, and `Amide / Lactam`.
 
-# 2. Run the 9-test scientific & engineering verification suite
-& ".\.venv\Scripts\python.exe" -m unittest discover -s . -p "test_*.py" -v
+---
+
+## Quick Start (Zero-Install Browser Play)
+
+Open [`index.html`](index.html) or the self-contained single-file bundle [`dist/biowordle_standalone.html`](dist/biowordle_standalone.html) directly in any modern browser. No Python server or RDKit installation is required to play.
+
+Optional URL query parameters:
+- `?seed=CHEM101-WEEK3` — Classroom deterministic puzzle seed across all students.
+- `?profile=learn` — Launch directly into Learn Mode.
+
+---
+
+## Rebuilding & Running the Verification Suite
+
+```bash
+# 1. Create and activate a Python 3.12 virtual environment
+python -m venv .venv
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# macOS / Linux:
+# source .venv/bin/activate
+
+# 2. Install pinned dependencies
+pip install -r requirements.txt
+
+# 3. Compile puzzles, SVGs, golden vectors, and standalone bundle
+python build_puzzles.py
+
+# 4. Run the standalone Solver-Bot calibration harness
+python tools/solver_bot.py
+
+# 5. Run Cross-Language Golden Vector & Runtime Invariant checks (Node.js)
+node tests/verify_golden_and_dom.mjs
+
+# 6. Run the full 11-test Python + Node audit suite
+python -m unittest discover -v -s . -p "test_*.py"
 ```
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE). Pre-compiled chemical descriptors and 2D depictions are generated with [RDKit](https://www.rdkit.org/) (BSD 3-Clause License) and Peter Ertl's `sascorer` algorithm (BSD 3-Clause License).

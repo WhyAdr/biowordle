@@ -751,3 +751,30 @@ body {
   vertical-align: middle;
 }
 
+.btn:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+}
+
+.chemle-opt {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+}
+
+.chemle-opt:last-child {
+  border-bottom: none;
+}
+
+.chemle-opt:hover,
+.chemle-opt.active,
+.chemle-option.active {
+  background: var(--accent);
+}
+
+

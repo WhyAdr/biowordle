@@ -1,0 +1,47 @@
+name: BioWordle Scientific & Game-Balance CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install pinned RDKit & Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run build compiler & verify canonical dataset_version_hash determinism
+        run: |
+          H_BEFORE=$(python -c "import json; print(json.load(open('data/puzzles.json'))['metadata']['dataset_version_hash'])")
+          python build_puzzles.py
+          H_AFTER=$(python -c "import json; print(json.load(open('data/puzzles.json'))['metadata']['dataset_version_hash'])")
+          echo "dataset_version_hash before=$H_BEFORE after=$H_AFTER"
+          test "$H_BEFORE" = "$H_AFTER"
+
+      - name: Run Solver-Bot Difficulty & k-Anonymity Calibration Gates
+        run: python tools/solver_bot.py
+
+      - name: Run Cross-Language Golden Vector & Runtime Invariant Suite (Node.js)
+        run: node tests/verify_golden_and_dom.mjs
+
+      - name: Run Python Scientific & Audit Unit Test Suite
+        run: python -m unittest discover -v -s . -p "test_*.py"

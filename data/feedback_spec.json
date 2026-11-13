@@ -1,0 +1,163 @@
+{
+  "schema_version": "0.2.0",
+  "description": "Single authoritative feedback specification shared by Python (chem_engine.py, solver_bot.py) and browser JS (app.js).",
+  "profiles": {
+    "ranked": {
+      "id": "ranked",
+      "label": "Ranked / Daily",
+      "max_guesses": 6,
+      "min_k_level0": 4,
+      "show_exact_tanimoto": false,
+      "show_functional_groups_live": false,
+      "show_category_match_live": false,
+      "tanimoto_bucket": {
+        "shown": true,
+        "edges": [61, 85],
+        "codes": ["LO", "MD", "HI"],
+        "labels": ["Low (<61%)", "Moderate (61-84%)", "High (≥85%)"]
+      },
+      "chemle_fields": [
+        {
+          "name": "MW",
+          "label": "MW (Da)",
+          "decimals": 1,
+          "kind": "delta",
+          "exact_tol": 110.0,
+          "close_tol": 999.0,
+          "close_directional": false,
+          "far_directional": true,
+          "shown": true
+        },
+        {
+          "name": "cLogP",
+          "label": "cLogP",
+          "decimals": 2,
+          "kind": "delta",
+          "exact_tol": 2.5,
+          "close_tol": 4.5,
+          "close_directional": false,
+          "far_directional": true,
+          "shown": true
+        }
+      ],
+      "seqle_strip_fields": [
+        {
+          "name": "net_charge_ph74",
+          "label": "Q (pH 7.4)",
+          "decimals": 2,
+          "exact_tol": 0.4,
+          "close_tol": 1.8,
+          "close_directional": false,
+          "far_directional": true,
+          "shown": true
+        },
+        {
+          "name": "gravy",
+          "label": "GRAVY",
+          "decimals": 2,
+          "exact_tol": 0.6,
+          "close_tol": 1.8,
+          "close_directional": false,
+          "far_directional": true,
+          "shown": true
+        }
+      ],
+      "solver_gate": {
+        "mean_min": 3.5,
+        "mean_max": 4.5,
+        "max_le2_pct": 5.0,
+        "min_le6_pct": 98.0,
+        "min_expected_remaining": 2.5
+      }
+    },
+    "learn": {
+      "id": "learn",
+      "label": "Learn (Student / Explorer)",
+      "max_guesses": 8,
+      "min_k_level0": 3,
+      "show_exact_tanimoto": true,
+      "show_functional_groups_live": true,
+      "show_category_match_live": false,
+      "tanimoto_bucket": {
+        "shown": true,
+        "edges": [35, 60],
+        "codes": ["LO", "MD", "HI"],
+        "labels": ["Low (<35%)", "Moderate (35-59%)", "High (≥60%)"]
+      },
+      "chemle_fields": [
+        {
+          "name": "MW",
+          "label": "MW (Da)",
+          "decimals": 1,
+          "kind": "delta",
+          "exact_tol": 105.0,
+          "close_tol": 999.0,
+          "close_directional": false,
+          "far_directional": true,
+          "shown": true
+        },
+        {
+          "name": "cLogP",
+          "label": "cLogP",
+          "decimals": 2,
+          "kind": "delta",
+          "exact_tol": 2.5,
+          "close_tol": 4.5,
+          "close_directional": false,
+          "far_directional": true,
+          "shown": true
+        },
+        {
+          "name": "TPSA",
+          "label": "TPSA (Å²)",
+          "decimals": 1,
+          "kind": "delta",
+          "exact_tol": 75.0,
+          "close_tol": 999.0,
+          "close_directional": false,
+          "far_directional": false,
+          "shown": true
+        }
+      ],
+      "seqle_strip_fields": [
+        {
+          "name": "net_charge_ph74",
+          "label": "Q (pH 7.4)",
+          "decimals": 2,
+          "exact_tol": 0.15,
+          "close_tol": 1.0,
+          "close_directional": true,
+          "far_directional": true,
+          "shown": true
+        },
+        {
+          "name": "gravy",
+          "label": "GRAVY",
+          "decimals": 2,
+          "exact_tol": 0.2,
+          "close_tol": 0.9,
+          "close_directional": true,
+          "far_directional": true,
+          "shown": true
+        },
+        {
+          "name": "isoelectric_point",
+          "label": "pI",
+          "decimals": 1,
+          "exact_tol": 0.3,
+          "close_tol": 1.2,
+          "close_directional": true,
+          "far_directional": true,
+          "shown": true
+        }
+      ],
+      "solver_gate": {
+        "mean_min": 2.5,
+        "mean_max": 3.5,
+        "max_le2_pct": 25.0,
+        "min_le6_pct": 98.0,
+        "min_expected_remaining": 2.5
+      }
+    }
+  }
+}
