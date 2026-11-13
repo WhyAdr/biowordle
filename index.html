@@ -14,7 +14,7 @@
         <div class="brand-badge">BW</div>
         <div>
           <h1 class="brand-title">BioWordle</h1>
-          <p class="brand-subtitle">RDKit-Compiled Molecule &amp; Peptide Motif Puzzle Suite</p>
+          <p class="brand-subtitle" id="app-meta-subtitle">RDKit-Compiled Molecule &amp; Peptide Motif Deduction Suite</p>
         </div>
       </div>
 
@@ -33,10 +33,10 @@
         <span class="stat-pill">Chemle: <strong id="stat-chem">0</strong></span>
         <span class="stat-pill">Seqle: <strong id="stat-seq">0</strong></span>
         <span class="stat-pill">Streak: <strong id="stat-streak">0</strong> 🔥</span>
-        <button id="btn-playstyle" class="btn" title="Switch between Daily Seeded Puzzle and Infinite Free Play">Mode: Daily Seed</button>
-        <button id="btn-new-puzzle" class="btn" title="Roll a random new puzzle">🎲 Random</button>
+        <button id="btn-playstyle" class="btn" title="Switch between UTC Daily Seeded Puzzle and Infinite Free Play">Mode: Daily (UTC)</button>
+        <button id="btn-new-puzzle" class="btn" title="Roll a random new puzzle in the active pack">🎲 Random</button>
         <button id="btn-hint" class="btn" title="Unlock next structural or biochemical clue">💡 Hint</button>
-        <button id="btn-giveup" class="btn" title="Reveal the target answer">👁️ Reveal</button>
+        <button id="btn-giveup" class="btn" title="Reveal the target answer &amp; Molecular Insights">👁️ Reveal</button>
         <button id="btn-theme" class="btn" title="Toggle Dark/Light Theme">🌗</button>
       </div>
     </header>
@@ -54,21 +54,24 @@
               <span><i class="legend-dot" style="background:#10b981"></i>Exact / Very Close</span>
               <span><i class="legend-dot" style="background:#f59e0b"></i>Close</span>
               <span><b>↑ / ↓</b> Target is Higher / Lower</span>
-              <span><b>Tanimoto %</b> 2D Morgan Fingerprint Similarity</span>
+              <span title="Chiral Morgan Fingerprint (ECFP4-like, radius=2, 2048 bits, includeChirality=True). Measures Tanimoto coefficient T(A,B) = |A ∩ B| / |A ∪ B| of circular atom neighborhoods, not % structural identity."><b>Tanimoto %</b> Chiral ECFP4 Similarity ⓘ</span>
             </div>
           </div>
-          <span id="chemle-try-counter" class="badge badge-indigo">Guesses: 0 / 6</span>
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <span id="chemle-candidates-pill" class="badge badge-cyan" title="Number of compounds in the pool consistent with all directional clues so far">Candidates: 36</span>
+            <span id="chemle-try-counter" class="badge badge-indigo">Guesses: 0 / 6</span>
+          </div>
         </div>
 
         <div id="chemle-banner" class="toast-banner"></div>
 
         <div class="chemle-search-bar">
-          <select id="chemle-cat-filter" class="btn" style="min-width:155px;" title="Filter by biochemical class"></select>
+          <select id="chemle-cat-filter" class="btn" style="min-width:170px;" title="Filter candidate pack / biochemical class"></select>
           <input
             id="chemle-search-input"
             type="text"
             class="chemle-input"
-            placeholder="Search by molecule name, formula (e.g. C10H8), or functional group..."
+            placeholder="Search by molecule name, formula (e.g. C7H6O4), or functional group (IG bits shown)..."
             autocomplete="off"
           />
           <div id="chemle-dropdown" class="chemle-dropdown"></div>
@@ -101,10 +104,10 @@
           <div>
             <h2 class="panel-title">Guess the 5-Residue Functional Motif</h2>
             <div class="legend-bar">
-              <span><i class="legend-dot" style="background:#10b981"></i>Exact AA</span>
-              <span><i class="legend-dot" style="background:#f59e0b"></i>In Motif (Wrong Spot)</span>
-              <span><i class="legend-dot" style="background:#06b6d4"></i>Same Biochem Class at Position!</span>
-              <span><b>↑ / ↓</b> Target Charge / GRAVY / pI Direction</span>
+              <span><i class="legend-dot" style="background:#10b981"></i>1. Exact Residue</span>
+              <span><i class="legend-dot" style="background:#f59e0b"></i>2. Present Elsewhere (2-Pass Count)</span>
+              <span><i class="legend-dot" style="background:#06b6d4"></i>3. Same Primary Class at Position</span>
+              <span title="Henderson-Hasselbalch model at pH 7.4 including N-terminus (pKa 8.0), C-terminus (pKa 3.1), and ionizable side chains (Asp 3.9, Glu 4.1, His 6.0, Cys 8.3, Tyr 10.1, Lys 10.5, Arg 12.5)."><b>↑ / ↓</b> H-H Net Charge / GRAVY / pI ⓘ</span>
             </div>
           </div>
           <span id="seqle-try-counter" class="badge badge-cyan">Guesses: 0 / 6</span>
@@ -142,4 +145,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-

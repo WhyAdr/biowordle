@@ -1,42 +1,49 @@
-# BioWordle (`Chemle` + `Seqle`) — RDKit Build-Time Edition
+# BioWordle (`Chemle` + `Seqle`) — Audited RDKit Edition
 
-A zero-runtime-dependency dual-mode biochemistry and cheminformatics puzzle game where **RDKit** compiles and validates all chemical structures, Bemis-Murcko scaffolds, descriptors, Morgan fingerprint similarities, and pentapeptide 2D depictions at build time into a static browser bundle.
-
----
-
-## Game Modes
-
-### 1. 🧪 Chemle (Small Molecules, Metabolites & Hydrocarbon Intermediates)
-- **36 Curated Compounds** across 4 categories:
-  - *Hydrocarbon Degradation & Microbial Metabolites* (Catechol, Salicylic Acid, Protocatechuic Acid, Gentisic Acid, Naphthalene, Phenanthrene, Camphor, Pyocyanin, Prodigiosin, Violacein, Geosmin)
-  - *Core Metabolites, Cofactors & Neurotransmitters* (Caffeine, Dopamine, Serotonin, Adrenaline, Melatonin, Histamine, L-Tryptophan, Ascorbic Acid, Biotin, Citric Acid, Shikimic Acid, Cholesterol)
-  - *Plant Natural Products & Alkaloids* (Vanillin, Resveratrol, Curcumin, Capsaicin, Nicotine, Quinine, Artemisinin)
-  - *Classic Therapeutics* (Aspirin, Ibuprofen, Acetaminophen, Penicillin G, Ciprofloxacin, Fluoxetine)
-- **RDKit Build-Time Features**:
-  - Canonical descriptors (`MW`, `cLogP`, `TPSA`, `HBD`, `HBA`, `RotB`, `Fsp3`, `HeavyAtoms`, `Rings`, `AromaticRings`, `QED`, `CNS_MPO`, `SA_Score`) + PAINS/Brenk alerts.
-  - Full $36 \times 36$ pairwise **Morgan Fingerprint Tanimoto Similarity (%)** matrix.
-  - SMARTS-verified functional group badges highlighting shared substructures with the hidden target.
-  - Progressive 2D ACS-1996 SVG structure clues (Silhouette $\rightarrow$ Bemis-Murcko Scaffold Core $\rightarrow$ Full 2D Structure).
-
-### 2. 🧬 Seqle (5-Residue Functional Protein Motifs)
-- **30 Canonical 5-AA Motifs** (`GHSMG`, `KDELR`, `DEVDG`, `RGDVF`, `LPETG`, `HEIGH`, `CCHHC`, `YIGSR`, `NPVYK`, `CVIMK`, `DEADR`, `GAGTG`, `VDFGL`, `HRDLA`, `WSEWS`, `PPPVP`, `INFEK`, `YQRLN`, `KKMPQ`, `CAACH`, `NLTGY`, `DSGLS`, `KENKR`, `PKKKR`, `FGGFD`, `YGGFM`, `SYGYS`, `LDLAS`, `NPLYR`, `HPHPH`).
-- **3-Tier Tile Feedback**:
-  - 🟩 **Emerald (`Exact`)**: Right amino acid in the exact position.
-  - 🟨 **Amber (`Present`)**: Amino acid is in the motif, different position.
-  - 🟦 **Cyan (`Biochem Class Match`)**: Wrong exact amino acid, *but* the target residue at that position belongs to the same biochemical class (`Aliphatic`, `Aromatic`, `Polar`, `Positive`, `Negative`, `Special`).
-- **Live Peptide Property Strip**: Compares Net Charge at pH 7.4, Kyte-Doolittle GRAVY hydropathy, and Isoelectric Point ($pI$) for every 5-mer guess against the target, plus an RDKit-rendered 2D pentapeptide chemical structure (`Chem.MolFromSequence`).
+An interactive cheminformatics and sequence-biophysics deduction suite where **RDKit** validates molecular identities, stereochemistry, chiral circular fingerprints, progressive scaffold depictions, peptide Henderson-Hasselbalch properties, and Shannon-entropy information gain at build time, compiling them into a zero-runtime-dependency browser application.
 
 ---
 
-## Quick Start
+## Architecture & Scientific Specifications
 
-### Play in Browser (Zero Runtime Dependencies)
-Open `index.html` or `dist/biowordle_standalone.html` directly in any modern browser.
+1. **100% Independent Build Compiler (`chem_engine.py` + `build_puzzles.py`)**
+   - Uses only public RDKit APIs and the Python standard library (zero external plugin/skill path dependencies).
+   - Deterministic dataset version hashing (`SHA-256` over sorted canonical InChIKeys and motif sequences) paired with UTC calendar dates (`YYYY-MM-DD`) so daily challenges are identical across timezones.
 
-### Rebuild Puzzle Database After Adding New Molecules or Motifs
-Edit `CHEMLE_RAW_COMPOUNDS` or `SEQLE_RAW_MOTIFS` in `build_puzzles.py`, then run:
+2. **Molecular Identity vs. Chiral Morgan Fingerprint Similarity (`Chemle`)**
+   - **Standardization Policy:** `rdMolStandardize.Cleanup` + `FragmentParent` + explicit `AssignStereochemistry` without destructive tautomer mutation, preserving curated keto/enol states and $(R)/(S)$ or $(E)/(Z)$ stereocenters. Both `curated_smiles` / `curated_inchikey` and `canonical_smiles` / `inchikey` are recorded in `data/puzzles.json`.
+   - **Chiral ECFP4-like Fingerprint Spec:**
+     ```python
+     rdFingerprintGenerator.GetMorganGenerator(
+         radius=2,
+         fpSize=2048,
+         includeChirality=True,
+         useBondTypes=True,
+     )
+     ```
+     Pairwise similarity uses the Tanimoto coefficient $T(A,B) = \frac{|A \cap B|}{|A \cup B|}$ over shared circular substructural features, while win detection strictly checks molecular identity (`inchikey`).
+   - **Acyclic Scaffold Fallback:** Ring-containing molecules use their Bemis-Murcko framework (`MurckoScaffold.GetScaffoldForMol`) for intermediate visual clues; acyclic compounds (e.g., Citric Acid) fall back to an unfunctionalized carbon-chain skeleton (`scaffold_mode: "carbon_skeleton"`) so intermediate clues never leak the full functional structure.
+   - **Post-Game Molecular Insights & Structure Explorer:** Advanced medicinal chemistry indicators (`Heuristic CNS-MPO Desirability` using Wager 2010 monotonic ramps and `PAINS / Brenk` screening catalogs) are presented in a dedicated post-game educational panel alongside positional-isomer notes (e.g., Protocatechuic Acid `3,4-DHB` vs. Gentisic Acid `2,5-DHB`) and a closest-probe functional group comparison.
+
+3. **Build-Time Shannon Entropy Information Gain Evaluator**
+   - For every molecule and peptide motif, `chem_engine.py` simulates all $N \times N$ feedback signatures $f(g, t)$ and computes the expected Shannon information gain in bits:
+     $$IG(g) = H(T) - \mathbb{E}_f[H(T \mid f)]$$
+   - Displays each puzzle's difficulty tier, nearest chemical-space neighbor, opening-probe $IG(g)$ ranking, and live candidate-pool reduction after every guess.
+
+4. **Seqle Two-Pass Counting, Primary vs. Secondary AA Traits & Peptide $pK_a$ Model**
+   - **Precedence & Multiplicity:** Strictly evaluates `exact` matches first, `present` (misplaced) matches second via a two-pass residue counter, and positional `class` matches third (`exact > present > class > absent`).
+   - **Primary Class vs. Overlapping Secondary Traits:** Each of the 20 standard amino acids has one deterministic **Primary Class** (`Aliphatic`, `Aromatic`, `Polar`, `Positive`, `Negative`, `Special`) for gameplay rules plus explicit **Secondary Chemical Traits** (e.g., Histidine: `Positive (Imidazole, pKa 6.0) · Aromatic (Heteroaryl) · Metal Ligand`; Tyrosine: `Aromatic · Polar (Phenolic -OH)`).
+   - **Motif Provenance & Context:** Every 5-residue puzzle stores its `pattern`, `context_requirement` (structural fold or terminal topology required for biological activity), and experimental `exemplar_source` (UniProt/PDB reference).
+   - **Documented Peptide $pK_a$ Model:** Net charge at $\text{pH } 7.4$ and isoelectric point ($pI$) are computed via the Henderson-Hasselbalch equation for a free pentapeptide ($\text{N-terminus } pK_a = 8.0$, $\text{C-terminus } pK_a = 3.1$, $\text{Asp } 3.9$, $\text{Glu } 4.1$, $\text{His } 6.0$, $\text{Cys } 8.3$, $\text{Tyr } 10.1$, $\text{Lys } 10.5$, $\text{Arg } 12.5$).
+
+---
+
+## Rebuilding & Running the Audit Test Suite
 
 ```powershell
-& "d:\W\Play W\biowordle\.venv\Scripts\python.exe" "d:\W\Play W\biowordle\build_puzzles.py"
-```
+# 1. Compile the puzzle database and standalone HTML bundle
+& ".\.venv\Scripts\python.exe" build_puzzles.py
 
+# 2. Run the 9-test scientific & engineering verification suite
+& ".\.venv\Scripts\python.exe" -m unittest discover -s . -p "test_*.py" -v
+```

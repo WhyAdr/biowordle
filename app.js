@@ -1,5 +1,5 @@
 /**
- * BioWordle (Seqle + Chemle) — Client Application Engine
+ * BioWordle (Chemle + Seqle) — Audited Client Application Engine
  * Powered by the build-time RDKit puzzle database (`window.BIOWORDLE_DATA`).
  */
 (function () {
@@ -61,25 +61,32 @@
     renderHeaderStats();
   }
 
-  function getDaySeed() {
+  // Deterministic UTC Daily Seed + Dataset Version Hash
+  function getUtcDateString() {
     const now = new Date();
-    return (
-      now.getFullYear() * 10000 +
-      (now.getMonth() + 1) * 100 +
-      now.getDate()
-    );
+    const y = now.getUTCFullYear();
+    const m = String(now.getUTCMonth() + 1).padStart(2, "0");
+    const d = String(now.getUTCDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
   }
 
-  function seededIndex(seed, mod) {
-    const x = Math.sin(seed * 9301 + 49297) * 233280;
-    const frac = x - Math.floor(x);
-    return Math.floor(frac * mod);
+  function deterministicHashIndex(seedStr, mod) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < seedStr.length; i++) {
+      h ^= seedStr.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h % mod;
   }
 
   // -------------------------------------------------------------------------
   // Initialization & Mode Switching
   // -------------------------------------------------------------------------
   function init() {
+    const sub = document.getElementById("app-meta-subtitle");
+    if (sub && DATA.metadata) {
+      sub.textContent = `RDKit ${DATA.metadata.rdkit_version} · Chiral ECFP4 · UTC Daily (${getUtcDateString()}) · DB #${DATA.metadata.dataset_version_hash.slice(0, 6)}`;
+    }
     bindTopEvents();
     startNewChemlePuzzle(true);
     startNewSeqlePuzzle(true);
@@ -94,7 +101,7 @@
     document.getElementById("btn-playstyle").addEventListener("click", () => {
       state.playStyle = state.playStyle === "daily" ? "infinite" : "daily";
       const btn = document.getElementById("btn-playstyle");
-      btn.textContent = state.playStyle === "daily" ? "Mode: Daily Seed" : "Mode: Infinite Play";
+      btn.textContent = state.playStyle === "daily" ? "Mode: Daily (UTC)" : "Mode: Infinite Play";
       if (state.mode === "chemle") {
         startNewChemlePuzzle(state.playStyle === "daily");
       } else {
@@ -136,7 +143,6 @@
       document.documentElement.classList.toggle("dark");
     });
 
-    // Global physical keyboard listener for Seqle
     window.addEventListener("keydown", (e) => {
       if (state.mode !== "seqle" || state.seqStatus !== "playing") return;
       if (document.activeElement && ["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) {
@@ -183,19 +189,26 @@
   // =========================================================================
   // CHEMLE ENGINE (Small Molecules, Metabolites & Hydrocarbon Intermediates)
   // =========================================================================
+  function getActiveChemlePool() {
+    if (state.chemCategoryFilter === "All") {
+      return DATA.chemle;
+    }
+    const filtered = DATA.chemle.filter((c) => c.Category === state.chemCategoryFilter);
+    return filtered.length > 0 ? filtered : DATA.chemle;
+  }
+
   function startNewChemlePuzzle(useDaily) {
-    const pool = DATA.chemle;
-    let idx;
+    const pool = useDaily ? DATA.chemle : getActiveChemlePool();
     if (useDaily) {
-      idx = seededIndex(getDaySeed() + 17, pool.length);
+      const seedStr = `chemle:${getUtcDateString()}:${DATA.metadata.dataset_version_hash}`;
+      const idx = deterministicHashIndex(seedStr, pool.length);
+      state.chemTarget = pool[idx];
     } else {
       const currentId = state.chemTarget ? state.chemTarget.id : null;
       const candidates = pool.filter((c) => c.id !== currentId);
-      idx = Math.floor(Math.random() * candidates.length);
-      state.chemTarget = candidates[idx];
-    }
-    if (useDaily || !state.chemTarget) {
-      state.chemTarget = pool[idx];
+      const source = candidates.length > 0 ? candidates : pool;
+      const idx = Math.floor(Math.random() * source.length);
+      state.chemTarget = source[idx];
     }
     state.chemGuesses = [];
     state.chemStatus = "playing";
@@ -210,14 +223,16 @@
     const dropdown = document.getElementById("chemle-dropdown");
     const catSelect = document.getElementById("chemle-cat-filter");
 
-    // Populate categories
     const cats = ["All", ...Array.from(new Set(DATA.chemle.map((c) => c.Category)))];
     catSelect.innerHTML = cats
-      .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+      .map((c) => `<option value="${escapeHtml(c)}">${c === "All" ? "Pack: All 36 Molecules" : "Pack: " + escapeHtml(c)}</option>`)
       .join("");
 
     catSelect.addEventListener("change", () => {
       state.chemCategoryFilter = catSelect.value;
+      if (state.playStyle === "infinite" && state.chemGuesses.length === 0) {
+        startNewChemlePuzzle(false);
+      }
       updateDropdown();
     });
 
@@ -246,16 +261,17 @@
         dropdown.innerHTML = `<div class="chemle-option" style="color:var(--muted-foreground)">No matching unguessed compounds</div>`;
       } else {
         dropdown.innerHTML = matches
-          .map(
-            (c) => `
+          .map((c) => {
+            const ig = c.info_metrics ? c.info_metrics.information_gain_bits.toFixed(2) : "—";
+            return `
           <div class="chemle-option" data-id="${c.id}">
             <div>
               <strong>${escapeHtml(c.name)}</strong>
-              <span style="color:var(--muted-foreground); font-size:11.5px; margin-left:6px;">${escapeHtml(c.formula)} · ${c.MW.toFixed(1)} Da</span>
+              <span style="color:var(--muted-foreground); font-size:11.5px; margin-left:6px;">${escapeHtml(c.formula)} · ${c.MW.toFixed(1)} Da · IG: ${ig}b</span>
             </div>
             <span class="badge badge-indigo">${escapeHtml(c.Category)}</span>
-          </div>`
-          )
+          </div>`;
+          })
           .join("");
       }
       dropdown.classList.add("open");
@@ -302,7 +318,8 @@
 
     state.chemGuesses.push(mol);
 
-    if (mol.id === state.chemTarget.id) {
+    // Molecular identity check uses canonical InChIKey / id
+    if (mol.inchikey === state.chemTarget.inchikey || mol.id === state.chemTarget.id) {
       state.chemStatus = "won";
       state.stats.chemSolved += 1;
       state.stats.streak += 1;
@@ -331,18 +348,48 @@
     return { cls, arrow };
   }
 
+  function countCompatibleChemleCandidates(guessesUpToIndex) {
+    const target = state.chemTarget;
+    return DATA.chemle.filter((cand) => {
+      for (const g of guessesUpToIndex) {
+        const props = [
+          ["MW", 5.0, 35.0],
+          ["cLogP", 0.25, 1.0],
+          ["TPSA", 5.0, 25.0],
+          ["HBD", 0, 1],
+          ["HBA", 0, 1],
+          ["Rings", 0, 1],
+          ["AromaticRings", 0, 1],
+        ];
+        for (const [k, eTol, cTol] of props) {
+          const obs = evaluateDelta(g[k], target[k], eTol, cTol);
+          const hyp = evaluateDelta(g[k], cand[k], eTol, cTol);
+          if (obs.cls !== hyp.cls || obs.arrow !== hyp.arrow) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }).length;
+  }
+
   function renderChemleView() {
     const target = state.chemTarget;
     const banner = document.getElementById("chemle-banner");
     const guessesContainer = document.getElementById("chemle-guesses");
     const counterBadge = document.getElementById("chemle-try-counter");
+    const candBadge = document.getElementById("chemle-candidates-pill");
 
     counterBadge.textContent = `Guesses: ${state.chemGuesses.length} / ${MAX_GUESSES}`;
+    const remainingCands = countCompatibleChemleCandidates(state.chemGuesses);
+    if (candBadge) {
+      candBadge.textContent = `Remaining Candidates: ${remainingCands} / ${DATA.chemle.length}`;
+    }
 
     if (state.chemStatus === "won") {
       banner.className = "toast-banner show win";
       banner.innerHTML = `
-        <span>Solved in ${state.chemGuesses.length}/${MAX_GUESSES}! The target molecule is <strong>${escapeHtml(target.name)}</strong> (${escapeHtml(target.formula)}).</span>
+        <span>Solved in ${state.chemGuesses.length}/${MAX_GUESSES}! Target identity confirmed: <strong>${escapeHtml(target.name)}</strong> (${escapeHtml(target.formula)}).</span>
         <button class="btn btn-primary" id="chemle-play-again">Next Molecule</button>
       `;
       document.getElementById("chemle-play-again").onclick = () => startNewChemlePuzzle(false);
@@ -359,10 +406,17 @@
     }
 
     if (state.chemGuesses.length === 0) {
+      const topOpeners = DATA.chemle
+        .slice()
+        .sort((a, b) => (b.info_metrics?.information_gain_bits || 0) - (a.info_metrics?.information_gain_bits || 0))
+        .slice(0, 3)
+        .map((c) => `<b>${escapeHtml(c.name)}</b> (${c.info_metrics.information_gain_bits.toFixed(2)} bits)`)
+        .join(", ");
+
       guessesContainer.innerHTML = `
-        <div class="hint-item" style="text-align:center; padding:22px 14px; color:var(--muted-foreground);">
-          Search or pick any of the <strong>${DATA.chemle.length} RDKit-validated molecules</strong> above to make your first guess.<br>
-          You'll get live feedback on <strong>MW, cLogP, TPSA, HBD, HBA, Rings, Aromaticity, Morgan Tanimoto Similarity (%)</strong>, and shared functional groups!
+        <div class="hint-item" style="text-align:center; padding:20px 14px; color:var(--muted-foreground);">
+          Search or pick any of the <strong>${DATA.chemle.length} RDKit-standardized molecules</strong> above (or select a focused chemical pack).<br>
+          <span style="font-size:11.5px;">💡 Highest Shannon Entropy Opening Probes ($IG(g)$): ${topOpeners}</span>
         </div>
       `;
     } else {
@@ -371,6 +425,8 @@
         .reverse()
         .map((g, revIdx) => {
           const guessNum = state.chemGuesses.length - revIdx;
+          const prefixGuesses = state.chemGuesses.slice(0, guessNum);
+          const candsLeft = countCompatibleChemleCandidates(prefixGuesses);
           const sim =
             (DATA.chemle_similarity[g.id] && DATA.chemle_similarity[g.id][target.id]) || 0;
 
@@ -386,7 +442,7 @@
           const fgHtml = g.functional_groups
             .map((fg) => {
               const isShared = targetFGs.has(fg);
-              return `<span class="fg-chip ${isShared ? "shared" : ""}" title="${isShared ? "Present in Target!" : "Not in Target"}">${isShared ? "✓ " : ""}${escapeHtml(fg)}</span>`;
+              return `<span class="fg-chip ${isShared ? "shared" : ""}" title="${isShared ? "Shared SMARTS motif present in Target" : "Not present in Target"}">${isShared ? "✓ " : ""}${escapeHtml(fg)}</span>`;
             })
             .join("");
 
@@ -405,11 +461,12 @@
                 <span>${escapeHtml(g.name)}</span>
                 <span style="font-size:11.5px; color:var(--muted-foreground); font-weight:500;">${escapeHtml(g.formula)}</span>
               </div>
-              <div style="display:flex; gap:6px; align-items:center;">
-                <span class="badge ${ g.Category === target.Category ? "badge-emerald" : "badge-cyan" }">
+              <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                <span class="badge ${g.Category === target.Category ? "badge-emerald" : "badge-cyan"}">
                   ${g.Category === target.Category ? "✓ " : ""}${escapeHtml(g.Category)}
                 </span>
-                <span class="badge ${simBadgeCls}">Tanimoto Sim: ${sim}%</span>
+                <span class="badge ${simBadgeCls}" title="Chiral Morgan Fingerprint (ECFP4, r=2, 2048b) Tanimoto Similarity Coefficient">ECFP4 Tanimoto: ${sim}%</span>
+                <span class="badge badge-indigo" title="Candidates remaining after this guess">Pool → ${candsLeft}</span>
               </div>
             </div>
 
@@ -449,7 +506,7 @@
 
             ${
               fgHtml
-                ? `<div class="fg-chips" style="margin-top:8px;"><span style="font-size:10px; color:var(--muted-foreground); align-self:center; margin-right:4px;">SMARTS Groups:</span>${fgHtml}</div>`
+                ? `<div class="fg-chips" style="margin-top:8px;"><span style="font-size:10px; color:var(--muted-foreground); align-self:center; margin-right:4px;">SMARTS Motifs:</span>${fgHtml}</div>`
                 : ""
             }
           </div>`;
@@ -474,7 +531,13 @@
         ? 4
         : Math.max(state.chemHintsUnlocked, Math.floor(tries / 2));
 
-    // Render 2D SVG well with appropriate progressive blur or scaffold
+    const scafLabel =
+      target.scaffold_mode === "carbon_skeleton"
+        ? "Acyclic Carbon Skeleton"
+        : target.scaffold_mode === "ring_core"
+        ? "Unsubstituted Ring Core"
+        : "Bemis-Murcko Scaffold Core";
+
     if (state.chemStatus !== "playing") {
       well.className = "chem-svg-well";
       well.innerHTML = `${target.svg_full}<span class="well-overlay-tag">RDKit ACS-1996 2D</span>`;
@@ -482,8 +545,8 @@
       statusBadge.className = "badge badge-emerald";
     } else if (effectiveClueLevel >= 2 && target.has_scaffold) {
       well.className = "chem-svg-well";
-      well.innerHTML = `${target.svg_scaffold}<span class="well-overlay-tag">Bemis-Murcko Scaffold Core</span>`;
-      statusBadge.textContent = "Scaffold Core Unlocked";
+      well.innerHTML = `${target.svg_scaffold}<span class="well-overlay-tag">${scafLabel}</span>`;
+      statusBadge.textContent = scafLabel;
       statusBadge.className = "badge badge-amber";
     } else if (effectiveClueLevel === 1) {
       well.className = "chem-svg-well partial-blur";
@@ -492,26 +555,27 @@
       statusBadge.className = "badge badge-cyan";
     } else {
       well.className = "chem-svg-well silhouette";
-      well.innerHTML = `${target.svg_full}<span class="well-overlay-tag">Mystery Structure (Unlock via Guesses or Hint)</span>`;
+      well.innerHTML = `${target.svg_scaffold}<span class="well-overlay-tag">Mystery Structure (Unlock via Guesses or Hint)</span>`;
       statusBadge.textContent = "Hidden";
       statusBadge.className = "badge badge-indigo";
     }
 
-    // Progressive textual clues
+    const infoM = target.info_metrics || {};
     const clues = [];
     clues.push(`
       <div class="hint-item">
-        <strong>Clue 1 · Chemical Space & Topology</strong>
+        <strong>Clue 1 · Topology &amp; Information-Theoretic Profile</strong>
         Category: <span class="badge badge-indigo">${escapeHtml(target.Category)}</span> ·
         Heavy Atoms: <b>${target.HeavyAtoms}</b> · Fsp³: <b>${target.Fsp3.toFixed(2)}</b> ·
-        CNS MPO: <b>${target.CNS_MPO.toFixed(2)}</b>
+        Stereocenters: <b>${target.ChiralCenters ?? 0}</b><br>
+        <span style="font-size:11px; color:var(--muted-foreground);">Difficulty: <b>${escapeHtml(infoM.difficulty_tier || "Balanced")}</b> (Max neighbor ECFP4: ${infoM.nearest_neighbor_tanimoto || 0}% · IG: ${(infoM.information_gain_bits || 0).toFixed(2)} bits)</span>
       </div>
     `);
 
     if (effectiveClueLevel >= 1 || state.chemStatus !== "playing") {
       clues.push(`
         <div class="hint-item">
-          <strong>Clue 2 · Biochemical Role & Mechanism</strong>
+          <strong>Clue 2 · Biochemical Role &amp; Mechanism</strong>
           ${escapeHtml(target.hint_role)}
         </div>
       `);
@@ -534,17 +598,51 @@
     }
     hintsBox.innerHTML = clues.join("");
 
-    // Full canonical descriptor card when game finishes
+    // Post-Game Molecular Insights & Structure Explorer Panel
     if (state.chemStatus !== "playing") {
+      // Find closest non-winning guess for Structure Explorer comparison
+      const nonExactGuesses = state.chemGuesses.filter((g) => g.id !== target.id);
+      let explorerHtml = "";
+      if (nonExactGuesses.length > 0) {
+        const bestGuess = nonExactGuesses
+          .slice()
+          .sort(
+            (a, b) =>
+              (DATA.chemle_similarity[b.id][target.id] || 0) -
+              (DATA.chemle_similarity[a.id][target.id] || 0)
+          )[0];
+        const bestSim = DATA.chemle_similarity[bestGuess.id][target.id] || 0;
+        const sharedFGs = bestGuess.functional_groups.filter((fg) =>
+          target.functional_groups.includes(fg)
+        );
+        const targetOnlyFGs = target.functional_groups.filter(
+          (fg) => !bestGuess.functional_groups.includes(fg)
+        );
+
+        explorerHtml = `
+          <div class="hint-item" style="margin-top:8px;">
+            <strong>Structure Explorer · Your Closest Probe (${escapeHtml(bestGuess.name)}, ${bestSim}% ECFP4)</strong>
+            <div><b>Shared Motifs:</b> ${sharedFGs.length ? escapeHtml(sharedFGs.join(", ")) : "None"}</div>
+            <div><b>Target-Specific Motifs:</b> ${targetOnlyFGs.length ? escapeHtml(targetOnlyFGs.join(", ")) : "Same functional group classes"}</div>
+          </div>
+        `;
+      }
+
       fullPropsBox.style.display = "block";
       fullPropsBox.innerHTML = `
         <div style="margin-top:12px; border-top:1px solid var(--border); padding-top:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <strong style="font-size:12.5px;">${escapeHtml(target.name)} (${escapeHtml(target.formula)})</strong>
-            <span class="badge ${target.PAINS_Alerts.length === 0 ? "badge-emerald" : "badge-rose"}">
-              PAINS: ${target.PAINS_Alerts.length === 0 ? "Clean" : target.PAINS_Alerts.join(", ")}
-            </span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:4px;">
+            <strong style="font-size:12.5px;">Molecular Insights: ${escapeHtml(target.name)}</strong>
+            <span class="badge badge-cyan" title="Nearest neighbor in the 36-compound space by Chiral ECFP4 Tanimoto">Closest Analogue: ${escapeHtml(infoM.nearest_neighbor || "—")} (${infoM.nearest_neighbor_tanimoto || 0}%)</span>
           </div>
+
+          <div class="hint-item" style="margin-bottom:8px;">
+            <strong>Structural &amp; Isomeric Context</strong>
+            ${escapeHtml(target.structural_note || "")}
+          </div>
+
+          ${explorerHtml}
+
           <div class="prop-grid">
             <div class="prop-cell"><span class="prop-label">MW</span><span class="prop-val">${target.MW.toFixed(1)}</span></div>
             <div class="prop-cell"><span class="prop-label">cLogP</span><span class="prop-val">${target.cLogP.toFixed(2)}</span></div>
@@ -553,11 +651,23 @@
             <div class="prop-cell"><span class="prop-label">RotB</span><span class="prop-val">${target.RotB}</span></div>
             <div class="prop-cell"><span class="prop-label">Fsp3</span><span class="prop-val">${target.Fsp3.toFixed(2)}</span></div>
             <div class="prop-cell"><span class="prop-label">QED</span><span class="prop-val">${target.QED.toFixed(2)}</span></div>
-            <div class="prop-cell"><span class="prop-label">CNS MPO</span><span class="prop-val">${target.CNS_MPO.toFixed(2)}</span></div>
+            <div class="prop-cell" title="${escapeHtml(target.CNS_MPO_Method || "Heuristic Wager 6-term desirability")}">
+              <span class="prop-label">CNS MPO (Est.) ⓘ</span>
+              <span class="prop-val">${target.CNS_MPO.toFixed(2)} / 6</span>
+            </div>
             <div class="prop-cell"><span class="prop-label">SA Score</span><span class="prop-val">${target.SA_Score.toFixed(2)}</span></div>
           </div>
-          <div style="margin-top:8px; font-size:11px; color:var(--muted-foreground); word-break:break-all;">
-            <strong>Canonical SMILES:</strong> <code>${escapeHtml(target.canonical_smiles)}</code>
+
+          <div style="margin-top:8px; font-size:11px; color:var(--muted-foreground);">
+            <div title="PAINS and Brenk catalogs flag reactive or assay-interfering substructures for investigation; they do not prove toxicity or inactivity.">
+              <strong>MedChem Screening Flags ⓘ:</strong>
+              PAINS: <b>${target.PAINS_Alerts.length === 0 ? "0 alerts" : escapeHtml(target.PAINS_Alerts.join(", "))}</b> ·
+              Brenk: <b>${target.Brenk_Alerts.length === 0 ? "0 alerts" : escapeHtml(target.Brenk_Alerts.join(", "))}</b>
+            </div>
+            <div style="margin-top:4px; word-break:break-all;">
+              <strong>InChIKey:</strong> <code>${escapeHtml(target.inchikey)}</code><br>
+              <strong>Standardized SMILES:</strong> <code>${escapeHtml(target.canonical_smiles)}</code>
+            </div>
           </div>
         </div>
       `;
@@ -572,17 +682,15 @@
   // =========================================================================
   function startNewSeqlePuzzle(useDaily) {
     const pool = DATA.seqle;
-    let idx;
     if (useDaily) {
-      idx = seededIndex(getDaySeed() + 99, pool.length);
+      const seedStr = `seqle:${getUtcDateString()}:${DATA.metadata.dataset_version_hash}`;
+      const idx = deterministicHashIndex(seedStr, pool.length);
+      state.seqTarget = pool[idx];
     } else {
       const currentSeq = state.seqTarget ? state.seqTarget.seq : null;
       const candidates = pool.filter((m) => m.seq !== currentSeq);
-      idx = Math.floor(Math.random() * candidates.length);
+      const idx = Math.floor(Math.random() * candidates.length);
       state.seqTarget = candidates[idx];
-    }
-    if (useDaily || !state.seqTarget) {
-      state.seqTarget = pool[idx];
     }
     state.seqGuesses = [];
     state.seqCurrentInput = "";
@@ -594,11 +702,11 @@
   function setupSeqleQuickPick() {
     const sel = document.getElementById("seqle-motif-picker");
     sel.innerHTML =
-      `<option value="">— Quick-fill a known 5-AA motif (or type any 5 amino acids) —</option>` +
+      `<option value="">— Quick-fill a curated 5-AA motif (or type any 5 standard amino acids) —</option>` +
       DATA.seqle
         .map(
           (m) =>
-            `<option value="${m.seq}">${m.seq} · ${escapeHtml(m.title)} (${escapeHtml(m.family)})</option>`
+            `<option value="${m.seq}">${m.seq} · ${escapeHtml(m.title)} (IG: ${(m.info_metrics?.information_gain_bits || 0).toFixed(2)}b)</option>`
         )
         .join("");
 
@@ -633,18 +741,15 @@
     }
   }
 
+  // Exact Henderson-Hasselbalch Peptide Biophysics matching `chem_engine.py`
   function computeLivePeptideBiochem(seq) {
     const props = DATA.aa_properties;
     let gravy = 0;
-    let charge = 0;
     for (let i = 0; i < seq.length; i++) {
-      const aa = seq[i];
-      gravy += props[aa].hydropathy;
-      charge += props[aa].charge;
+      gravy += props[seq[i]].hydropathy;
     }
     gravy = gravy / seq.length;
 
-    // Henderson-Hasselbalch pI bisection matching build_puzzles.py
     const pka_nterm = 8.0;
     const pka_cterm = 3.1;
     const pka_side = {
@@ -672,24 +777,23 @@
     }
     let lo = 1.0,
       hi = 13.5;
-    for (let iter = 0; iter < 25; iter++) {
+    for (let iter = 0; iter < 35; iter++) {
       const mid = 0.5 * (lo + hi);
       if (netQ(mid) > 0) lo = mid;
       else hi = mid;
     }
     return {
       gravy: Number(gravy.toFixed(2)),
-      net_charge_ph74: Number(charge.toFixed(1)),
+      net_charge_ph74: Number(netQ(7.4).toFixed(2)),
       isoelectric_point: Number((0.5 * (lo + hi)).toFixed(2)),
     };
   }
 
   function evaluateSeqleGuess(guessSeq, targetSeq) {
-    // 1. Standard Wordle exact + misplaced pass
     const evals = new Array(5).fill("absent");
     const targetRemaining = targetSeq.split("");
 
-    // Exact matches first
+    // Pass 1: Exact position matches
     for (let i = 0; i < 5; i++) {
       if (guessSeq[i] === targetSeq[i]) {
         evals[i] = "exact";
@@ -697,7 +801,7 @@
       }
     }
 
-    // Misplaced matches second
+    // Pass 2: Misplaced residue matches (respecting multiplicity)
     for (let i = 0; i < 5; i++) {
       if (evals[i] !== "absent") continue;
       const foundIdx = targetRemaining.indexOf(guessSeq[i]);
@@ -707,7 +811,7 @@
       }
     }
 
-    // Biochemical class match third (same amino acid group at position i!)
+    // Pass 3: Primary biochemical class match at position i
     for (let i = 0; i < 5; i++) {
       if (evals[i] === "absent") {
         const gGroup = DATA.aa_properties[guessSeq[i]].group;
@@ -786,11 +890,14 @@
         let letter = "";
         let sub = "";
         let cls = "seqle-tile";
+        let titleAttr = "";
 
         if (guess) {
           letter = guess.seq[c];
-          sub = DATA.aa_properties[letter].three;
+          const aaInfo = DATA.aa_properties[letter];
+          sub = aaInfo.three;
           cls += ` state-${guess.evals[c]}`;
+          titleAttr = `${aaInfo.name} (${aaInfo.three}) · Primary Class: ${aaInfo.group} · Traits: ${(aaInfo.traits || []).join(", ")}`;
         } else if (isCurrentRow && state.seqCurrentInput[c]) {
           letter = state.seqCurrentInput[c];
           sub = DATA.aa_properties[letter].three;
@@ -798,7 +905,7 @@
         }
 
         tilesHtml.push(`
-          <div class="${cls}">
+          <div class="${cls}" title="${escapeHtml(titleAttr)}">
             <span>${letter}</span>
             ${sub ? `<span class="tile-sub">${sub}</span>` : ""}
           </div>
@@ -808,22 +915,22 @@
       let stripHtml = "";
       if (guess) {
         const b = guess.biochem;
-        const qDelta = evaluateDelta(b.net_charge_ph74, target.net_charge_ph74, 0.05, 1.0);
+        const qDelta = evaluateDelta(b.net_charge_ph74, target.net_charge_ph74, 0.08, 0.95);
         const gDelta = evaluateDelta(b.gravy, target.gravy, 0.15, 0.8);
         const piDelta = evaluateDelta(b.isoelectric_point, target.isoelectric_point, 0.25, 1.2);
-        const qStr = (b.net_charge_ph74 > 0 ? "+" : "") + b.net_charge_ph74.toFixed(1);
+        const qStr = (b.net_charge_ph74 > 0 ? "+" : "") + b.net_charge_ph74.toFixed(2);
 
         stripHtml = `
           <div class="seqle-biochem-strip">
-            <div class="strip-metric">
-              <span class="prop-label">Charge</span>
+            <div class="strip-metric" title="Henderson-Hasselbalch net charge at pH 7.4 (including free N/C termini)">
+              <span class="prop-label">Q (pH 7.4)</span>
               <span class="prop-val" style="color:${qDelta.cls === "match-exact" ? "var(--pal-emerald)" : "var(--foreground)"}">${qStr} ${qDelta.arrow}</span>
             </div>
-            <div class="strip-metric">
+            <div class="strip-metric" title="Kyte-Doolittle average hydropathy index">
               <span class="prop-label">GRAVY</span>
               <span class="prop-val" style="color:${gDelta.cls === "match-exact" ? "var(--pal-emerald)" : "var(--foreground)"}">${b.gravy.toFixed(2)} ${gDelta.arrow}</span>
             </div>
-            <div class="strip-metric">
+            <div class="strip-metric" title="Predicted free pentapeptide isoelectric point">
               <span class="prop-label">pI</span>
               <span class="prop-val" style="color:${piDelta.cls === "match-exact" ? "var(--pal-emerald)" : "var(--foreground)"}">${b.isoelectric_point.toFixed(1)} ${piDelta.arrow}</span>
             </div>
@@ -832,7 +939,7 @@
       } else {
         stripHtml = `
           <div class="seqle-biochem-strip" style="opacity:0.45;">
-            <div class="strip-metric"><span class="prop-label">Charge</span><span class="prop-val">—</span></div>
+            <div class="strip-metric"><span class="prop-label">Q (pH 7.4)</span><span class="prop-val">—</span></div>
             <div class="strip-metric"><span class="prop-label">GRAVY</span><span class="prop-val">—</span></div>
             <div class="strip-metric"><span class="prop-label">pI</span><span class="prop-val">—</span></div>
           </div>
@@ -870,8 +977,9 @@
         .map((aa) => {
           const info = DATA.aa_properties[aa];
           const st = keyStates[aa] ? `key-${keyStates[aa]}` : "";
+          const traitsStr = (info.traits || [info.group]).join(" · ");
           return `
-            <button class="aa-key ${st}" data-aa="${aa}" title="${info.name} (${info.three}) · Group: ${info.group} · Hydropathy: ${info.hydropathy}">
+            <button class="aa-key ${st}" data-aa="${aa}" title="${info.name} (${info.three}) · Primary Class: ${info.group} · Chemical Traits: ${traitsStr} · Hydropathy: ${info.hydropathy}">
               <span>${aa}</span>
               <small>${info.three}</small>
             </button>
@@ -924,12 +1032,14 @@
       statusBadge.className = "badge badge-indigo";
     }
 
+    const infoM = target.info_metrics || {};
     const clues = [];
     clues.push(`
       <div class="hint-item">
-        <strong>Clue 1 · Motif Family & Peptide Mass</strong>
+        <strong>Clue 1 · Motif Family &amp; Biophysics</strong>
         Family: <span class="badge badge-indigo">${escapeHtml(target.family)}</span> ·
-        Pentapeptide MW: <b>${target.MW.toFixed(1)} Da</b> · Aromatic Residues: <b>${target.aromatic_count}</b>
+        Pentapeptide MW: <b>${target.MW.toFixed(1)} Da</b> · Aromatic AAs: <b>${target.aromatic_count}</b><br>
+        <span style="font-size:11px; color:var(--muted-foreground);">Difficulty: <b>${escapeHtml(infoM.difficulty_tier || "Standard")}</b> (${infoM.unique_residues || 5} unique residues · IG: ${(infoM.information_gain_bits || 0).toFixed(2)} bits)</span>
       </div>
     `);
 
@@ -945,7 +1055,7 @@
     if (effectiveClueLevel >= 2 || state.seqStatus !== "playing") {
       clues.push(`
         <div class="hint-item">
-          <strong>Clue 3 · Structural & Biochemical Mechanism</strong>
+          <strong>Clue 3 · Structural &amp; Biochemical Mechanism</strong>
           ${escapeHtml(target.hint_detail)}
         </div>
       `);
@@ -954,8 +1064,8 @@
     if (effectiveClueLevel >= 3 || state.seqStatus !== "playing") {
       clues.push(`
         <div class="hint-item">
-          <strong>Clue 4 · Residue Class Pattern</strong>
-          Classes: <code>${target.residue_groups.join(" → ")}</code>
+          <strong>Clue 4 · Primary Residue Class Sequence</strong>
+          <code>${target.residue_groups.join(" → ")}</code>
         </div>
       `);
     }
@@ -966,14 +1076,25 @@
       fullPropsBox.style.display = "block";
       fullPropsBox.innerHTML = `
         <div style="margin-top:12px; border-top:1px solid var(--border); padding-top:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:4px;">
             <strong style="font-size:12.5px;">${target.seq} — ${escapeHtml(target.title)}</strong>
-            <span class="badge badge-emerald">${escapeHtml(target.pattern)}</span>
+            <span class="badge badge-emerald">Consensus: ${escapeHtml(target.pattern)}</span>
           </div>
+
+          <div class="hint-item" style="margin-bottom:8px;">
+            <strong>Protein Context Requirement</strong>
+            ${escapeHtml(target.context_requirement || "")}
+          </div>
+
+          <div class="hint-item" style="margin-bottom:8px;">
+            <strong>Experimental Reference / PDB-UniProt Exemplar</strong>
+            ${escapeHtml(target.exemplar_source || "")}
+          </div>
+
           <div class="prop-grid">
             <div class="prop-cell"><span class="prop-label">Formula</span><span class="prop-val">${escapeHtml(target.formula)}</span></div>
             <div class="prop-cell"><span class="prop-label">MW (Da)</span><span class="prop-val">${target.MW.toFixed(1)}</span></div>
-            <div class="prop-cell"><span class="prop-label">Net Charge</span><span class="prop-val">${(target.net_charge_ph74 > 0 ? "+" : "") + target.net_charge_ph74.toFixed(1)}</span></div>
+            <div class="prop-cell" title="Henderson-Hasselbalch net charge at pH 7.4 including N/C termini"><span class="prop-label">Q (pH 7.4)</span><span class="prop-val">${(target.net_charge_ph74 > 0 ? "+" : "") + target.net_charge_ph74.toFixed(2)}</span></div>
             <div class="prop-cell"><span class="prop-label">GRAVY</span><span class="prop-val">${target.gravy.toFixed(2)}</span></div>
             <div class="prop-cell"><span class="prop-label">pI</span><span class="prop-val">${target.isoelectric_point.toFixed(2)}</span></div>
             <div class="prop-cell"><span class="prop-label">TPSA (Å²)</span><span class="prop-val">${target.TPSA.toFixed(1)}</span></div>
@@ -1000,4 +1121,3 @@
     init();
   }
 })();
-
