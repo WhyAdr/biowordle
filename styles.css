@@ -1,0 +1,753 @@
+/* BioWordle (Seqle + Chemle) — Zero-Specificity AGY Host Theme + Standalone Fallbacks */
+:where(:root) {
+  --background: #f8fafc;
+  --content: #ffffff;
+  --card: #ffffff;
+  --sidebar: #f1f5f9;
+  --border: #e2e8f0;
+  --foreground: #0f172a;
+  --muted-foreground: #64748b;
+  --placeholder: #94a3b8;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #1e293b;
+  --accent: #eef2ff;
+}
+
+:where(html.dark) {
+  --background: #0b1120;
+  --content: #0f172a;
+  --card: #1e293b;
+  --sidebar: #0f172a;
+  --border: #334155;
+  --foreground: #f8fafc;
+  --muted-foreground: #94a3b8;
+  --placeholder: #64748b;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #334155;
+  --secondary-foreground: #f1f5f9;
+  --accent: #1e1b4b;
+}
+
+:root {
+  --pal-indigo: #4f46e5;
+  --pal-emerald: #10b981;
+  --pal-amber: #f59e0b;
+  --pal-rose: #f43f5e;
+  --pal-violet: #8b5cf6;
+  --pal-cyan: #06b6d4;
+  --pal-slate: #475569;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Inter", "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.45;
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 16px 20px 48px;
+}
+
+/* Top Header & Mode Switcher */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.5px;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28);
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brand-subtitle {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+
+.mode-tabs {
+  display: inline-flex;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.mode-tab {
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mode-tab.active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  border-color: var(--primary);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  opacity: 0.92;
+}
+
+.stat-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-pill strong {
+  color: var(--foreground);
+}
+
+/* Main Two-Column Game Layout */
+.game-layout {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.badge-indigo { background: rgba(79, 70, 229, 0.14); color: #6366f1; }
+.badge-emerald { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.badge-amber { background: rgba(245, 158, 11, 0.16); color: #f59e0b; }
+.badge-cyan { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+.badge-rose { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+
+/* White Structure Well for ACS 1996 RDKit SVGs (Critical Dark-Mode Legibility Invariant) */
+.chem-svg-well {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  max-height: 240px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chem-svg-well svg {
+  max-width: 100%;
+  max-height: min(210px, 34vh);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  transition: filter 0.35s ease;
+}
+
+.chem-svg-well.silhouette svg {
+  filter: blur(11px) contrast(0.75) grayscale(1);
+  user-select: none;
+  pointer-events: none;
+}
+
+.chem-svg-well.partial-blur svg {
+  filter: blur(4px) grayscale(0.5);
+}
+
+.well-overlay-tag {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #f8fafc;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Stacked Property Cells (No Right-Edge Smooshing) */
+.prop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.prop-cell {
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.prop-label {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+
+.prop-val {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   SEQLE (5-Amino-Acid Motif Grid + Biochemical Strip)
+   ========================================================================= */
+.seqle-board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 16px;
+}
+
+.seqle-row {
+  display: grid;
+  grid-template-columns: repeat(5, 54px) 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .seqle-row {
+    grid-template-columns: repeat(5, 44px) 1fr;
+    gap: 5px;
+  }
+}
+
+.seqle-tile {
+  width: 54px;
+  height: 54px;
+  border-radius: 9px;
+  border: 2px solid var(--border);
+  background: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 20px;
+  position: relative;
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+  user-select: none;
+}
+
+@media (max-width: 640px) {
+  .seqle-tile {
+    width: 44px;
+    height: 44px;
+    font-size: 17px;
+  }
+}
+
+.seqle-tile.filled {
+  border-color: var(--primary);
+}
+
+.seqle-tile .tile-sub {
+  font-size: 8.5px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-top: -2px;
+}
+
+.seqle-tile.state-exact {
+  background: var(--pal-emerald);
+  border-color: var(--pal-emerald);
+  color: #ffffff;
+}
+
+.seqle-tile.state-present {
+  background: var(--pal-amber);
+  border-color: var(--pal-amber);
+  color: #ffffff;
+}
+
+.seqle-tile.state-class {
+  background: var(--pal-cyan);
+  border-color: var(--pal-cyan);
+  color: #ffffff;
+}
+
+.seqle-tile.state-absent {
+  background: var(--pal-slate);
+  border-color: var(--pal-slate);
+  color: #ffffff;
+  opacity: 0.78;
+}
+
+.seqle-biochem-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 8px;
+  min-height: 54px;
+  align-items: center;
+}
+
+.strip-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.strip-metric .prop-label {
+  font-size: 8.5px;
+}
+
+.strip-metric .prop-val {
+  font-size: 11px;
+}
+
+/* 20-AA Grouped Biochemical Keyboard */
+.aa-keyboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.aa-group-box {
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px;
+}
+
+.aa-group-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.aa-keys-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.aa-key {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  border-radius: 6px;
+  min-width: 34px;
+  height: 36px;
+  padding: 2px 5px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.12s ease;
+}
+
+.aa-key small {
+  font-size: 8px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.aa-key:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.aa-key.key-exact { background: var(--pal-emerald); color: #fff; border-color: var(--pal-emerald); }
+.aa-key.key-present { background: var(--pal-amber); color: #fff; border-color: var(--pal-amber); }
+.aa-key.key-class { background: var(--pal-cyan); color: #fff; border-color: var(--pal-cyan); }
+.aa-key.key-absent { background: var(--pal-slate); color: #fff; border-color: var(--pal-slate); opacity: 0.55; }
+.aa-key.key-exact small,
+.aa-key.key-present small,
+.aa-key.key-class small,
+.aa-key.key-absent small {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* =========================================================================
+   CHEMLE (Molecule Search & Descriptor Comparison Grid)
+   ========================================================================= */
+.chemle-search-bar {
+  display: flex;
+  gap: 8px;
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.chemle-input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--sidebar);
+  color: var(--foreground);
+  outline: none;
+}
+
+.chemle-input:focus {
+  border-color: var(--primary);
+}
+
+.chemle-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
+  z-index: 30;
+  display: none;
+}
+
+.chemle-dropdown.open {
+  display: block;
+}
+
+.chemle-option {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+}
+
+.chemle-option:last-child {
+  border-bottom: none;
+}
+
+.chemle-option:hover,
+.chemle-option.highlighted {
+  background: var(--accent);
+}
+
+.chemle-guesses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chemle-guess-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--sidebar);
+}
+
+.chemle-guess-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.chemle-guess-name {
+  font-weight: 700;
+  font-size: 13.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chemle-Compare-grid {
+  display: grid;
+  grid-template-columns: 110px repeat(7, minmax(66px, 1fr));
+  gap: 6px;
+  align-items: stretch;
+}
+
+@media (max-width: 760px) {
+  .chemle-Compare-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.mini-svg-well {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mini-svg-well svg {
+  max-width: 100%;
+  max-height: 54px;
+  width: auto;
+  height: auto;
+}
+
+.delta-cell {
+  border-radius: 7px;
+  padding: 5px 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid transparent;
+}
+
+.delta-cell.match-exact {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.delta-cell.match-close {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+.delta-cell.match-far {
+  background: var(--card);
+  border-color: var(--border);
+}
+
+.delta-arrow {
+  font-weight: 800;
+  font-size: 11.5px;
+}
+
+/* Hints & Reveal Box */
+.hint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hint-item {
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.hint-item strong {
+  display: block;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+  margin-bottom: 2px;
+}
+
+.toast-banner {
+  margin: 10px 0;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
+}
+
+.toast-banner.show {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.toast-banner.win {
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid #10b981;
+  color: var(--foreground);
+}
+
+.toast-banner.lose {
+  background: rgba(244, 63, 94, 0.16);
+  border: 1px solid #f43f5e;
+  color: var(--foreground);
+}
+
+.fg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.fg-chip {
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.fg-chip.shared {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: #10b981;
+  font-weight: 600;
+}
+
+.legend-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  margin-top: 8px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+

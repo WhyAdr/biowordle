@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BioWordle — Chemle &amp; Seqle (RDKit Edition)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Navigation & Mode Switcher -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge">BW</div>
+        <div>
+          <h1 class="brand-title">BioWordle</h1>
+          <p class="brand-subtitle">RDKit-Compiled Molecule &amp; Peptide Motif Puzzle Suite</p>
+        </div>
+      </div>
+
+      <div class="mode-tabs" role="tablist">
+        <button id="tab-chemle" class="mode-tab active" role="tab">
+          <span>🧪 Chemle</span>
+          <span class="badge badge-indigo">36 Mols</span>
+        </button>
+        <button id="tab-seqle" class="mode-tab" role="tab">
+          <span>🧬 Seqle</span>
+          <span class="badge badge-cyan">30 Motifs</span>
+        </button>
+      </div>
+
+      <div class="top-actions">
+        <span class="stat-pill">Chemle: <strong id="stat-chem">0</strong></span>
+        <span class="stat-pill">Seqle: <strong id="stat-seq">0</strong></span>
+        <span class="stat-pill">Streak: <strong id="stat-streak">0</strong> 🔥</span>
+        <button id="btn-playstyle" class="btn" title="Switch between Daily Seeded Puzzle and Infinite Free Play">Mode: Daily Seed</button>
+        <button id="btn-new-puzzle" class="btn" title="Roll a random new puzzle">🎲 Random</button>
+        <button id="btn-hint" class="btn" title="Unlock next structural or biochemical clue">💡 Hint</button>
+        <button id="btn-giveup" class="btn" title="Reveal the target answer">👁️ Reveal</button>
+        <button id="btn-theme" class="btn" title="Toggle Dark/Light Theme">🌗</button>
+      </div>
+    </header>
+
+    <!-- =================================================================
+         MODE 1: CHEMLE (Metabolite, Hydrocarbon Intermediate & Drug Wordle)
+         ================================================================= -->
+    <main id="view-chemle" class="game-layout">
+      <!-- Left Column: Search & Descriptor Comparison Matrix -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Guess the Target Molecule</h2>
+            <div class="legend-bar">
+              <span><i class="legend-dot" style="background:#10b981"></i>Exact / Very Close</span>
+              <span><i class="legend-dot" style="background:#f59e0b"></i>Close</span>
+              <span><b>↑ / ↓</b> Target is Higher / Lower</span>
+              <span><b>Tanimoto %</b> 2D Morgan Fingerprint Similarity</span>
+            </div>
+          </div>
+          <span id="chemle-try-counter" class="badge badge-indigo">Guesses: 0 / 6</span>
+        </div>
+
+        <div id="chemle-banner" class="toast-banner"></div>
+
+        <div class="chemle-search-bar">
+          <select id="chemle-cat-filter" class="btn" style="min-width:155px;" title="Filter by biochemical class"></select>
+          <input
+            id="chemle-search-input"
+            type="text"
+            class="chemle-input"
+            placeholder="Search by molecule name, formula (e.g. C10H8), or functional group..."
+            autocomplete="off"
+          />
+          <div id="chemle-dropdown" class="chemle-dropdown"></div>
+        </div>
+
+        <div id="chemle-guesses" class="chemle-guesses-list"></div>
+      </section>
+
+      <!-- Right Column: Progressive RDKit 2D Structure & Clue Inspector -->
+      <aside class="panel-card">
+        <div class="panel-header">
+          <h3 class="panel-title">Target Molecule Inspector</h3>
+          <span id="chemle-clue-stage" class="badge badge-indigo">Hidden</span>
+        </div>
+
+        <div id="chemle-structure-well" class="chem-svg-well silhouette"></div>
+
+        <div id="chemle-hints-list" class="hint-list"></div>
+        <div id="chemle-full-props" style="display:none;"></div>
+      </aside>
+    </main>
+
+    <!-- =================================================================
+         MODE 2: SEQLE (5-Amino-Acid Functional Motif Wordle)
+         ================================================================= -->
+    <main id="view-seqle" class="game-layout" style="display:none;">
+      <!-- Left Column: 5x6 Amino Acid Grid + Grouped Periodic Keyboard -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Guess the 5-Residue Functional Motif</h2>
+            <div class="legend-bar">
+              <span><i class="legend-dot" style="background:#10b981"></i>Exact AA</span>
+              <span><i class="legend-dot" style="background:#f59e0b"></i>In Motif (Wrong Spot)</span>
+              <span><i class="legend-dot" style="background:#06b6d4"></i>Same Biochem Class at Position!</span>
+              <span><b>↑ / ↓</b> Target Charge / GRAVY / pI Direction</span>
+            </div>
+          </div>
+          <span id="seqle-try-counter" class="badge badge-cyan">Guesses: 0 / 6</span>
+        </div>
+
+        <div id="seqle-banner" class="toast-banner"></div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+          <select id="seqle-motif-picker" class="chemle-input" style="padding:7px 10px; font-size:12.5px;"></select>
+          <button id="seqle-btn-backspace" class="btn">⌫ Backspace</button>
+          <button id="seqle-btn-submit" class="btn btn-primary">⏎ Submit 5-Mer</button>
+        </div>
+
+        <div id="seqle-board" class="seqle-board"></div>
+
+        <div id="seqle-keyboard" class="aa-keyboard"></div>
+      </section>
+
+      <!-- Right Column: RDKit 2D Pentapeptide Structure & Motif Clues -->
+      <aside class="panel-card">
+        <div class="panel-header">
+          <h3 class="panel-title">Target Pentapeptide Inspector</h3>
+          <span id="seqle-clue-stage" class="badge badge-indigo">Hidden</span>
+        </div>
+
+        <div id="seqle-structure-well" class="chem-svg-well silhouette"></div>
+
+        <div id="seqle-hints-list" class="hint-list"></div>
+        <div id="seqle-full-props" style="display:none;"></div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="data/puzzles_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
