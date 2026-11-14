@@ -646,8 +646,348 @@ def _consensus_tokens(consensus: str) -> List[str]:
     return tokens
 
 
-def validate_seqle_motif_record(item: Dict[str, Any], aa_props: Dict[str, Any]) -> None:
-    """Validates a Seqle motif record against P0-4 schema and biological constraints."""
+# Authoritative reference provenance registry verified against UniProtKB/Swiss-Prot
+# FASTA and RCSB PDB polymer entities (BioWordle v0.2.1).
+SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
+    "GHSMG": {
+        "status": "verified_uniprot",
+        "accession": "G9BY57",
+        "isoform": "canonical",
+        "parent_residue_range": [160, 170],
+        "motif_residue_range": [163, 167],
+        "window_offset": 3,
+        "verified_parent_sequence": "AVAGHSMGGGG",
+        "pdb_ids": ["4EB0"],
+        "notes": "Leaf-branch compost cutinase (LCC); previously mis-cited PETase A0A0K8P6T7 carries GWSMG.",
+    },
+    "EKDEL": {
+        "status": "verified_uniprot",
+        "accession": "P11021",
+        "isoform": "canonical",
+        "parent_residue_range": [648, 654],
+        "motif_residue_range": [650, 654],
+        "window_offset": 2,
+        "verified_parent_sequence": "TAEKDEL",
+        "pdb_ids": ["6I6H"],
+        "notes": "Human HSPA5/BiP extreme C-terminal ER retention signal.",
+    },
+    "DEVDG": {
+        "status": "verified_uniprot",
+        "accession": "P09874",
+        "isoform": "canonical",
+        "parent_residue_range": [210, 219],
+        "motif_residue_range": [211, 215],
+        "window_offset": 1,
+        "verified_parent_sequence": "GDEVDGVDEV",
+        "pdb_ids": [],
+        "notes": "Human PARP1 Caspase-3/7 cleavage site.",
+    },
+    "GRGDS": {
+        "status": "verified_uniprot",
+        "accession": "P02751",
+        "isoform": "canonical",
+        "parent_residue_range": [1612, 1622],
+        "motif_residue_range": [1614, 1618],
+        "window_offset": 2,
+        "verified_parent_sequence": "VTGRGDSPASS",
+        "pdb_ids": ["1FNF"],
+        "notes": "Human Fibronectin FN1 canonical coordinates 1614-1618 (older mature fragment numbering 1492-1496).",
+    },
+    "LPETG": {
+        "status": "verified_uniprot",
+        "accession": "P02976",
+        "isoform": "canonical",
+        "parent_residue_range": [480, 489],
+        "motif_residue_range": [482, 486],
+        "window_offset": 2,
+        "verified_parent_sequence": "QALPETGEEN",
+        "pdb_ids": ["1T2W"],
+        "notes": "Staphylococcus aureus Protein A Sortase-A cell-wall sorting signal.",
+    },
+    "HEIGH": {
+        "status": "verified_uniprot",
+        "accession": "P08254",
+        "isoform": "canonical",
+        "parent_residue_range": [215, 226],
+        "motif_residue_range": [218, 222],
+        "window_offset": 3,
+        "verified_parent_sequence": "VAAHEIGHSLGL",
+        "pdb_ids": ["1B3D"],
+        "notes": "Human MMP3 Stromelysin-1 Zn-binding helix; previously mis-cited MMP1 P03956 carries HELGH.",
+    },
+    "CCHHC": {
+        "status": "abstraction",
+        "accession": "PROSITE:PS50158",
+        "isoform": None,
+        "parent_residue_range": None,
+        "motif_residue_range": None,
+        "window_offset": 0,
+        "verified_parent_sequence": "CCHHC",
+        "pdb_ids": ["1MFS"],
+        "notes": "Learn-only pedagogical compression of non-contiguous C-X2-C-X4-H-X4-C zinc knuckle.",
+    },
+    "YIGSR": {
+        "status": "verified_uniprot",
+        "accession": "P07942",
+        "isoform": "canonical",
+        "parent_residue_range": [946, 956],
+        "motif_residue_range": [950, 954],
+        "window_offset": 4,
+        "verified_parent_sequence": "CDPGYIGSRCD",
+        "pdb_ids": [],
+        "notes": "Human LAMB1 canonical coordinates 950-954 (mature chain omitting 21-aa signal peptide: 929-933).",
+    },
+    "NPVYK": {
+        "status": "consensus_exemplar",
+        "accession": "ELM:TRG_ENDOCYTIC_2",
+        "isoform": None,
+        "parent_residue_range": None,
+        "motif_residue_range": None,
+        "window_offset": 0,
+        "verified_parent_sequence": "NPVYK",
+        "pdb_ids": ["3SO6"],
+        "notes": "NPXY[KR] consensus representative; native human LDLR P01130 (825-829) and PDB:3SO6 carry NPVYQ.",
+    },
+    "KCVIM": {
+        "status": "verified_uniprot",
+        "accession": "P01116-2",
+        "isoform": "2B",
+        "parent_residue_range": [175, 188],
+        "motif_residue_range": [184, 188],
+        "window_offset": 9,
+        "verified_parent_sequence": "KKKKKKSKTKCVIM",
+        "pdb_ids": ["1D8D"],
+        "notes": "Human KRAS Isoform 2B polybasic C-terminal CaaX farnesylation box.",
+    },
+    "DEADE": {
+        "status": "verified_uniprot",
+        "accession": "P60842",
+        "isoform": "canonical",
+        "parent_residue_range": [180, 190],
+        "motif_residue_range": [182, 186],
+        "window_offset": 2,
+        "verified_parent_sequence": "VLDEADEMLSR",
+        "pdb_ids": ["2ZU6"],
+        "notes": "Human eIF4A1 / DDX2A Walker-B DEAD-box helicase motif.",
+    },
+    "GVGKS": {
+        "status": "verified_uniprot",
+        "accession": "P01116",
+        "isoform": "canonical",
+        "parent_residue_range": [10, 17],
+        "motif_residue_range": [13, 17],
+        "window_offset": 3,
+        "verified_parent_sequence": "GAGGVGKS",
+        "pdb_ids": ["4OBE"],
+        "notes": "Human KRAS GTPase Walker-A P-loop.",
+    },
+    "VDFGL": {
+        "status": "verified_uniprot",
+        "accession": "P41279",
+        "isoform": "canonical",
+        "parent_residue_range": [265, 277],
+        "motif_residue_range": [269, 273],
+        "window_offset": 4,
+        "verified_parent_sequence": "KAVLVDFGLSVQM",
+        "pdb_ids": ["4Y83"],
+        "notes": "Human MAP3K8/COT activation-loop DFG switch; previously mis-cited ABL1 P00519 carries KVADFGLSR.",
+    },
+    "HRDLA": {
+        "status": "verified_uniprot",
+        "accession": "P10721",
+        "isoform": "canonical",
+        "parent_residue_range": [789, 797],
+        "motif_residue_range": [790, 794],
+        "window_offset": 1,
+        "verified_parent_sequence": "IHRDLAARN",
+        "pdb_ids": ["1PKG"],
+        "notes": "Human KIT catalytic loop (also FGFR1 P11362 620-628); previously mis-cited SRC P12931 carries HRDLR.",
+    },
+    "WSEWS": {
+        "status": "verified_uniprot",
+        "accession": "P32927",
+        "isoform": "canonical",
+        "parent_residue_range": [421, 433],
+        "motif_residue_range": [425, 429],
+        "window_offset": 4,
+        "verified_parent_sequence": "YNGIWSEWSEARS",
+        "pdb_ids": ["1EGJ"],
+        "notes": "Human CSF2RB cytokine receptor WSXWS box; canonical EPOR P19235 carries WSAWS (PDB:1EER has A235E variant).",
+    },
+    "PPPVP": {
+        "status": "verified_uniprot",
+        "accession": "Q07889",
+        "isoform": "canonical",
+        "parent_residue_range": [1149, 1158],
+        "motif_residue_range": [1150, 1154],
+        "window_offset": 1,
+        "verified_parent_sequence": "VPPPVPPRRR",
+        "pdb_ids": ["1GBR"],
+        "notes": "Human SOS1 Class-II SH3-binding polyproline motif.",
+    },
+    "INFEK": {
+        "status": "verified_uniprot",
+        "accession": "P01012",
+        "isoform": "canonical",
+        "parent_residue_range": [258, 265],
+        "motif_residue_range": [260, 264],
+        "window_offset": 2,
+        "verified_parent_sequence": "SIINFEKL",
+        "pdb_ids": ["1VAC"],
+        "notes": "Gallus gallus Ovalbumin H-2Kb epitope SIINFEKL (canonical coords 258-265).",
+    },
+    "YQRLN": {
+        "status": "verified_uniprot",
+        "accession": "P19814",
+        "isoform": "canonical",
+        "parent_residue_range": [348, 357],
+        "motif_residue_range": [350, 354],
+        "window_offset": 2,
+        "verified_parent_sequence": "SDYQRLNLKL",
+        "pdb_ids": ["1BXX"],
+        "notes": "Rat TGN38 tyrosine-based AP2 internalization motif.",
+    },
+    "KKMPQ": {
+        "status": "consensus_exemplar",
+        "accession": "ELM:TRG_ER_diLys_1",
+        "isoform": None,
+        "parent_residue_range": None,
+        "motif_residue_range": None,
+        "window_offset": 0,
+        "verified_parent_sequence": "KKMPQ",
+        "pdb_ids": ["4J77"],
+        "notes": "Synthetic C-terminal -KKxxx COPI retrieval consensus exemplar; PDB:4J77 co-crystal peptide is AKEKSD.",
+    },
+    "CAACH": {
+        "status": "verified_uniprot",
+        "accession": "P07143",
+        "isoform": "canonical",
+        "parent_residue_range": [97, 109],
+        "motif_residue_range": [101, 105],
+        "window_offset": 4,
+        "verified_parent_sequence": "YREVCAACHSLDR",
+        "pdb_ids": ["3CX5"],
+        "notes": "Yeast mitochondrial Cytochrome c1 CXXCH heme site; previously mis-cited CYC1 P00044 carries CLQCH.",
+    },
+    "NLTGY": {
+        "status": "consensus_exemplar",
+        "accession": "ELM:MOD_N-GLC_1",
+        "isoform": None,
+        "parent_residue_range": None,
+        "motif_residue_range": None,
+        "window_offset": 0,
+        "verified_parent_sequence": "NLTGY",
+        "pdb_ids": ["3WAK"],
+        "notes": "N-X-[ST] glycosylation sequon consensus exemplar; PDB:3WAK is apo Archaeoglobus fulgidus AglB (O29867).",
+    },
+    "DSGLD": {
+        "status": "verified_uniprot",
+        "accession": "P25963",
+        "isoform": "canonical",
+        "parent_residue_range": [27, 39],
+        "motif_residue_range": [31, 35],
+        "window_offset": 4,
+        "verified_parent_sequence": "DDRHDSGLDSMKD",
+        "pdb_ids": ["1P22"],
+        "notes": "Human NFKBIA / I-kappa-B-alpha beta-TrCP phosphodegron.",
+    },
+    "KENIP": {
+        "status": "consensus_exemplar",
+        "accession": "ELM:DEG_APCC_KENBOX_2",
+        "isoform": None,
+        "parent_residue_range": None,
+        "motif_residue_range": None,
+        "window_offset": 0,
+        "verified_parent_sequence": "KENIP",
+        "pdb_ids": ["4BH6"],
+        "notes": "APC/C KEN-X-P degron consensus exemplar; PDB:4BH6 Acm1 (Q08981) carries KENLS and Hsl1 (P34244) carries NKENE.",
+    },
+    "KKKRK": {
+        "status": "verified_uniprot",
+        "accession": "P03070",
+        "isoform": "canonical",
+        "parent_residue_range": [126, 132],
+        "motif_residue_range": [127, 131],
+        "window_offset": 1,
+        "verified_parent_sequence": "PKKKRKV",
+        "pdb_ids": ["1BK6"],
+        "notes": "SV40 Large T-antigen monopartite nuclear localization signal.",
+    },
+    "FGGFT": {
+        "status": "verified_uniprot",
+        "accession": "Q13519",
+        "isoform": "canonical",
+        "parent_residue_range": [130, 146],
+        "motif_residue_range": [130, 134],
+        "window_offset": 0,
+        "verified_parent_sequence": "FGGFTGARKSARKLANQ",
+        "pdb_ids": [],
+        "notes": "Human Prepronociceptin cleaved mature Nociceptin (130-146); N-terminus generated by dibasic KR cleavage.",
+    },
+    "YGGFM": {
+        "status": "verified_uniprot",
+        "accession": "P01210",
+        "isoform": "canonical",
+        "parent_residue_range": [100, 104],
+        "motif_residue_range": [100, 104],
+        "window_offset": 0,
+        "verified_parent_sequence": "YGGFM",
+        "pdb_ids": ["1PLW"],
+        "notes": "Human Proenkephalin-A cleaved mature Met-enkephalin pentapeptide (100-104).",
+    },
+    "SYSGY": {
+        "status": "verified_uniprot",
+        "accession": "P35637",
+        "isoform": "canonical",
+        "parent_residue_range": [34, 43],
+        "motif_residue_range": [37, 41],
+        "window_offset": 3,
+        "verified_parent_sequence": "GQQSYSGYSQ",
+        "pdb_ids": ["5W3N"],
+        "notes": "Human FUS low-complexity domain canonical repeat 37-41 (previously noted as 139-143).",
+    },
+    "LDLAS": {
+        "status": "abstraction",
+        "accession": "ELM:TRG_NES_CRM1_1",
+        "isoform": None,
+        "parent_residue_range": None,
+        "motif_residue_range": None,
+        "window_offset": 0,
+        "verified_parent_sequence": "LDLAS",
+        "pdb_ids": ["3NBY"],
+        "notes": "Learn-only pedagogical compression of amphipathic CRM1 nuclear export ridge.",
+    },
+    "NPLYK": {
+        "status": "verified_uniprot",
+        "accession": "P05106",
+        "isoform": "canonical",
+        "parent_residue_range": [763, 788],
+        "motif_residue_range": [770, 774],
+        "window_offset": 7,
+        "verified_parent_sequence": "AKWDTANNPLYKEATSTFTNITYRGT",
+        "pdb_ids": ["1MK7"],
+        "notes": "Human Integrin Beta-3 (ITGB3) canonical cytoplasmic talin-binding turn 770-774 (744-748 mature).",
+    },
+    "GHHPH": {
+        "status": "verified_uniprot",
+        "accession": "P04196",
+        "isoform": "canonical",
+        "parent_residue_range": [383, 392],
+        "motif_residue_range": [383, 387],
+        "window_offset": 0,
+        "verified_parent_sequence": "GHHPHGHHPH",
+        "pdb_ids": [],
+        "notes": "Human HRG tandem HPR repeat 383-392 (motif 383-387; single-copy repeat also at 363-367).",
+    },
+}
+
+
+def validate_seqle_motif_record(
+    item: Dict[str, Any],
+    aa_props: Dict[str, Dict[str, Any]],
+    enforce_reference_registry: bool = True,
+) -> None:
+    """Validates a Seqle motif record against P0-4 schema, biological constraints, and reference provenance."""
     seq = item.get("seq", "")
     if len(seq) != 5 or any(ch not in aa_props for ch in seq):
         raise ValueError(f"Invalid 5-AA sequence: {seq!r}")
@@ -703,6 +1043,39 @@ def validate_seqle_motif_record(item: Dict[str, Any], aa_props: Dict[str, Any]) 
         raise ValueError(f"[{seq}] Invalid game_eligibility {elig!r}")
     if kind == "abstraction" and "ranked" in elig:
         raise ValueError(f"[{seq}] kind='abstraction' cannot be eligible for 'ranked' mode")
+
+    if enforce_reference_registry and seq in SEQLE_REFERENCE_REGISTRY:
+        ref = SEQLE_REFERENCE_REGISTRY[seq]
+        if parent_seq != ref["verified_parent_sequence"]:
+            raise ValueError(
+                f"[{seq}] parent_sequence {parent_seq!r} does not match verified reference "
+                f"{ref['verified_parent_sequence']!r} ({ref['accession']})"
+            )
+        if offset != ref["window_offset"]:
+            raise ValueError(
+                f"[{seq}] window_offset {offset} != verified offset {ref['window_offset']} ({ref['accession']})"
+            )
+        status = ref["status"]
+        if status == "verified_uniprot":
+            acc = str(ref["accession"])
+            if f"UniProt:{acc}" not in exemplar:
+                raise ValueError(
+                    f"[{seq}] exemplar_source {exemplar!r} must cite verified UniProt:{acc}"
+                )
+            p_rng = ref["parent_residue_range"]
+            m_rng = ref["motif_residue_range"]
+            if not (isinstance(p_rng, list) and len(p_rng) == 2 and p_rng[1] - p_rng[0] + 1 == len(parent_seq)):
+                raise ValueError(f"[{seq}] Invalid parent_residue_range {p_rng!r} for len={len(parent_seq)}")
+            expected_motif_start = p_rng[0] + offset
+            if m_rng != [expected_motif_start, expected_motif_start + 4]:
+                raise ValueError(
+                    f"[{seq}] motif_residue_range {m_rng!r} inconsistent with parent range {p_rng!r} + offset {offset}"
+                )
+        elif status in ("consensus_exemplar", "abstraction"):
+            if parent_seq != seq or offset != 0:
+                raise ValueError(
+                    f"[{seq}] {status} must not fabricate flanking residues (got parent={parent_seq!r}, offset={offset})"
+                )
 
 
 def compute_peptide_biochem(seq: str, aa_props: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
