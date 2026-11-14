@@ -1,0 +1,159 @@
+{
+  "conditions": "Single run on this host; compile includes normal existing gates. Performance is a research preview, not release validation.",
+  "inputs": {
+    "baseline_commit": "03febdf790c39b6d14202833af671af469146ba2",
+    "baseline_sha256": "f4e6c58e35694261791fd28a2fa8ba66ab66613130440feed1662f1c75d2a86a",
+    "preview_sha256": "051bd2064441bed6d7fe1c5cfa3f5418eb4a8e9403b9db9982caf906db73c039",
+    "preview_original_measured_sha256": "5db205d0794cf0ef0acb7b22d5e301fc95b50e35d0bc7845ec83dd10f3867885",
+    "preview_normalization_note": "Preview JSON line endings normalized from CRLF to LF after measurement; parsed JSON content is unchanged."
+  },
+  "baseline_build_all_seconds": 3.6820244999835268,
+  "rebuilt_baseline_dataset_matches": true,
+  "ranked_regression": {
+    "ranked_answer_roster_equal": true,
+    "ranked_probe_roster_equal": true,
+    "ranked_signature_pairs_checked": 1296,
+    "ranked_signature_mismatches": [],
+    "ranked_clue_changes": [],
+    "baseline_schedule_hash": "9257bd168fa6",
+    "preview_schedule_hash": "9257bd168fa6",
+    "baseline_rules_hash": "7edd1b8864c9",
+    "preview_rules_hash": "2c81484214e1",
+    "warning": "The all-catalog Chemle rules hash keys Ranked persistence: a change archives/restarts old Ranked sessions even if schedule, feedback and clues remain identical."
+  },
+  "baseline78": {
+    "chemle_count": 78,
+    "chemle_vectors": 18252,
+    "puzzles_data_js": {
+      "raw_bytes": 3133800,
+      "gzip_level9_bytes": 342731
+    },
+    "standalone_html": {
+      "raw_bytes": 3284629,
+      "gzip_level9_bytes": 376466
+    },
+    "golden": {
+      "raw_bytes": 1037622,
+      "gzip_level9_bytes": 92474
+    },
+    "golden_generation_seconds": 0.1303026000095997,
+    "node_verification_seconds": 0.6305571000266355,
+    "node_verifier_exit_code": 0,
+    "node_verifier_output": "[Golden & DOM Verification PASS] 18252 Chemle vectors + 1800 Seqle vectors + P0-1/P0-3/P1-2/P2-2/P4/Commit2 invariants verified.\n"
+  },
+  "preview120": {
+    "chemle_count": 120,
+    "chemle_vectors": 43200,
+    "puzzles_data_js": {
+      "raw_bytes": 3907536,
+      "gzip_level9_bytes": 435073
+    },
+    "standalone_html": {
+      "raw_bytes": 4058365,
+      "gzip_level9_bytes": 468771
+    },
+    "golden": {
+      "raw_bytes": 2317686,
+      "gzip_level9_bytes": 202336
+    },
+    "golden_generation_seconds": 0.40462690001004376,
+    "node_verification_seconds": 0.7208003000123426,
+    "node_verifier_exit_code": 0,
+    "node_verifier_output": "[Golden & DOM Verification PASS] 43200 Chemle vectors + 1800 Seqle vectors + P0-1/P0-3/P1-2/P2-2/P4/Commit2 invariants verified.\n"
+  },
+  "browser_exit_code": 0,
+  "browser": {
+    "conditions": "Chromium 390x844 mobile, 4x CPU, Fast 3G 1.6 Mbps/150 ms for gzip HTTP, unthrottled file",
+    "repetitions": 2,
+    "samples": {
+      "baseline78_gzip_http": [
+        {
+          "ready_ms": 2525.029599994421,
+          "search_ms": 139.200100004673,
+          "guess_ms": 234.96939998865128,
+          "js_heap_used_bytes": 4470924,
+          "transfer_bytes": 378724,
+          "badge": "78 Mols",
+          "page_errors": [],
+          "external_requests": []
+        },
+        {
+          "ready_ms": 2497.6130999922752,
+          "search_ms": 147.45859998464584,
+          "guess_ms": 122.05009999871254,
+          "js_heap_used_bytes": 4471272,
+          "transfer_bytes": 378724,
+          "badge": "78 Mols",
+          "page_errors": [],
+          "external_requests": []
+        }
+      ],
+      "baseline78_file": [
+        {
+          "ready_ms": 1207.1884999871254,
+          "search_ms": 112.14239999651909,
+          "guess_ms": 123.54469999670982,
+          "js_heap_used_bytes": 4461700,
+          "transfer_bytes": null,
+          "badge": "78 Mols",
+          "page_errors": [],
+          "external_requests": []
+        },
+        {
+          "ready_ms": 1100.4196000099182,
+          "search_ms": 109.10889998078346,
+          "guess_ms": 344.12090000510216,
+          "js_heap_used_bytes": 4461880,
+          "transfer_bytes": null,
+          "badge": "78 Mols",
+          "page_errors": [],
+          "external_requests": []
+        }
+      ],
+      "preview120_gzip_http": [
+        {
+          "ready_ms": 2949.623699992895,
+          "search_ms": 146.80210000276566,
+          "guess_ms": 173.94730001688004,
+          "js_heap_used_bytes": 5089548,
+          "transfer_bytes": 471066,
+          "badge": "120 Mols",
+          "page_errors": [],
+          "external_requests": []
+        },
+        {
+          "ready_ms": 2931.5291000008583,
+          "search_ms": 155.04859998822212,
+          "guess_ms": 105.90239998698235,
+          "js_heap_used_bytes": 5089604,
+          "transfer_bytes": 471066,
+          "badge": "120 Mols",
+          "page_errors": [],
+          "external_requests": []
+        }
+      ],
+      "preview120_file": [
+        {
+          "ready_ms": 1599.8506999909878,
+          "search_ms": 143.95769998431206,
+          "guess_ms": 122.2533999979496,
+          "js_heap_used_bytes": 5082944,
+          "transfer_bytes": null,
+          "badge": "120 Mols",
+          "page_errors": [],
+          "external_requests": []
+        },
+        {
+          "ready_ms": 1192.773600012064,
+          "search_ms": 130.91899999976158,
+          "guess_ms": 111.65139999985695,
+          "js_heap_used_bytes": 5083024,
+          "transfer_bytes": null,
+          "badge": "120 Mols",
+          "page_errors": [],
+          "external_requests": []
+        }
+      ]
+    }
+  }
+}

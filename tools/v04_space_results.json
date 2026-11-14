@@ -1,0 +1,1057 @@
+{
+  "method": "RDKit Morgan radius 2, 2048 bits, chirality; nearest neighbor within each catalog; scaffold is canonical Murcko including empty",
+  "base_78": {
+    "n": 78,
+    "elements_or_features": {
+      "N": 41,
+      "O": 68,
+      "S": 3,
+      "P": 0,
+      "F": 3,
+      "Cl": 2,
+      "Br": 0,
+      "I": 0,
+      "carbon_only": 5,
+      "has_stereochemistry": 20,
+      "acyclic_scaffold": 6
+    },
+    "murcko_scaffolds_including_empty": 32,
+    "mw": {
+      "min": 88.062,
+      "median": 180.159,
+      "max": 386.664
+    },
+    "fraction_csp3": {
+      "min": 0.0,
+      "median": 0.2,
+      "max": 1.0
+    },
+    "nearest_neighbor_mean": 0.45661,
+    "nearest_neighbor_median": 0.49074,
+    "nearest_neighbor_max": 0.74286,
+    "nearest_neighbors": [
+      {
+        "id": "1_hydroxyphenazine",
+        "nearest_id": "phenazine_1_carboxylic_acid",
+        "similarity": 0.53333
+      },
+      {
+        "id": "2_4_diacetylphloroglucinol",
+        "nearest_id": "protocatechuic_acid",
+        "similarity": 0.27586
+      },
+      {
+        "id": "4_hydroxybenzoic_acid",
+        "nearest_id": "benzoic_acid",
+        "similarity": 0.57895
+      },
+      {
+        "id": "5_htp",
+        "nearest_id": "tryptophan",
+        "similarity": 0.675
+      },
+      {
+        "id": "acetaminophen",
+        "nearest_id": "4_hydroxybenzoic_acid",
+        "similarity": 0.38462
+      },
+      {
+        "id": "adenine",
+        "nearest_id": "hypoxanthine",
+        "similarity": 0.48148
+      },
+      {
+        "id": "adrenaline",
+        "nearest_id": "norepinephrine",
+        "similarity": 0.58065
+      },
+      {
+        "id": "amoxicillin",
+        "nearest_id": "penicillin_g",
+        "similarity": 0.55172
+      },
+      {
+        "id": "artemisinin",
+        "nearest_id": "camphor",
+        "similarity": 0.2
+      },
+      {
+        "id": "ascorbic_acid",
+        "nearest_id": "l_phenylalanine",
+        "similarity": 0.14634
+      },
+      {
+        "id": "aspirin",
+        "nearest_id": "salicylic_acid",
+        "similarity": 0.44828
+      },
+      {
+        "id": "benzoic_acid",
+        "nearest_id": "4_hydroxybenzoic_acid",
+        "similarity": 0.57895
+      },
+      {
+        "id": "biotin",
+        "nearest_id": "gaba",
+        "similarity": 0.25
+      },
+      {
+        "id": "caffeic_acid",
+        "nearest_id": "ferulic_acid",
+        "similarity": 0.63636
+      },
+      {
+        "id": "caffeine",
+        "nearest_id": "theobromine",
+        "similarity": 0.52941
+      },
+      {
+        "id": "camphor",
+        "nearest_id": "artemisinin",
+        "similarity": 0.2
+      },
+      {
+        "id": "capsaicin",
+        "nearest_id": "eugenol",
+        "similarity": 0.39623
+      },
+      {
+        "id": "catechol",
+        "nearest_id": "phenol",
+        "similarity": 0.5
+      },
+      {
+        "id": "cholesterol",
+        "nearest_id": "artemisinin",
+        "similarity": 0.14286
+      },
+      {
+        "id": "ciprofloxacin",
+        "nearest_id": "norfloxacin",
+        "similarity": 0.67273
+      },
+      {
+        "id": "citric_acid",
+        "nearest_id": "succinic_acid",
+        "similarity": 0.33333
+      },
+      {
+        "id": "curcumin",
+        "nearest_id": "ferulic_acid",
+        "similarity": 0.74286
+      },
+      {
+        "id": "diclofenac",
+        "nearest_id": "indole_3_acetic_acid",
+        "similarity": 0.34884
+      },
+      {
+        "id": "dopamine",
+        "nearest_id": "tyramine",
+        "similarity": 0.56
+      },
+      {
+        "id": "eugenol",
+        "nearest_id": "vanillin",
+        "similarity": 0.47222
+      },
+      {
+        "id": "ferulic_acid",
+        "nearest_id": "curcumin",
+        "similarity": 0.74286
+      },
+      {
+        "id": "fluoxetine",
+        "nearest_id": "adrenaline",
+        "similarity": 0.19231
+      },
+      {
+        "id": "fumaric_acid",
+        "nearest_id": "p_coumaric_acid",
+        "similarity": 0.36364
+      },
+      {
+        "id": "gaba",
+        "nearest_id": "succinic_acid",
+        "similarity": 0.5
+      },
+      {
+        "id": "gentisic_acid",
+        "nearest_id": "salicylic_acid",
+        "similarity": 0.52
+      },
+      {
+        "id": "geosmin",
+        "nearest_id": "camphor",
+        "similarity": 0.18919
+      },
+      {
+        "id": "histamine",
+        "nearest_id": "tryptamine",
+        "similarity": 0.27778
+      },
+      {
+        "id": "hypoxanthine",
+        "nearest_id": "adenine",
+        "similarity": 0.48148
+      },
+      {
+        "id": "ibuprofen",
+        "nearest_id": "l_tyrosine",
+        "similarity": 0.44118
+      },
+      {
+        "id": "indole_3_acetic_acid",
+        "nearest_id": "tryptophan",
+        "similarity": 0.59459
+      },
+      {
+        "id": "ketoprofen",
+        "nearest_id": "ibuprofen",
+        "similarity": 0.39474
+      },
+      {
+        "id": "l_dopa",
+        "nearest_id": "l_tyrosine",
+        "similarity": 0.64516
+      },
+      {
+        "id": "l_malic_acid",
+        "nearest_id": "succinic_acid",
+        "similarity": 0.33333
+      },
+      {
+        "id": "l_phenylalanine",
+        "nearest_id": "l_tyrosine",
+        "similarity": 0.7037
+      },
+      {
+        "id": "l_tyrosine",
+        "nearest_id": "l_phenylalanine",
+        "similarity": 0.7037
+      },
+      {
+        "id": "m_xylene",
+        "nearest_id": "p_xylene",
+        "similarity": 0.42857
+      },
+      {
+        "id": "mefenamic_acid",
+        "nearest_id": "salicylic_acid",
+        "similarity": 0.38235
+      },
+      {
+        "id": "melatonin",
+        "nearest_id": "serotonin",
+        "similarity": 0.38776
+      },
+      {
+        "id": "naphthalene",
+        "nearest_id": "phenanthrene",
+        "similarity": 0.53846
+      },
+      {
+        "id": "naproxen",
+        "nearest_id": "ibuprofen",
+        "similarity": 0.325
+      },
+      {
+        "id": "nicotine",
+        "nearest_id": "pyocyanin",
+        "similarity": 0.15385
+      },
+      {
+        "id": "norepinephrine",
+        "nearest_id": "adrenaline",
+        "similarity": 0.58065
+      },
+      {
+        "id": "norfloxacin",
+        "nearest_id": "ciprofloxacin",
+        "similarity": 0.67273
+      },
+      {
+        "id": "o_xylene",
+        "nearest_id": "naphthalene",
+        "similarity": 0.38462
+      },
+      {
+        "id": "p_coumaric_acid",
+        "nearest_id": "caffeic_acid",
+        "similarity": 0.60714
+      },
+      {
+        "id": "p_xylene",
+        "nearest_id": "m_xylene",
+        "similarity": 0.42857
+      },
+      {
+        "id": "penicillin_g",
+        "nearest_id": "amoxicillin",
+        "similarity": 0.55172
+      },
+      {
+        "id": "phenanthrene",
+        "nearest_id": "naphthalene",
+        "similarity": 0.53846
+      },
+      {
+        "id": "phenazine",
+        "nearest_id": "1_hydroxyphenazine",
+        "similarity": 0.52381
+      },
+      {
+        "id": "phenazine_1_carboxylic_acid",
+        "nearest_id": "1_hydroxyphenazine",
+        "similarity": 0.53333
+      },
+      {
+        "id": "phenol",
+        "nearest_id": "catechol",
+        "similarity": 0.5
+      },
+      {
+        "id": "prodigiosin",
+        "nearest_id": "eugenol",
+        "similarity": 0.1791
+      },
+      {
+        "id": "protocatechuic_acid",
+        "nearest_id": "vanillic_acid",
+        "similarity": 0.57143
+      },
+      {
+        "id": "pyocyanin",
+        "nearest_id": "phenazine",
+        "similarity": 0.28125
+      },
+      {
+        "id": "pyrrolnitrin",
+        "nearest_id": "diclofenac",
+        "similarity": 0.22
+      },
+      {
+        "id": "pyruvic_acid",
+        "nearest_id": "fumaric_acid",
+        "similarity": 0.28571
+      },
+      {
+        "id": "quinine",
+        "nearest_id": "naproxen",
+        "similarity": 0.2029
+      },
+      {
+        "id": "resveratrol",
+        "nearest_id": "p_coumaric_acid",
+        "similarity": 0.48148
+      },
+      {
+        "id": "salicylic_acid",
+        "nearest_id": "gentisic_acid",
+        "similarity": 0.52
+      },
+      {
+        "id": "serotonin",
+        "nearest_id": "tryptamine",
+        "similarity": 0.58824
+      },
+      {
+        "id": "shikimic_acid",
+        "nearest_id": "benzoic_acid",
+        "similarity": 0.23333
+      },
+      {
+        "id": "sinapic_acid",
+        "nearest_id": "ferulic_acid",
+        "similarity": 0.67647
+      },
+      {
+        "id": "succinic_acid",
+        "nearest_id": "gaba",
+        "similarity": 0.5
+      },
+      {
+        "id": "theobromine",
+        "nearest_id": "caffeine",
+        "similarity": 0.52941
+      },
+      {
+        "id": "theophylline",
+        "nearest_id": "caffeine",
+        "similarity": 0.45714
+      },
+      {
+        "id": "tryptamine",
+        "nearest_id": "serotonin",
+        "similarity": 0.58824
+      },
+      {
+        "id": "tryptophan",
+        "nearest_id": "5_htp",
+        "similarity": 0.675
+      },
+      {
+        "id": "tyramine",
+        "nearest_id": "dopamine",
+        "similarity": 0.56
+      },
+      {
+        "id": "uracil",
+        "nearest_id": "xanthine",
+        "similarity": 0.25
+      },
+      {
+        "id": "vanillic_acid",
+        "nearest_id": "protocatechuic_acid",
+        "similarity": 0.57143
+      },
+      {
+        "id": "vanillin",
+        "nearest_id": "ferulic_acid",
+        "similarity": 0.61765
+      },
+      {
+        "id": "violacein",
+        "nearest_id": "serotonin",
+        "similarity": 0.32143
+      },
+      {
+        "id": "xanthine",
+        "nearest_id": "hypoxanthine",
+        "similarity": 0.46429
+      }
+    ]
+  },
+  "research_120": {
+    "n": 120,
+    "elements_or_features": {
+      "N": 66,
+      "O": 99,
+      "S": 6,
+      "P": 0,
+      "F": 3,
+      "Cl": 2,
+      "Br": 0,
+      "I": 0,
+      "carbon_only": 9,
+      "has_stereochemistry": 27,
+      "acyclic_scaffold": 18
+    },
+    "murcko_scaffolds_including_empty": 45,
+    "mw": {
+      "min": 78.114,
+      "median": 168.13,
+      "max": 386.664
+    },
+    "fraction_csp3": {
+      "min": 0.0,
+      "median": 0.2,
+      "max": 1.0
+    },
+    "nearest_neighbor_mean": 0.47188,
+    "nearest_neighbor_median": 0.5,
+    "nearest_neighbor_max": 0.875,
+    "nearest_neighbors": [
+      {
+        "id": "1_hydroxyphenazine",
+        "nearest_id": "phenazine_1_carboxylic_acid",
+        "similarity": 0.53333
+      },
+      {
+        "id": "2_4_diacetylphloroglucinol",
+        "nearest_id": "gallic_acid",
+        "similarity": 0.34615
+      },
+      {
+        "id": "2_oxoglutaric_acid",
+        "nearest_id": "succinic_acid",
+        "similarity": 0.64286
+      },
+      {
+        "id": "2_phenylethylamine",
+        "nearest_id": "tyramine",
+        "similarity": 0.54545
+      },
+      {
+        "id": "3_methylindole",
+        "nearest_id": "tryptamine",
+        "similarity": 0.45161
+      },
+      {
+        "id": "4_hydroxybenzoic_acid",
+        "nearest_id": "benzoic_acid",
+        "similarity": 0.57895
+      },
+      {
+        "id": "5_htp",
+        "nearest_id": "tryptophan",
+        "similarity": 0.675
+      },
+      {
+        "id": "acetaminophen",
+        "nearest_id": "4_hydroxybenzoic_acid",
+        "similarity": 0.38462
+      },
+      {
+        "id": "adenine",
+        "nearest_id": "hypoxanthine",
+        "similarity": 0.48148
+      },
+      {
+        "id": "adrenaline",
+        "nearest_id": "norepinephrine",
+        "similarity": 0.58065
+      },
+      {
+        "id": "agmatine",
+        "nearest_id": "putrescine",
+        "similarity": 0.41176
+      },
+      {
+        "id": "amoxicillin",
+        "nearest_id": "penicillin_g",
+        "similarity": 0.55172
+      },
+      {
+        "id": "apigenin",
+        "nearest_id": "kaempferol",
+        "similarity": 0.575
+      },
+      {
+        "id": "artemisinin",
+        "nearest_id": "camphor",
+        "similarity": 0.2
+      },
+      {
+        "id": "ascorbic_acid",
+        "nearest_id": "kojic_acid",
+        "similarity": 0.20513
+      },
+      {
+        "id": "aspirin",
+        "nearest_id": "phthalic_acid",
+        "similarity": 0.52
+      },
+      {
+        "id": "benzene",
+        "nearest_id": "biphenyl",
+        "similarity": 0.33333
+      },
+      {
+        "id": "benzoic_acid",
+        "nearest_id": "4_hydroxybenzoic_acid",
+        "similarity": 0.57895
+      },
+      {
+        "id": "biotin",
+        "nearest_id": "gaba",
+        "similarity": 0.25
+      },
+      {
+        "id": "biphenyl",
+        "nearest_id": "phenol",
+        "similarity": 0.42857
+      },
+      {
+        "id": "cadaverine",
+        "nearest_id": "putrescine",
+        "similarity": 0.875
+      },
+      {
+        "id": "caffeic_acid",
+        "nearest_id": "ferulic_acid",
+        "similarity": 0.63636
+      },
+      {
+        "id": "caffeine",
+        "nearest_id": "theobromine",
+        "similarity": 0.52941
+      },
+      {
+        "id": "camphor",
+        "nearest_id": "artemisinin",
+        "similarity": 0.2
+      },
+      {
+        "id": "capsaicin",
+        "nearest_id": "eugenol",
+        "similarity": 0.39623
+      },
+      {
+        "id": "catechol",
+        "nearest_id": "tropolone",
+        "similarity": 0.52941
+      },
+      {
+        "id": "cholesterol",
+        "nearest_id": "artemisinin",
+        "similarity": 0.14286
+      },
+      {
+        "id": "ciprofloxacin",
+        "nearest_id": "norfloxacin",
+        "similarity": 0.67273
+      },
+      {
+        "id": "citric_acid",
+        "nearest_id": "succinic_acid",
+        "similarity": 0.33333
+      },
+      {
+        "id": "curcumin",
+        "nearest_id": "ferulic_acid",
+        "similarity": 0.74286
+      },
+      {
+        "id": "cytosine",
+        "nearest_id": "guanine",
+        "similarity": 0.27778
+      },
+      {
+        "id": "dapsone",
+        "nearest_id": "sulfamethoxazole",
+        "similarity": 0.37143
+      },
+      {
+        "id": "diclofenac",
+        "nearest_id": "phenylacetic_acid",
+        "similarity": 0.37143
+      },
+      {
+        "id": "dopamine",
+        "nearest_id": "tyramine",
+        "similarity": 0.56
+      },
+      {
+        "id": "ethylbenzene",
+        "nearest_id": "2_phenylethylamine",
+        "similarity": 0.42857
+      },
+      {
+        "id": "eugenol",
+        "nearest_id": "vanillin",
+        "similarity": 0.47222
+      },
+      {
+        "id": "ferulic_acid",
+        "nearest_id": "curcumin",
+        "similarity": 0.74286
+      },
+      {
+        "id": "fluoxetine",
+        "nearest_id": "adrenaline",
+        "similarity": 0.19231
+      },
+      {
+        "id": "fumaric_acid",
+        "nearest_id": "p_coumaric_acid",
+        "similarity": 0.36364
+      },
+      {
+        "id": "gaba",
+        "nearest_id": "succinic_acid",
+        "similarity": 0.5
+      },
+      {
+        "id": "gallic_acid",
+        "nearest_id": "protocatechuic_acid",
+        "similarity": 0.56522
+      },
+      {
+        "id": "gentisic_acid",
+        "nearest_id": "salicylic_acid",
+        "similarity": 0.52
+      },
+      {
+        "id": "geosmin",
+        "nearest_id": "camphor",
+        "similarity": 0.18919
+      },
+      {
+        "id": "guanine",
+        "nearest_id": "hypoxanthine",
+        "similarity": 0.57143
+      },
+      {
+        "id": "histamine",
+        "nearest_id": "tryptamine",
+        "similarity": 0.27778
+      },
+      {
+        "id": "hypoxanthine",
+        "nearest_id": "guanine",
+        "similarity": 0.57143
+      },
+      {
+        "id": "ibuprofen",
+        "nearest_id": "l_tyrosine",
+        "similarity": 0.44118
+      },
+      {
+        "id": "indigo",
+        "nearest_id": "violacein",
+        "similarity": 0.27451
+      },
+      {
+        "id": "indole",
+        "nearest_id": "naphthalene",
+        "similarity": 0.38889
+      },
+      {
+        "id": "indole_3_acetic_acid",
+        "nearest_id": "tryptophan",
+        "similarity": 0.59459
+      },
+      {
+        "id": "inosine",
+        "nearest_id": "uridine",
+        "similarity": 0.47059
+      },
+      {
+        "id": "isoniazid",
+        "nearest_id": "benzoic_acid",
+        "similarity": 0.25
+      },
+      {
+        "id": "itaconic_acid",
+        "nearest_id": "succinic_acid",
+        "similarity": 0.33333
+      },
+      {
+        "id": "kaempferol",
+        "nearest_id": "quercetin",
+        "similarity": 0.78378
+      },
+      {
+        "id": "ketoprofen",
+        "nearest_id": "ibuprofen",
+        "similarity": 0.39474
+      },
+      {
+        "id": "kojic_acid",
+        "nearest_id": "tropolone",
+        "similarity": 0.26667
+      },
+      {
+        "id": "l_alanine",
+        "nearest_id": "l_lactic_acid",
+        "similarity": 0.53333
+      },
+      {
+        "id": "l_dopa",
+        "nearest_id": "l_tyrosine",
+        "similarity": 0.64516
+      },
+      {
+        "id": "l_glutamic_acid",
+        "nearest_id": "l_serine",
+        "similarity": 0.5
+      },
+      {
+        "id": "l_lactic_acid",
+        "nearest_id": "l_alanine",
+        "similarity": 0.53333
+      },
+      {
+        "id": "l_leucine",
+        "nearest_id": "l_alanine",
+        "similarity": 0.5
+      },
+      {
+        "id": "l_malic_acid",
+        "nearest_id": "l_lactic_acid",
+        "similarity": 0.36842
+      },
+      {
+        "id": "l_phenylalanine",
+        "nearest_id": "l_tyrosine",
+        "similarity": 0.7037
+      },
+      {
+        "id": "l_serine",
+        "nearest_id": "l_glutamic_acid",
+        "similarity": 0.5
+      },
+      {
+        "id": "l_tyrosine",
+        "nearest_id": "l_phenylalanine",
+        "similarity": 0.7037
+      },
+      {
+        "id": "lidocaine",
+        "nearest_id": "mefenamic_acid",
+        "similarity": 0.28889
+      },
+      {
+        "id": "m_xylene",
+        "nearest_id": "toluene",
+        "similarity": 0.53333
+      },
+      {
+        "id": "mefenamic_acid",
+        "nearest_id": "phthalic_acid",
+        "similarity": 0.43333
+      },
+      {
+        "id": "melatonin",
+        "nearest_id": "serotonin",
+        "similarity": 0.38776
+      },
+      {
+        "id": "metronidazole",
+        "nearest_id": "pyrrolnitrin",
+        "similarity": 0.17647
+      },
+      {
+        "id": "naphthalene",
+        "nearest_id": "phenanthrene",
+        "similarity": 0.53846
+      },
+      {
+        "id": "naproxen",
+        "nearest_id": "ibuprofen",
+        "similarity": 0.325
+      },
+      {
+        "id": "nicotine",
+        "nearest_id": "isoniazid",
+        "similarity": 0.18605
+      },
+      {
+        "id": "norepinephrine",
+        "nearest_id": "adrenaline",
+        "similarity": 0.58065
+      },
+      {
+        "id": "norfloxacin",
+        "nearest_id": "ciprofloxacin",
+        "similarity": 0.67273
+      },
+      {
+        "id": "o_xylene",
+        "nearest_id": "toluene",
+        "similarity": 0.5
+      },
+      {
+        "id": "p_coumaric_acid",
+        "nearest_id": "caffeic_acid",
+        "similarity": 0.60714
+      },
+      {
+        "id": "p_xylene",
+        "nearest_id": "toluene",
+        "similarity": 0.58333
+      },
+      {
+        "id": "penicillin_g",
+        "nearest_id": "amoxicillin",
+        "similarity": 0.55172
+      },
+      {
+        "id": "phenanthrene",
+        "nearest_id": "naphthalene",
+        "similarity": 0.53846
+      },
+      {
+        "id": "phenazine",
+        "nearest_id": "1_hydroxyphenazine",
+        "similarity": 0.52381
+      },
+      {
+        "id": "phenazine_1_carboxylic_acid",
+        "nearest_id": "1_hydroxyphenazine",
+        "similarity": 0.53333
+      },
+      {
+        "id": "phenol",
+        "nearest_id": "catechol",
+        "similarity": 0.5
+      },
+      {
+        "id": "phenylacetic_acid",
+        "nearest_id": "l_phenylalanine",
+        "similarity": 0.44444
+      },
+      {
+        "id": "phthalic_acid",
+        "nearest_id": "salicylic_acid",
+        "similarity": 0.68421
+      },
+      {
+        "id": "prodigiosin",
+        "nearest_id": "eugenol",
+        "similarity": 0.1791
+      },
+      {
+        "id": "protocatechuic_acid",
+        "nearest_id": "vanillic_acid",
+        "similarity": 0.57143
+      },
+      {
+        "id": "putrescine",
+        "nearest_id": "cadaverine",
+        "similarity": 0.875
+      },
+      {
+        "id": "pyocyanin",
+        "nearest_id": "phenazine",
+        "similarity": 0.28125
+      },
+      {
+        "id": "pyrrolnitrin",
+        "nearest_id": "diclofenac",
+        "similarity": 0.22
+      },
+      {
+        "id": "pyruvic_acid",
+        "nearest_id": "l_lactic_acid",
+        "similarity": 0.33333
+      },
+      {
+        "id": "quercetin",
+        "nearest_id": "kaempferol",
+        "similarity": 0.78378
+      },
+      {
+        "id": "quinine",
+        "nearest_id": "naproxen",
+        "similarity": 0.2029
+      },
+      {
+        "id": "resveratrol",
+        "nearest_id": "p_coumaric_acid",
+        "similarity": 0.48148
+      },
+      {
+        "id": "salicylic_acid",
+        "nearest_id": "phthalic_acid",
+        "similarity": 0.68421
+      },
+      {
+        "id": "serotonin",
+        "nearest_id": "tryptamine",
+        "similarity": 0.58824
+      },
+      {
+        "id": "shikimic_acid",
+        "nearest_id": "benzoic_acid",
+        "similarity": 0.23333
+      },
+      {
+        "id": "sinapic_acid",
+        "nearest_id": "ferulic_acid",
+        "similarity": 0.67647
+      },
+      {
+        "id": "spermidine",
+        "nearest_id": "putrescine",
+        "similarity": 0.5
+      },
+      {
+        "id": "succinic_acid",
+        "nearest_id": "2_oxoglutaric_acid",
+        "similarity": 0.64286
+      },
+      {
+        "id": "sulfamethoxazole",
+        "nearest_id": "dapsone",
+        "similarity": 0.37143
+      },
+      {
+        "id": "syringic_acid",
+        "nearest_id": "vanillic_acid",
+        "similarity": 0.62069
+      },
+      {
+        "id": "taurine",
+        "nearest_id": "gaba",
+        "similarity": 0.26087
+      },
+      {
+        "id": "theobromine",
+        "nearest_id": "caffeine",
+        "similarity": 0.52941
+      },
+      {
+        "id": "theophylline",
+        "nearest_id": "caffeine",
+        "similarity": 0.45714
+      },
+      {
+        "id": "thymine",
+        "nearest_id": "uracil",
+        "similarity": 0.33333
+      },
+      {
+        "id": "thymol",
+        "nearest_id": "m_xylene",
+        "similarity": 0.32
+      },
+      {
+        "id": "toluene",
+        "nearest_id": "p_xylene",
+        "similarity": 0.58333
+      },
+      {
+        "id": "trimethoprim",
+        "nearest_id": "eugenol",
+        "similarity": 0.24
+      },
+      {
+        "id": "tropolone",
+        "nearest_id": "catechol",
+        "similarity": 0.52941
+      },
+      {
+        "id": "tryptamine",
+        "nearest_id": "serotonin",
+        "similarity": 0.58824
+      },
+      {
+        "id": "tryptophan",
+        "nearest_id": "5_htp",
+        "similarity": 0.675
+      },
+      {
+        "id": "tyramine",
+        "nearest_id": "dopamine",
+        "similarity": 0.56
+      },
+      {
+        "id": "uracil",
+        "nearest_id": "thymine",
+        "similarity": 0.33333
+      },
+      {
+        "id": "uric_acid",
+        "nearest_id": "xanthine",
+        "similarity": 0.39286
+      },
+      {
+        "id": "uridine",
+        "nearest_id": "inosine",
+        "similarity": 0.47059
+      },
+      {
+        "id": "vanillic_acid",
+        "nearest_id": "syringic_acid",
+        "similarity": 0.62069
+      },
+      {
+        "id": "vanillin",
+        "nearest_id": "ferulic_acid",
+        "similarity": 0.61765
+      },
+      {
+        "id": "violacein",
+        "nearest_id": "serotonin",
+        "similarity": 0.32143
+      },
+      {
+        "id": "xanthine",
+        "nearest_id": "hypoxanthine",
+        "similarity": 0.46429
+      }
+    ]
+  }
+}

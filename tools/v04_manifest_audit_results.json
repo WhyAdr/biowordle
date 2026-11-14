@@ -1,0 +1,47 @@
+{
+  "validator": "PASS \u2014 IDs, full keys and uncharged parents under current validator",
+  "base_count": 78,
+  "candidate_count": 42,
+  "candidate_review_status": "pending and not playable",
+  "candidate_families": {
+    "Aromatic degradation": 6,
+    "Phenylpropanoids and plant metabolites": 6,
+    "Therapeutic analogues": 6,
+    "Neuroactive metabolites": 6,
+    "Primary metabolism": 6,
+    "Microbial and related natural products": 6,
+    "Purines and nucleobases": 6
+  },
+  "same_inchi_connectivity_block_groups": [],
+  "same_rdkit_canonical_tautomer_ignoring_stereo_groups": [],
+  "tautomer_enumeration_incomplete": [
+    {
+      "id": "violacein",
+      "status": "MaxTransformsReached"
+    },
+    {
+      "id": "quercetin",
+      "status": "MaxTransformsReached"
+    }
+  ],
+  "similarity_threshold": 0.8,
+  "near_pairs": [
+    {
+      "a": "cadaverine",
+      "b": "putrescine",
+      "similarity": 0.875
+    }
+  ],
+  "second_batch_graph_reviews": [
+    "agmatine",
+    "indole",
+    "3_methylindole",
+    "guanine",
+    "cytosine",
+    "thymine",
+    "uric_acid",
+    "uridine",
+    "inosine"
+  ],
+  "limitation": "Tautomer enumeration and fingerprint comparisons are screening heuristics, not exhaustive structure/biological validation."
+}

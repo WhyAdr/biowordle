@@ -1,0 +1,1387 @@
+{
+  "schema_version": "v04-research-intake",
+  "compounds": [
+    {
+      "id": "2_phenylethylamine",
+      "name": "2-phenylethylamine",
+      "aliases": [],
+      "Category": "Neurotransmitter",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C=C1)CCN",
+      "expected_standardized_smiles": "NCCc1ccccc1",
+      "expected_inchikey": "BHHGXPLMPWCGHP-UHFFFAOYSA-N",
+      "expected_formula": "C8H11N",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 1001,
+        "chebi_id": "CHEBI:18397",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1001",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1001",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18397",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:18397",
+          "role": "independent_structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:39596410",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/39596410/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Neuroactive metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "BHHGXPLMPWCGHP-UHFFFAOYSA-N",
+        "chebi_key": "BHHGXPLMPWCGHP-UHFFFAOYSA-N",
+        "pubchem_smiles": "C1=CC=C(C=C1)CCN",
+        "chebi_smiles": "NCCc1ccccc1",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ],
+        "biological_evidence": {
+          "claim": "Selected Staphylococcus skin isolates produced phenylethylamine in the study; SadA expression reproduced the reported product profile.",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/39596410/",
+          "status": "abstract-level lead; independent full-study review required"
+        }
+      }
+    },
+    {
+      "id": "agmatine",
+      "name": "agmatine",
+      "aliases": [],
+      "Category": "Neurotransmitter",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C(CCN=C(N)N)CN",
+      "expected_standardized_smiles": "NCCCCN=C(N)N",
+      "expected_inchikey": "QYPPJABKJHAVHS-UHFFFAOYSA-N",
+      "expected_formula": "C5H14N4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 199,
+        "chebi_id": "CHEBI:17431",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:199",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/199",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17431",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17431",
+          "role": "independent_structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:37878710",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/37878710/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Neuroactive metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "QYPPJABKJHAVHS-UHFFFAOYSA-N",
+        "chebi_key": "QYPPJABKJHAVHS-UHFFFAOYSA-N",
+        "pubchem_smiles": "C(CCN=C(N)N)CN",
+        "chebi_smiles": "N=C(N)NCCCCN",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI and PubChem isomeric graphs differ despite any key match; review tautomer and bond states.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ],
+        "biological_evidence": {
+          "claim": "In Synechocystis sp. PCC 6803, isotope tracing, genetics and biochemistry support agmatine as a precursor in one spermidine pathway.",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/37878710/",
+          "status": "abstract-level lead; independent full-study review required"
+        }
+      }
+    },
+    {
+      "id": "putrescine",
+      "name": "putrescine",
+      "aliases": [],
+      "Category": "Neurotransmitter",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C(CCN)CN",
+      "expected_standardized_smiles": "NCCCCN",
+      "expected_inchikey": "KIDHWZJUCRJVML-UHFFFAOYSA-N",
+      "expected_formula": "C4H12N2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 1045,
+        "chebi_id": "CHEBI:17148",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1045",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1045",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17148",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17148",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Neuroactive metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "KIDHWZJUCRJVML-UHFFFAOYSA-N",
+        "chebi_key": "KIDHWZJUCRJVML-UHFFFAOYSA-N",
+        "pubchem_smiles": "C(CCN)CN",
+        "chebi_smiles": "NCCCCN",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "cadaverine",
+      "name": "cadaverine",
+      "aliases": [],
+      "Category": "Neurotransmitter",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C(CCN)CCN",
+      "expected_standardized_smiles": "NCCCCCN",
+      "expected_inchikey": "VHRGRCVQAFMJIZ-UHFFFAOYSA-N",
+      "expected_formula": "C5H14N2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 273,
+        "chebi_id": "CHEBI:18127",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:273",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/273",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18127",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:18127",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Neuroactive metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "VHRGRCVQAFMJIZ-UHFFFAOYSA-N",
+        "chebi_key": "VHRGRCVQAFMJIZ-UHFFFAOYSA-N",
+        "pubchem_smiles": "C(CCN)CCN",
+        "chebi_smiles": "NCCCCCN",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "spermidine",
+      "name": "spermidine",
+      "aliases": [],
+      "Category": "Neurotransmitter",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C(CCNCCCN)CN",
+      "expected_standardized_smiles": "NCCCCNCCCN",
+      "expected_inchikey": "ATHGHQPFGPMSJY-UHFFFAOYSA-N",
+      "expected_formula": "C7H19N3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 1102,
+        "chebi_id": "CHEBI:16610",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1102",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1102",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16610",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16610",
+          "role": "independent_structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:37878710",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/37878710/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Neuroactive metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "ATHGHQPFGPMSJY-UHFFFAOYSA-N",
+        "chebi_key": "ATHGHQPFGPMSJY-UHFFFAOYSA-N",
+        "pubchem_smiles": "C(CCNCCCN)CN",
+        "chebi_smiles": "NCCCCNCCCN",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ],
+        "biological_evidence": {
+          "claim": "A Synechocystis sp. PCC 6803 pathway to spermidine via carboxyaminopropylagmatine was investigated using isotope tracing and enzyme assays.",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/37878710/",
+          "status": "abstract-level lead; independent full-study review required"
+        }
+      }
+    },
+    {
+      "id": "taurine",
+      "name": "taurine",
+      "aliases": [],
+      "Category": "Neurotransmitter",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C(CS(=O)(=O)O)N",
+      "expected_standardized_smiles": "NCCS(=O)(=O)O",
+      "expected_inchikey": "XOAAWQZATWQOTB-UHFFFAOYSA-N",
+      "expected_formula": "C2H7NO3S",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 1123,
+        "chebi_id": "CHEBI:15891",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1123",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1123",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15891",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:15891",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Neuroactive metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "XOAAWQZATWQOTB-UHFFFAOYSA-N",
+        "chebi_key": "XOAAWQZATWQOTB-UHFFFAOYSA-N",
+        "pubchem_smiles": "C(CS(=O)(=O)O)N",
+        "chebi_smiles": "NCCS(=O)(=O)O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "l_alanine",
+      "name": "L-alanine",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C[C@@H](C(=O)O)N",
+      "expected_standardized_smiles": "C[C@H](N)C(=O)O",
+      "expected_inchikey": "QNAYBMKLOCPYGJ-REOHCLBHSA-N",
+      "expected_formula": "C3H7NO2",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 5950,
+        "chebi_id": "CHEBI:16977",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5950",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5950",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16977",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16977",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Primary metabolism",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "QNAYBMKLOCPYGJ-REOHCLBHSA-N",
+        "chebi_key": "QNAYBMKLOCPYGJ-REOHCLBHSA-N",
+        "pubchem_smiles": "C[C@@H](C(=O)O)N",
+        "chebi_smiles": "C[C@H](N)C(=O)O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "l_leucine",
+      "name": "L-leucine",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "CC(C)C[C@@H](C(=O)O)N",
+      "expected_standardized_smiles": "CC(C)C[C@H](N)C(=O)O",
+      "expected_inchikey": "ROHFNLRQFUQHCH-YFKPBYRVSA-N",
+      "expected_formula": "C6H13NO2",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 6106,
+        "chebi_id": "CHEBI:15603",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6106",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6106",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15603",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:15603",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Primary metabolism",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "ROHFNLRQFUQHCH-YFKPBYRVSA-N",
+        "chebi_key": "ROHFNLRQFUQHCH-YFKPBYRVSA-N",
+        "pubchem_smiles": "CC(C)C[C@@H](C(=O)O)N",
+        "chebi_smiles": "CC(C)C[C@H](N)C(=O)O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "l_serine",
+      "name": "L-serine",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C([C@@H](C(=O)O)N)O",
+      "expected_standardized_smiles": "N[C@@H](CO)C(=O)O",
+      "expected_inchikey": "MTCFGRXMJLQNBG-REOHCLBHSA-N",
+      "expected_formula": "C3H7NO3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 5951,
+        "chebi_id": "CHEBI:17115",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5951",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5951",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17115",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17115",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Primary metabolism",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "MTCFGRXMJLQNBG-REOHCLBHSA-N",
+        "chebi_key": "MTCFGRXMJLQNBG-REOHCLBHSA-N",
+        "pubchem_smiles": "C([C@@H](C(=O)O)N)O",
+        "chebi_smiles": "N[C@@H](CO)C(=O)O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "l_glutamic_acid",
+      "name": "L-glutamic acid",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C(CC(=O)O)[C@@H](C(=O)O)N",
+      "expected_standardized_smiles": "N[C@@H](CCC(=O)O)C(=O)O",
+      "expected_inchikey": "WHUUTDBJXJRKMK-VKHMYHEASA-N",
+      "expected_formula": "C5H9NO4",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 33032,
+        "chebi_id": "CHEBI:16015",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:33032",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/33032",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16015",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16015",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Primary metabolism",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "WHUUTDBJXJRKMK-VKHMYHEASA-N",
+        "chebi_key": "WHUUTDBJXJRKMK-VKHMYHEASA-N",
+        "pubchem_smiles": "C(CC(=O)O)[C@@H](C(=O)O)N",
+        "chebi_smiles": "N[C@@H](CCC(=O)O)C(=O)O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "l_lactic_acid",
+      "name": "L-lactic acid",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C[C@@H](C(=O)O)O",
+      "expected_standardized_smiles": "C[C@H](O)C(=O)O",
+      "expected_inchikey": "JVTAAEKCZFNVCJ-REOHCLBHSA-N",
+      "expected_formula": "C3H6O3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 107689,
+        "chebi_id": "CHEBI:422",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:107689",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/107689",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:422",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:422",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Primary metabolism",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "JVTAAEKCZFNVCJ-REOHCLBHSA-N",
+        "chebi_key": "JVTAAEKCZFNVCJ-REOHCLBHSA-N",
+        "pubchem_smiles": "C[C@@H](C(=O)O)O",
+        "chebi_smiles": "C[C@H](O)C(=O)O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "2_oxoglutaric_acid",
+      "name": "2-oxoglutaric acid",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C(CC(=O)O)C(=O)C(=O)O",
+      "expected_standardized_smiles": "O=C(O)CCC(=O)C(=O)O",
+      "expected_inchikey": "KPGXRSRHYNQIFN-UHFFFAOYSA-N",
+      "expected_formula": "C5H6O5",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 51,
+        "chebi_id": "CHEBI:30915",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:51",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/51",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30915",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:30915",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Primary metabolism",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "KPGXRSRHYNQIFN-UHFFFAOYSA-N",
+        "chebi_key": "KPGXRSRHYNQIFN-UHFFFAOYSA-N",
+        "pubchem_smiles": "C(CC(=O)O)C(=O)C(=O)O",
+        "chebi_smiles": "O=C(O)CCC(=O)C(=O)O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "indole",
+      "name": "indole",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=CC=C2C(=C1)C=CN2",
+      "expected_standardized_smiles": "c1ccc2[nH]ccc2c1",
+      "expected_inchikey": "SIKJAQJRHWYJAI-UHFFFAOYSA-N",
+      "expected_formula": "C8H7N",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 798,
+        "chebi_id": "CHEBI:16881",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:798",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/798",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16881",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16881",
+          "role": "independent_structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:7487051",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/7487051/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Microbial and related natural products",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "SIKJAQJRHWYJAI-UHFFFAOYSA-N",
+        "chebi_key": "SIKJAQJRHWYJAI-UHFFFAOYSA-N",
+        "pubchem_smiles": "C1=CC=C2C(=C1)C=CN2",
+        "chebi_smiles": "c1ccc2nccc2c1",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI displayed SMILES does not parse in RDKit; independently resolve its graph.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ],
+        "biological_evidence": {
+          "claim": "A mixed pig-faecal bacterial culture converted added tryptophan to indole under the reported conditions.",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/7487051/",
+          "status": "abstract-level lead; independent full-study review required"
+        }
+      }
+    },
+    {
+      "id": "3_methylindole",
+      "name": "3-methylindole",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "CC1=CNC2=CC=CC=C12",
+      "expected_standardized_smiles": "Cc1c[nH]c2ccccc12",
+      "expected_inchikey": "ZFRKQXVRDFCRJG-UHFFFAOYSA-N",
+      "expected_formula": "C9H9N",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 6736,
+        "chebi_id": "CHEBI:9171",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6736",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6736",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:9171",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:9171",
+          "role": "independent_structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:30310076",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/30310076/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Microbial and related natural products",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "ZFRKQXVRDFCRJG-UHFFFAOYSA-N",
+        "chebi_key": "ZFRKQXVRDFCRJG-UHFFFAOYSA-N",
+        "pubchem_smiles": "CC1=CNC2=CC=CC=C12",
+        "chebi_smiles": "Cc1cnc2ccccc12",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI displayed SMILES does not parse in RDKit; independently resolve its graph.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ],
+        "biological_evidence": {
+          "claim": "An indoleacetate decarboxylase was biochemically characterized as producing skatole in certain anaerobic bacteria.",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/30310076/",
+          "status": "abstract-level lead; independent full-study review required"
+        }
+      }
+    },
+    {
+      "id": "kojic_acid",
+      "name": "kojic acid",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=C(OC=C(C1=O)O)CO",
+      "expected_standardized_smiles": "O=c1cc(CO)occ1O",
+      "expected_inchikey": "BEJNERDRQOWKJM-UHFFFAOYSA-N",
+      "expected_formula": "C6H6O4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 3840,
+        "chebi_id": "CHEBI:43572",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3840",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3840",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:43572",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:43572",
+          "role": "independent_structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:20849972",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/20849972/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Microbial and related natural products",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "BEJNERDRQOWKJM-UHFFFAOYSA-N",
+        "chebi_key": "BEJNERDRQOWKJM-UHFFFAOYSA-N",
+        "pubchem_smiles": "C1=C(OC=C(C1=O)O)CO",
+        "chebi_smiles": "O=c1cc(CO)occ1O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ],
+        "biological_evidence": {
+          "claim": "Aspergillus oryzae gene-disruption experiments identified two genes required for kojic acid production.",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/20849972/",
+          "status": "abstract-level lead; independent full-study review required"
+        }
+      }
+    },
+    {
+      "id": "indigo",
+      "name": "indigo",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=CC=C2C(=C1)C(=O)/C(=C\\3/C(=O)C4=CC=CC=C4N3)/N2",
+      "expected_standardized_smiles": "O=C1/C(=C2\\Nc3ccccc3C2=O)Nc2ccccc21",
+      "expected_inchikey": "COHYTHOBJLSHDF-BUHFOSPRSA-N",
+      "expected_formula": "C16H10N2O2",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 5318432,
+        "chebi_id": "CHEBI:749117",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5318432",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5318432",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:749117",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:749117",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Microbial and related natural products",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "COHYTHOBJLSHDF-BUHFOSPRSA-N",
+        "chebi_key": "COHYTHOBJLSHDF-BUHFOSPRSA-N",
+        "pubchem_smiles": "C1=CC=C2C(=C1)C(=O)/C(=C\\3/C(=O)C4=CC=CC=C4N3)/N2",
+        "chebi_smiles": "O=C1/C(=C2\\Nc3ccccc3C2=O)Nc2ccccc21",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "itaconic_acid",
+      "name": "itaconic acid",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C=C(CC(=O)O)C(=O)O",
+      "expected_standardized_smiles": "C=C(CC(=O)O)C(=O)O",
+      "expected_inchikey": "LVHBHZANLOWSRM-UHFFFAOYSA-N",
+      "expected_formula": "C5H6O4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 811,
+        "chebi_id": "CHEBI:30838",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:811",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/811",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30838",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:30838",
+          "role": "independent_structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:32162091",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/32162091/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Microbial and related natural products",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "LVHBHZANLOWSRM-UHFFFAOYSA-N",
+        "chebi_key": "LVHBHZANLOWSRM-UHFFFAOYSA-N",
+        "pubchem_smiles": "C=C(CC(=O)O)C(=O)O",
+        "chebi_smiles": "C=C(CC(=O)O)C(=O)O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ],
+        "biological_evidence": {
+          "claim": "In Aspergillus pseudoterreus, deletion experiments identified cluster genes needed for itaconic acid production.",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/32162091/",
+          "status": "abstract-level lead; independent full-study review required"
+        }
+      }
+    },
+    {
+      "id": "tropolone",
+      "name": "tropolone",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C(=O)C=C1)O",
+      "expected_standardized_smiles": "O=c1cccccc1O",
+      "expected_inchikey": "MDYOLVRUBBJPFM-UHFFFAOYSA-N",
+      "expected_formula": "C7H6O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 10789,
+        "chebi_id": "CHEBI:79966",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:10789",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/10789",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:79966",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:79966",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Microbial and related natural products",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "MDYOLVRUBBJPFM-UHFFFAOYSA-N",
+        "chebi_key": "MDYOLVRUBBJPFM-UHFFFAOYSA-N",
+        "pubchem_smiles": "C1=CC=C(C(=O)C=C1)O",
+        "chebi_smiles": "O=c1cccccc1O",
+        "chebi_rdkit_graph_matches_pubchem": true,
+        "issues": [
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "guanine",
+      "name": "guanine",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=NC2=C(N1)C(=O)NC(=N2)N",
+      "expected_standardized_smiles": "Nc1nc2nc[nH]c2c(=O)[nH]1",
+      "expected_inchikey": "UYTPUPDQBNUYGX-UHFFFAOYSA-N",
+      "expected_formula": "C5H5N5O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 135398634,
+        "chebi_id": "CHEBI:16235",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:135398634",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/135398634",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16235",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16235",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Purines and nucleobases",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "UYTPUPDQBNUYGX-UHFFFAOYSA-N",
+        "chebi_key": "UYTPUPDQBNUYGX-UHFFFAOYSA-N",
+        "pubchem_smiles": "C1=NC2=C(N1)C(=O)NC(=N2)N",
+        "chebi_smiles": "Nc1nc(=O)c2ncnc2n1",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI and PubChem isomeric graphs differ despite any key match; review tautomer and bond states.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "cytosine",
+      "name": "cytosine",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=C(NC(=O)N=C1)N",
+      "expected_standardized_smiles": "Nc1ccnc(=O)[nH]1",
+      "expected_inchikey": "OPTASPLRGRRNAP-UHFFFAOYSA-N",
+      "expected_formula": "C4H5N3O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 597,
+        "chebi_id": "CHEBI:16040",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:597",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/597",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16040",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16040",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Purines and nucleobases",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "OPTASPLRGRRNAP-UHFFFAOYSA-N",
+        "chebi_key": "OPTASPLRGRRNAP-UHFFFAOYSA-N",
+        "pubchem_smiles": "C1=C(NC(=O)N=C1)N",
+        "chebi_smiles": "Nc1ccnc(=O)n1",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI displayed SMILES does not parse in RDKit; independently resolve its graph.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "thymine",
+      "name": "thymine",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "CC1=CNC(=O)NC1=O",
+      "expected_standardized_smiles": "Cc1c[nH]c(=O)[nH]c1=O",
+      "expected_inchikey": "RWQNBRDOKXIBIV-UHFFFAOYSA-N",
+      "expected_formula": "C5H6N2O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 1135,
+        "chebi_id": "CHEBI:17821",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1135",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1135",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17821",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17821",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Purines and nucleobases",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "RWQNBRDOKXIBIV-UHFFFAOYSA-N",
+        "chebi_key": "RWQNBRDOKXIBIV-UHFFFAOYSA-N",
+        "pubchem_smiles": "CC1=CNC(=O)NC1=O",
+        "chebi_smiles": "Cc1cnc(=O)nc1=O",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI displayed SMILES does not parse in RDKit; independently resolve its graph.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "uric_acid",
+      "name": "uric acid",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C12=C(NC(=O)N1)NC(=O)NC2=O",
+      "expected_standardized_smiles": "O=c1[nH]c(=O)c2[nH]c(=O)[nH]c2[nH]1",
+      "expected_inchikey": "LEHOTFFKMJEONL-UHFFFAOYSA-N",
+      "expected_formula": "C5H4N4O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 1175,
+        "chebi_id": "CHEBI:46811",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1175",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1175",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:46811",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:46811",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Purines and nucleobases",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "LEHOTFFKMJEONL-UHFFFAOYSA-N",
+        "chebi_key": "LEHOTFFKMJEONL-UHFFFAOYSA-N",
+        "pubchem_smiles": "C12=C(NC(=O)N1)NC(=O)NC2=O",
+        "chebi_smiles": "O=c1nc2nc(O)nc(O)c2n1",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI and PubChem isomeric graphs differ despite any key match; review tautomer and bond states.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "uridine",
+      "name": "uridine",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=CN(C(=O)NC1=O)[C@H]2[C@@H]([C@@H]([C@H](O2)CO)O)O",
+      "expected_standardized_smiles": "O=c1ccn([C@@H]2O[C@H](CO)[C@@H](O)[C@H]2O)c(=O)[nH]1",
+      "expected_inchikey": "DRTQHJPVMGBUCF-XVFCMESISA-N",
+      "expected_formula": "C9H12N2O6",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 6029,
+        "chebi_id": "CHEBI:16704",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6029",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6029",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16704",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16704",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Purines and nucleobases",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "DRTQHJPVMGBUCF-XVFCMESISA-N",
+        "chebi_key": "DRTQHJPVMGBUCF-XVFCMESISA-N",
+        "pubchem_smiles": "C1=CN(C(=O)NC1=O)[C@H]2[C@@H]([C@@H]([C@H](O2)CO)O)O",
+        "chebi_smiles": "O=c1ccn([C@@H]2O[C@H](CO)[C@@H](O)[C@H]2O)c(=O)n1",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI displayed SMILES does not parse in RDKit; independently resolve its graph.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    },
+    {
+      "id": "inosine",
+      "name": "inosine",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "v04_research_candidate",
+      "role_tags": [
+        "research_intake"
+      ],
+      "input_isomeric_smiles": "C1=NC2=C(C(=O)N1)N=CN2[C@H]3[C@@H]([C@@H]([C@H](O3)CO)O)O",
+      "expected_standardized_smiles": "O=c1[nH]cnc2c1ncn2[C@@H]1O[C@H](CO)[C@@H](O)[C@H]1O",
+      "expected_inchikey": "UGQMRVRMYYASKQ-KQYNXXCUSA-N",
+      "expected_formula": "C10H12N4O5",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 135398641,
+        "chebi_id": "CHEBI:17596",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:135398641",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/135398641",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17596",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17596",
+          "role": "independent_structure_reference"
+        }
+      ],
+      "hint_role": "Compare the molecular properties of this example.",
+      "hint_origin": "Consult reviewed literature for its biological context.",
+      "structural_note": "Structure and biological context require review before use.",
+      "review_status": "pending",
+      "review_notes": "Research intake only; no biological or gameplay approval.",
+      "v04_family": "Purines and nucleobases",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_key": "UGQMRVRMYYASKQ-KQYNXXCUSA-N",
+        "chebi_key": "UGQMRVRMYYASKQ-KQYNXXCUSA-N",
+        "pubchem_smiles": "C1=NC2=C(C(=O)N1)N=CN2[C@H]3[C@@H]([C@@H]([C@H](O3)CO)O)O",
+        "chebi_smiles": "OC[C@H]1O[C@@H](n2cnc3c(O)ncnc32)[C@H](O)[C@@H]1O",
+        "chebi_rdkit_graph_matches_pubchem": false,
+        "issues": [
+          "ChEBI and PubChem isomeric graphs differ despite any key match; review tautomer and bond states.",
+          "No claim-bound primary biological mechanism or biosynthesis reference reviewed."
+        ]
+      }
+    }
+  ]
+}

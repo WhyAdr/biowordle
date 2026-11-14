@@ -1,0 +1,1589 @@
+{
+  "schema_version": "0.4-intake-provisional",
+  "compounds": [
+    {
+      "id": "toluene",
+      "name": "Toluene",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "aromatic_degradation",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "CC1=CC=CC=C1",
+      "expected_standardized_smiles": "Cc1ccccc1",
+      "expected_inchikey": "YXFVVABEGXRONW-UHFFFAOYSA-N",
+      "expected_formula": "C7H8",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 1140,
+        "chebi_id": "CHEBI:17578",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1140",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1140",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17578",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17578",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:8349562",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/8349562/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Aromatic degradation",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C7H8",
+        "pubchem_inchikey": "YXFVVABEGXRONW-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:17578",
+          "label": "toluene",
+          "inchikey": "YXFVVABEGXRONW-UHFFFAOYSA-N",
+          "smiles": "Cc1ccccc1",
+          "formula": "C7H8",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17578"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:17578",
+            "label": "toluene",
+            "inchikey": "YXFVVABEGXRONW-UHFFFAOYSA-N",
+            "smiles": "Cc1ccccc1",
+            "formula": "C7H8",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:17578"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Toluene/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Toluene&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Pseudomonas putida F1 tod genes support metabolism of toluene and benzene; the tested gene-swap experiments show pathway-specific substrate effects.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/8349562/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "benzene",
+      "name": "Benzene",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "aromatic_degradation",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CC=CC=C1",
+      "expected_standardized_smiles": "c1ccccc1",
+      "expected_inchikey": "UHOVQNZJYSORNB-UHFFFAOYSA-N",
+      "expected_formula": "C6H6",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 241,
+        "chebi_id": "CHEBI:16716",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:241",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/241",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16716",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16716",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:8349562",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/8349562/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Aromatic degradation",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C6H6",
+        "pubchem_inchikey": "UHOVQNZJYSORNB-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:16716",
+          "label": "benzene",
+          "inchikey": "UHOVQNZJYSORNB-UHFFFAOYSA-N",
+          "smiles": "c1ccccc1",
+          "formula": "C6H6",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16716"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:16716",
+            "label": "benzene",
+            "inchikey": "UHOVQNZJYSORNB-UHFFFAOYSA-N",
+            "smiles": "c1ccccc1",
+            "formula": "C6H6",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:16716"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Benzene/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Benzene&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Pseudomonas putida F1 tod operon supports metabolism of toluene and benzene; do not generalize to all pseudomonads.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/8349562/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "ethylbenzene",
+      "name": "Ethylbenzene",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "aromatic_degradation",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "CCC1=CC=CC=C1",
+      "expected_standardized_smiles": "CCc1ccccc1",
+      "expected_inchikey": "YNQLUTRBYVCPMQ-UHFFFAOYSA-N",
+      "expected_formula": "C8H10",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 7500,
+        "chebi_id": "CHEBI:16101",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:7500",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/7500",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16101",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16101",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:8795196",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/8795196/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Aromatic degradation",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C8H10",
+        "pubchem_inchikey": "YNQLUTRBYVCPMQ-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:16101",
+          "label": "ethylbenzene",
+          "inchikey": "YNQLUTRBYVCPMQ-UHFFFAOYSA-N",
+          "smiles": "CCc1ccccc1",
+          "formula": "C8H10",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16101"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:16101",
+            "label": "ethylbenzene",
+            "inchikey": "YNQLUTRBYVCPMQ-UHFFFAOYSA-N",
+            "smiles": "CCc1ccccc1",
+            "formula": "C8H10",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:16101"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Ethylbenzene/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Ethylbenzene&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Purified naphthalene dioxygenase from Pseudomonas sp. NCIB 9816-4 oxidized ethylbenzene in vitro; products and stereo depend on the reaction route.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/8795196/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "biphenyl",
+      "name": "Biphenyl",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "aromatic_degradation",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C=C1)C2=CC=CC=C2",
+      "expected_standardized_smiles": "c1ccc(-c2ccccc2)cc1",
+      "expected_inchikey": "ZUOUZKKEUPVFJK-UHFFFAOYSA-N",
+      "expected_formula": "C12H10",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 7095,
+        "chebi_id": "CHEBI:17097",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:7095",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/7095",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17097",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17097",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:8349562",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/8349562/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Aromatic degradation",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C12H10",
+        "pubchem_inchikey": "ZUOUZKKEUPVFJK-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:17097",
+          "label": "biphenyl",
+          "inchikey": "ZUOUZKKEUPVFJK-UHFFFAOYSA-N",
+          "smiles": "c1ccc(-c2ccccc2)cc1",
+          "formula": "C12H10",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:17097"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:17097",
+            "label": "biphenyl",
+            "inchikey": "ZUOUZKKEUPVFJK-UHFFFAOYSA-N",
+            "smiles": "c1ccc(-c2ccccc2)cc1",
+            "formula": "C12H10",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:17097"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Biphenyl/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Biphenyl&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "bph operons in tested Pseudomonas strains mediate biphenyl degradation; components were studied in gene-swap experiments.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/8349562/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "phenylacetic_acid",
+      "name": "Phenylacetic acid",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "aromatic_degradation",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C=C1)CC(=O)O",
+      "expected_standardized_smiles": "O=C(O)Cc1ccccc1",
+      "expected_inchikey": "WLJVXDMOQOGPHL-UHFFFAOYSA-N",
+      "expected_formula": "C8H8O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 999,
+        "chebi_id": "CHEBI:30745",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:999",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/999",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30745",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:30745",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:11010921",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/11010921/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Aromatic degradation",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C8H8O2",
+        "pubchem_inchikey": "WLJVXDMOQOGPHL-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:30745",
+          "label": "phenylacetic acid",
+          "inchikey": "WLJVXDMOQOGPHL-UHFFFAOYSA-N",
+          "smiles": "O=C(O)Cc1ccccc1",
+          "formula": "C8H8O2",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:30745"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:30745",
+            "label": "phenylacetic acid",
+            "inchikey": "WLJVXDMOQOGPHL-UHFFFAOYSA-N",
+            "smiles": "O=C(O)Cc1ccccc1",
+            "formula": "C8H8O2",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:30745"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Phenylacetic%20acid/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Phenylacetic+acid&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Aerobic Pseudomonas putida U catabolizes phenylacetic acid via a phenylacetyl-CoA pathway; phenylacetyl-CoA was identified as the inducer.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/11010921/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "phthalic_acid",
+      "name": "Phthalic acid",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "aromatic_degradation",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C(=C1)C(=O)O)C(=O)O",
+      "expected_standardized_smiles": "O=C(O)c1ccccc1C(=O)O",
+      "expected_inchikey": "XNGIFLGASWRNHJ-UHFFFAOYSA-N",
+      "expected_formula": "C8H6O4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 1017,
+        "chebi_id": "CHEBI:29069",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1017",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1017",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:29069",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:29069",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:32220846",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/32220846/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Aromatic degradation",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C8H6O4",
+        "pubchem_inchikey": "XNGIFLGASWRNHJ-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:29069",
+          "label": "phthalic acid",
+          "inchikey": "XNGIFLGASWRNHJ-UHFFFAOYSA-N",
+          "smiles": "O=C(O)c1ccccc1C(=O)O",
+          "formula": "C8H6O4",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:29069"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:29069",
+            "label": "phthalic acid",
+            "inchikey": "XNGIFLGASWRNHJ-UHFFFAOYSA-N",
+            "smiles": "O=C(O)c1ccccc1C(=O)O",
+            "formula": "C8H6O4",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:29069"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Phthalic%20acid/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Phthalic+acid&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Thauera chlorobenzoica 3CB-1 and Aromatoleum evansii KB740 grew on phthalate, including a reported aerobic hybrid phthaloyl-CoA route.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/32220846/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "gallic_acid",
+      "name": "Gallic acid",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "phenylpropanoids_and_plant_metabolites",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=C(C=C(C(=C1O)O)O)C(=O)O",
+      "expected_standardized_smiles": "O=C(O)c1cc(O)c(O)c(O)c1",
+      "expected_inchikey": "LNTHITQWFMADLM-UHFFFAOYSA-N",
+      "expected_formula": "C7H6O5",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 370,
+        "chebi_id": "CHEBI:30778",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:370",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/370",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30778",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:30778",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:21279669",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/21279669/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Phenylpropanoids and plant metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C7H6O5",
+        "pubchem_inchikey": "LNTHITQWFMADLM-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:30778",
+          "label": "gallic acid",
+          "inchikey": "LNTHITQWFMADLM-UHFFFAOYSA-N",
+          "smiles": "O=C(O)c1cc(O)c(O)c(O)c1",
+          "formula": "C7H6O5",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:30778"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:30778",
+            "label": "gallic acid",
+            "inchikey": "LNTHITQWFMADLM-UHFFFAOYSA-N",
+            "smiles": "O=C(O)c1cc(O)c(O)c(O)c1",
+            "formula": "C7H6O5",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:30778"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Gallic%20acid/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Gallic+acid&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Evidence from Escherichia coli and Juglans regia supports a shikimate dehydrogenase role in gallic acid synthesis under studied conditions.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/21279669/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "syringic_acid",
+      "name": "Syringic acid",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "phenylpropanoids_and_plant_metabolites",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "COC1=CC(=CC(=C1O)OC)C(=O)O",
+      "expected_standardized_smiles": "COc1cc(C(=O)O)cc(OC)c1O",
+      "expected_inchikey": "JMSVCTWVEWCHDZ-UHFFFAOYSA-N",
+      "expected_formula": "C9H10O5",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 10742,
+        "chebi_id": "CHEBI:68329",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:10742",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/10742",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:68329",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:68329",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:40668107",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/40668107/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Phenylpropanoids and plant metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C9H10O5",
+        "pubchem_inchikey": "JMSVCTWVEWCHDZ-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:68329",
+          "label": "syringic acid",
+          "inchikey": "JMSVCTWVEWCHDZ-UHFFFAOYSA-N",
+          "smiles": "COc1cc(C(=O)O)cc(OC)c1O",
+          "formula": "C9H10O5",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:68329"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:68329",
+            "label": "syringic acid",
+            "inchikey": "JMSVCTWVEWCHDZ-UHFFFAOYSA-N",
+            "smiles": "COc1cc(C(=O)O)cc(OC)c1O",
+            "formula": "C9H10O5",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:68329"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Syringic%20acid/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Syringic+acid&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "In Pseudomonas sp. NGC7, pathway analysis and gene disruptions supported catabolism of syringic acid via 3-O-methylgallic acid.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/40668107/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "thymol",
+      "name": "Thymol",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "phenylpropanoids_and_plant_metabolites",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "CC1=CC(=C(C=C1)C(C)C)O",
+      "expected_standardized_smiles": "Cc1ccc(C(C)C)c(O)c1",
+      "expected_inchikey": "MGSRCZKZVOBKFT-UHFFFAOYSA-N",
+      "expected_formula": "C10H14O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 6989,
+        "chebi_id": "CHEBI:27607",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6989",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6989",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:27607",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:27607",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:34930840",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/34930840/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Phenylpropanoids and plant metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C10H14O",
+        "pubchem_inchikey": "MGSRCZKZVOBKFT-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:27607",
+          "label": "thymol",
+          "inchikey": "MGSRCZKZVOBKFT-UHFFFAOYSA-N",
+          "smiles": "Cc1ccc(C(C)C)c(O)c1",
+          "formula": "C10H14O",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:27607"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:27607",
+            "label": "thymol",
+            "inchikey": "MGSRCZKZVOBKFT-UHFFFAOYSA-N",
+            "smiles": "Cc1ccc(C(C)C)c(O)c1",
+            "formula": "C10H14O",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:27607"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Thymol/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Thymol&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "In vitro assays and Nicotiana benthamiana expression supported gamma-terpinene oxidation through P450s and a dehydrogenase toward thymol and carvacrol.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/34930840/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "quercetin",
+      "name": "Quercetin",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "phenylpropanoids_and_plant_metabolites",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CC(=C(C=C1C2=C(C(=O)C3=C(C=C(C=C3O2)O)O)O)O)O",
+      "expected_standardized_smiles": "O=c1c(O)c(-c2ccc(O)c(O)c2)oc2cc(O)cc(O)c12",
+      "expected_inchikey": "REFJWTPEDVJJIY-UHFFFAOYSA-N",
+      "expected_formula": "C15H10O7",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 5280343,
+        "chebi_id": "CHEBI:16243",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5280343",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5280343",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16243",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16243",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:17719613",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/17719613/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Phenylpropanoids and plant metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C15H10O7",
+        "pubchem_inchikey": "REFJWTPEDVJJIY-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:16243",
+          "label": "quercetin",
+          "inchikey": "REFJWTPEDVJJIY-UHFFFAOYSA-N",
+          "smiles": "O=c1c(O)c(-c2ccc(O)c(O)c2)oc2cc(O)cc(O)c12",
+          "formula": "C15H10O7",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:16243"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:16243",
+            "label": "quercetin",
+            "inchikey": "REFJWTPEDVJJIY-UHFFFAOYSA-N",
+            "smiles": "O=c1c(O)c(-c2ccc(O)c(O)c2)oc2cc(O)cc(O)c12",
+            "formula": "C15H10O7",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:16243"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Quercetin/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Quercetin&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "An Arabidopsis thaliana flavonol synthase was characterized for quercetin production using kinetic and mutant assays.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/17719613/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "kaempferol",
+      "name": "Kaempferol",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "phenylpropanoids_and_plant_metabolites",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CC(=CC=C1C2=C(C(=O)C3=C(C=C(C=C3O2)O)O)O)O",
+      "expected_standardized_smiles": "O=c1c(O)c(-c2ccc(O)cc2)oc2cc(O)cc(O)c12",
+      "expected_inchikey": "IYRMWMYZSQPJKC-UHFFFAOYSA-N",
+      "expected_formula": "C15H10O6",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 5280863,
+        "chebi_id": "CHEBI:28499",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5280863",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5280863",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28499",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:28499",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:12620339",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/12620339/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Phenylpropanoids and plant metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C15H10O6",
+        "pubchem_inchikey": "IYRMWMYZSQPJKC-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:28499",
+          "label": "kaempferol",
+          "inchikey": "IYRMWMYZSQPJKC-UHFFFAOYSA-N",
+          "smiles": "O=c1c(O)c(-c2ccc(O)cc2)oc2cc(O)cc(O)c12",
+          "formula": "C15H10O6",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:28499"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:28499",
+            "label": "kaempferol",
+            "inchikey": "IYRMWMYZSQPJKC-UHFFFAOYSA-N",
+            "smiles": "O=c1c(O)c(-c2ccc(O)cc2)oc2cc(O)cc(O)c12",
+            "formula": "C15H10O6",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:28499"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Kaempferol/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Kaempferol&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "A purified recombinant Citrus unshiu flavonol synthase produced kaempferol from suitable flavonoid substrates in vitro.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/12620339/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "apigenin",
+      "name": "Apigenin",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "phenylpropanoids_and_plant_metabolites",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CC(=CC=C1C2=CC(=O)C3=C(C=C(C=C3O2)O)O)O",
+      "expected_standardized_smiles": "O=c1cc(-c2ccc(O)cc2)oc2cc(O)cc(O)c12",
+      "expected_inchikey": "KZNIFHPLKGYRTM-UHFFFAOYSA-N",
+      "expected_formula": "C15H10O5",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 5280443,
+        "chebi_id": "CHEBI:18388",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5280443",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5280443",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18388",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:18388",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:18391443",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/18391443/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Phenylpropanoids and plant metabolites",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C15H10O5",
+        "pubchem_inchikey": "KZNIFHPLKGYRTM-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:18388",
+          "label": "apigenin",
+          "inchikey": "KZNIFHPLKGYRTM-UHFFFAOYSA-N",
+          "smiles": "O=c1cc(-c2ccc(O)cc2)oc2cc(O)cc(O)c12",
+          "formula": "C15H10O5",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:18388"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:18388",
+            "label": "apigenin",
+            "inchikey": "KZNIFHPLKGYRTM-UHFFFAOYSA-N",
+            "smiles": "O=c1cc(-c2ccc(O)cc2)oc2cc(O)cc(O)c12",
+            "formula": "C15H10O5",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:18388"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Apigenin/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Apigenin&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Parsley flavone synthase expressed in Arabidopsis yielded apigenin in naringenin-fed transgenic seedlings.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/18391443/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "isoniazid",
+      "name": "Isoniazid",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "therapeutic_analogues",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CN=CC=C1C(=O)NN",
+      "expected_standardized_smiles": "NNC(=O)c1ccncc1",
+      "expected_inchikey": "QRXWMOHMRWLFEY-UHFFFAOYSA-N",
+      "expected_formula": "C6H7N3O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 3767,
+        "chebi_id": "CHEBI:6030",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3767",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3767",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:6030",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:6030",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:16566587",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/16566587/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Therapeutic analogues",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C6H7N3O",
+        "pubchem_inchikey": "QRXWMOHMRWLFEY-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:6030",
+          "label": "isoniazide",
+          "inchikey": "QRXWMOHMRWLFEY-UHFFFAOYSA-N",
+          "smiles": "NNC(=O)c1ccncc1",
+          "formula": "C6H7N3O",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:6030"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:6030",
+            "label": "isoniazide",
+            "inchikey": "QRXWMOHMRWLFEY-UHFFFAOYSA-N",
+            "smiles": "NNC(=O)c1ccncc1",
+            "formula": "C6H7N3O",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:6030"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Isoniazid/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Isoniazid&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Mycobacterium tuberculosis KatG catalyzed isoniazid-NAD adduct formation associated with InhA inhibition in vitro.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/16566587/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "metronidazole",
+      "name": "Metronidazole",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "therapeutic_analogues",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "CC1=NC=C(N1CCO)[N+](=O)[O-]",
+      "expected_standardized_smiles": "Cc1ncc([N+](=O)[O-])n1CCO",
+      "expected_inchikey": "VAOCPAMSLUNLGC-UHFFFAOYSA-N",
+      "expected_formula": "C6H9N3O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 4173,
+        "chebi_id": "CHEBI:6909",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:4173",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/4173",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:6909",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:6909",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:30237050",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/30237050/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Therapeutic analogues",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C6H9N3O3",
+        "pubchem_inchikey": "VAOCPAMSLUNLGC-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:6909",
+          "label": "metronidazole",
+          "inchikey": "VAOCPAMSLUNLGC-UHFFFAOYSA-N",
+          "smiles": "Cc1ncc([N+](=O)[O-])n1CCO",
+          "formula": "C6H9N3O3",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:6909"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:6909",
+            "label": "metronidazole",
+            "inchikey": "VAOCPAMSLUNLGC-UHFFFAOYSA-N",
+            "smiles": "Cc1ncc([N+](=O)[O-])n1CCO",
+            "formula": "C6H9N3O3",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:6909"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Metronidazole/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Metronidazole&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Metronidazole treatment of Giardia duodenalis trophozoites was associated with DNA damage and a homologous recombination response.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/30237050/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "sulfamethoxazole",
+      "name": "Sulfamethoxazole",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "therapeutic_analogues",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "CC1=CC(=NO1)NS(=O)(=O)C2=CC=C(C=C2)N",
+      "expected_standardized_smiles": "Cc1cc(NS(=O)(=O)c2ccc(N)cc2)no1",
+      "expected_inchikey": "JLKIGFTWXXRPMT-UHFFFAOYSA-N",
+      "expected_formula": "C10H11N3O3S",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 5329,
+        "chebi_id": "CHEBI:9332",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5329",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5329",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:9332",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:9332",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:29520101",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/29520101/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Therapeutic analogues",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C10H11N3O3S",
+        "pubchem_inchikey": "JLKIGFTWXXRPMT-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:9332",
+          "label": "sulfamethoxazole",
+          "inchikey": "JLKIGFTWXXRPMT-UHFFFAOYSA-N",
+          "smiles": "Cc1cc(NS(=O)(=O)c2ccc(N)cc2)no1",
+          "formula": "C10H11N3O3S",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:9332"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:9332",
+            "label": "sulfamethoxazole",
+            "inchikey": "JLKIGFTWXXRPMT-UHFFFAOYSA-N",
+            "smiles": "Cc1cc(NS(=O)(=O)c2ccc(N)cc2)no1",
+            "formula": "C10H11N3O3S",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:9332"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Sulfamethoxazole/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Sulfamethoxazole&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Genetic and biochemical experiments on trimethoprim-sulfamethoxazole showed effects on sequential folate biosynthesis and mutual potentiation.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/29520101/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "trimethoprim",
+      "name": "Trimethoprim",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "therapeutic_analogues",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "COC1=CC(=CC(=C1OC)OC)CC2=CN=C(N=C2N)N",
+      "expected_standardized_smiles": "COc1cc(Cc2cnc(N)nc2N)cc(OC)c1OC",
+      "expected_inchikey": "IEDVJHCEMCRBQM-UHFFFAOYSA-N",
+      "expected_formula": "C14H18N4O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 5578,
+        "chebi_id": "CHEBI:45924",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5578",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5578",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:45924",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:45924",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:29520101",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/29520101/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Therapeutic analogues",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C14H18N4O3",
+        "pubchem_inchikey": "IEDVJHCEMCRBQM-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:45924",
+          "label": "trimethoprim",
+          "inchikey": "IEDVJHCEMCRBQM-UHFFFAOYSA-N",
+          "smiles": "COc1cc(Cc2cnc(N)nc2N)cc(OC)c1OC",
+          "formula": "C14H18N4O3",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:45924"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:45924",
+            "label": "trimethoprim",
+            "inchikey": "IEDVJHCEMCRBQM-UHFFFAOYSA-N",
+            "smiles": "COc1cc(Cc2cnc(N)nc2N)cc(OC)c1OC",
+            "formula": "C14H18N4O3",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:45924"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Trimethoprim/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Trimethoprim&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Genetic and biochemical experiments on trimethoprim-sulfamethoxazole showed effects on sequential folate biosynthesis and mutual potentiation.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/29520101/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "lidocaine",
+      "name": "Lidocaine",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "therapeutic_analogues",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "CCN(CC)CC(=O)NC1=C(C=CC=C1C)C",
+      "expected_standardized_smiles": "CCN(CC)CC(=O)Nc1c(C)cccc1C",
+      "expected_inchikey": "NNJVILVZKWQKPM-UHFFFAOYSA-N",
+      "expected_formula": "C14H22N2O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 3676,
+        "chebi_id": "CHEBI:6456",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3676",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3676",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:6456",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:6456",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:9874684",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/9874684/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Therapeutic analogues",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C14H22N2O",
+        "pubchem_inchikey": "NNJVILVZKWQKPM-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:6456",
+          "label": "lidocaine",
+          "inchikey": "NNJVILVZKWQKPM-UHFFFAOYSA-N",
+          "smiles": "CCN(CC)CC(=O)Nc1c(C)cccc1C",
+          "formula": "C14H22N2O",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:6456"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:6456",
+            "label": "lidocaine",
+            "inchikey": "NNJVILVZKWQKPM-UHFFFAOYSA-N",
+            "smiles": "CCN(CC)CC(=O)Nc1c(C)cccc1C",
+            "formula": "C14H22N2O",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:6456"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Lidocaine/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Lidocaine&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Experiments on rat skeletal-muscle sodium channels showed voltage- and use-dependent inhibition by lidocaine.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/9874684/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    },
+    {
+      "id": "dapsone",
+      "name": "Dapsone",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "therapeutic_analogue",
+      "role_tags": [
+        "proposal"
+      ],
+      "input_isomeric_smiles": "C1=CC(=CC=C1N)S(=O)(=O)C2=CC=C(C=C2)N",
+      "expected_standardized_smiles": "Nc1ccc(S(=O)(=O)c2ccc(N)cc2)cc1",
+      "expected_inchikey": "MQJKPEGWNLWLTK-UHFFFAOYSA-N",
+      "expected_formula": "C12H12N2O2S",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [],
+      "guess_eligibility": [],
+      "structure_refs": {
+        "pubchem_cid": 2955,
+        "chebi_id": "CHEBI:4325",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:2955",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2955",
+          "role": "structure_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:4325",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:4325",
+          "role": "structure_reference"
+        },
+        {
+          "source": "PubMed",
+          "id": "PMID:10542185",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/10542185/",
+          "role": "candidate_biological_context"
+        }
+      ],
+      "hint_role": "Representative aromatic compound for structural comparison.",
+      "hint_origin": "Evidence and teaching context require review.",
+      "structural_note": "Molecular identity and structure are in the source references.",
+      "review_status": "pending",
+      "review_notes": "Draft intake: structure selected from PubChem; independent biological evidence and curator review required before acceptance.",
+      "v04_family": "Therapeutic analogues",
+      "v04_review": {
+        "status": "pending",
+        "pubchem_formula": "C12H12N2O2S",
+        "pubchem_inchikey": "MQJKPEGWNLWLTK-UHFFFAOYSA-N",
+        "chebi": {
+          "id": "CHEBI:4325",
+          "label": "dapsone",
+          "inchikey": "MQJKPEGWNLWLTK-UHFFFAOYSA-N",
+          "smiles": "Nc1ccc(S(=O)(=O)c2ccc(N)cc2)cc1",
+          "formula": "C12H12N2O2S",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:4325"
+        },
+        "chebi_candidates": [
+          {
+            "id": "CHEBI:4325",
+            "label": "dapsone",
+            "inchikey": "MQJKPEGWNLWLTK-UHFFFAOYSA-N",
+            "smiles": "Nc1ccc(S(=O)(=O)c2ccc(N)cc2)cc1",
+            "formula": "C12H12N2O2S",
+            "url": "https://www.ebi.ac.uk/chebi/CHEBI:4325"
+          }
+        ],
+        "chebi_exact_key_match": true,
+        "unspecified_stereo_count": 0,
+        "formal_charge": 0,
+        "literature_status": "Primary study located for the limited context-specific proposed claim; independent curator review remains required.",
+        "source_urls": [
+          "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/dapsone/property/Title,InChIKey,MolecularFormula,IsomericSMILES/JSON",
+          "https://www.ebi.ac.uk/ols4/api/search?q=Dapsone&ontology=chebi&exact=true&rows=20"
+        ],
+        "biological_evidence": {
+          "claim": "Purified Mycobacterium tuberculosis and M. leprae dihydropteroate synthases were inhibited by dapsone in vitro.",
+          "evidence_type": "experimental primary study, context-specific",
+          "source": "https://pubmed.ncbi.nlm.nih.gov/10542185/",
+          "status": "draft claim, awaiting curator review"
+        },
+        "rdkit_pubchem_chebi_isomeric_graph_match": true,
+        "representation": "Neutral unsalted PubChem graph as supplied; not an assertion of prevailing biological protonation. PubChem and ChEBI isomeric canonical graphs and standard InChIKeys agree under RDKit. No alternate tautomer normalization is imposed."
+      }
+    }
+  ]
+}
