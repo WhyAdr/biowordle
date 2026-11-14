@@ -22,6 +22,13 @@
   }
 
   function getUtcDateString(dateObj) {
+    if (
+      !dateObj &&
+      typeof globalScope.__BIOWORDLE_TEST_UTC_DATE__ === "string" &&
+      globalScope.__BIOWORDLE_TEST_UTC_DATE__.trim()
+    ) {
+      return globalScope.__BIOWORDLE_TEST_UTC_DATE__.trim();
+    }
     const d = dateObj || new Date();
     const yyyy = d.getUTCFullYear();
     const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
@@ -35,11 +42,11 @@
     return getUtcDateString(dt);
   }
 
-  function selectDailyIndex(game, profile, utcDate, datasetHash, poolLength, customSeed) {
+  function selectDailyIndex(game, profile, utcDate, scheduleHash, poolLength, customSeed) {
     if (!poolLength || poolLength <= 0) return 0;
     const seedStr = customSeed
-      ? `${game}:${profile}:seed:${customSeed}:${datasetHash}`
-      : `${game}:${profile}:${utcDate}:${datasetHash}`;
+      ? `${game}:${profile}:seed:${customSeed}:${scheduleHash}`
+      : `${game}:${profile}:${utcDate}:${scheduleHash}`;
     return fnv1aHash(seedStr) % poolLength;
   }
 
@@ -298,11 +305,39 @@
     }
   }
 
-  function countCompatibleChemleCandidates(guesses, target, answerPool, simMatrix, profileSpec, chemById) {
-    if (!guesses || guesses.length === 0) return answerPool.length;
+  function countCompatibleChemleCandidates(
+    guesses,
+    target,
+    answerPool,
+    simMatrix,
+    profileSpec,
+    chemById,
+    clueConstraint
+  ) {
+    const gList = Array.isArray(guesses) ? guesses : [];
+    if (gList.length === 0 && !clueConstraint) return answerPool.length;
+    const profId = (clueConstraint && clueConstraint.profileId) || "learn";
     return answerPool.filter((cand) => {
-      for (let i = 0; i < guesses.length; i++) {
-        const gId = guesses[i];
+      if (clueConstraint) {
+        if (clueConstraint.level0Text) {
+          const candLvl0 =
+            cand.clue_ladder &&
+            cand.clue_ladder[profId] &&
+            cand.clue_ladder[profId][0] &&
+            cand.clue_ladder[profId][0].text;
+          if (candLvl0 !== clueConstraint.level0Text) return false;
+        }
+        if (clueConstraint.superClass !== undefined && clueConstraint.superClass !== null) {
+          if (cand.super_class !== clueConstraint.superClass) return false;
+        }
+        if (clueConstraint.scaffoldUnlocked) {
+          const candScaf = cand.scaffold_smiles || "";
+          const targetScaf = clueConstraint.targetScaffoldSmiles || "";
+          if (candScaf !== targetScaf) return false;
+        }
+      }
+      for (let i = 0; i < gList.length; i++) {
+        const gId = gList[i];
         const gObj = chemById[gId];
         if (!gObj) continue;
         if (gId !== target.id && cand.id === gId) return false;
@@ -324,18 +359,45 @@
     }).length;
   }
 
-  function countCompatibleSeqleCandidates(guesses, target, answerPool, aaProps, profileSpec) {
-    if (!guesses || guesses.length === 0) return answerPool.length;
+  function countCompatibleSeqleCandidates(
+    guesses,
+    target,
+    answerPool,
+    aaProps,
+    profileSpec,
+    clueConstraint
+  ) {
+    const gList = Array.isArray(guesses) ? guesses : [];
+    if (gList.length === 0 && !clueConstraint) return answerPool.length;
+    const profId = (clueConstraint && clueConstraint.profileId) || "learn";
     return answerPool.filter((cand) => {
-      for (let i = 0; i < guesses.length; i++) {
-        const gSeq = guesses[i].seq;
+      if (clueConstraint) {
+        if (clueConstraint.level0Text) {
+          const candLvl0 =
+            cand.clue_ladder &&
+            cand.clue_ladder[profId] &&
+            cand.clue_ladder[profId][0] &&
+            cand.clue_ladder[profId][0].text;
+          if (candLvl0 !== clueConstraint.level0Text) return false;
+        }
+        if (clueConstraint.level1Text) {
+          const candLvl1 =
+            cand.clue_ladder &&
+            cand.clue_ladder[profId] &&
+            cand.clue_ladder[profId][1] &&
+            cand.clue_ladder[profId][1].text;
+          if (candLvl1 !== clueConstraint.level1Text) return false;
+        }
+      }
+      for (let i = 0; i < gList.length; i++) {
+        const gSeq = gList[i].seq;
         if (gSeq !== target.seq && cand.seq === gSeq) return false;
         const obsSig = evaluateSeqleFeedbackFromSpec(
           gSeq,
           target.seq,
           aaProps,
           profileSpec,
-          guesses[i].biochem,
+          gList[i].biochem,
           target
         ).signature;
         const candSig = evaluateSeqleFeedbackFromSpec(
@@ -343,7 +405,7 @@
           cand.seq,
           aaProps,
           profileSpec,
-          guesses[i].biochem,
+          gList[i].biochem,
           cand
         ).signature;
         if (obsSig !== candSig) return false;
@@ -380,6 +442,19 @@
     return next;
   }
 
+  function migrateV1Stats(v1) {
+    const src = v1 && typeof v1 === "object" ? v1 : {};
+    return {
+      schema: 2,
+      chemWins: Math.max(0, Number(src.chemWins) || 0),
+      seqWins: Math.max(0, Number(src.seqWins) || 0),
+      streak: 0,
+      maxStreak: 0,
+      lastDailyWinUtcByGame: { chemle: null, seqle: null },
+      lastStreakIncrementUtc: null,
+    };
+  }
+
   const BioWordleEngine = {
     fnv1aHash,
     getUtcDateString,
@@ -395,6 +470,7 @@
     countCompatibleChemleCandidates,
     countCompatibleSeqleCandidates,
     evaluateDailyWinStreak,
+    migrateV1Stats,
   };
 
   globalScope.BioWordleEngine = BioWordleEngine;
@@ -413,6 +489,7 @@
   const DATA = globalScope.BIOWORDLE_DATA;
   const FEEDBACK_SPEC = DATA.feedback_spec;
   const DATASET_HASH = (DATA.metadata && DATA.metadata.dataset_version_hash) || "v02";
+  const SCHEDULE_HASH = (DATA.metadata && DATA.metadata.schedule_version_hash) || DATASET_HASH;
 
   const CHEM_BY_ID = {};
   DATA.chemle.forEach((m) => {
@@ -437,15 +514,7 @@
       const rawV1 = localStorage.getItem(STATS_KEY_V1);
       if (rawV1) {
         const v1 = JSON.parse(rawV1);
-        const migrated = {
-          schema: 2,
-          chemWins: Number(v1.chemWins || 0),
-          seqWins: Number(v1.seqWins || 0),
-          streak: Number(v1.streak || 0),
-          maxStreak: Number(v1.streak || 0),
-          lastDailyWinUtcByGame: { chemle: null, seqle: null },
-          lastStreakIncrementUtc: null,
-        };
+        const migrated = migrateV1Stats(v1);
         localStorage.setItem(STATS_KEY_V2, JSON.stringify(migrated));
         return migrated;
       }
@@ -469,6 +538,13 @@
 
   function getDailyStorageKey(game, utcDate, customSeed) {
     if (customSeed) {
+      return `biowordle_seed_v2:${game}:${customSeed}:${SCHEDULE_HASH}`;
+    }
+    return `biowordle_daily_v2:${game}:${utcDate}:${SCHEDULE_HASH}`;
+  }
+
+  function getLegacyDailyStorageKey(game, utcDate, customSeed) {
+    if (customSeed) {
       return `biowordle_seed_v2:${game}:${customSeed}:${DATASET_HASH}`;
     }
     return `biowordle_daily_v2:${game}:${utcDate}:${DATASET_HASH}`;
@@ -477,7 +553,12 @@
   function loadPersistedDailyGame(game, utcDate, customSeed) {
     try {
       const raw = localStorage.getItem(getDailyStorageKey(game, utcDate, customSeed));
-      return raw ? JSON.parse(raw) : null;
+      if (raw) return JSON.parse(raw);
+      if (SCHEDULE_HASH !== DATASET_HASH) {
+        const legacyRaw = localStorage.getItem(getLegacyDailyStorageKey(game, utcDate, customSeed));
+        if (legacyRaw) return JSON.parse(legacyRaw);
+      }
+      return null;
     } catch (_) {
       return null;
     }
@@ -514,6 +595,7 @@
       won: false,
       activeDropdownIdx: -1,
       filteredOptions: [],
+      utcDate: null,
       initialized: false,
     };
   }
@@ -528,6 +610,7 @@
       revealed: false,
       won: false,
       keyStates: {},
+      utcDate: null,
       initialized: false,
     };
   }
@@ -585,7 +668,42 @@
     $("stat-streak").textContent = state.stats.streak || 0;
   }
 
+  function showUtcRolloverNotice(prevUtc, nextUtc) {
+    const el = $("utc-rollover-banner");
+    if (!el) return;
+    el.className = "toast-banner show";
+    el.innerHTML = `
+      <div>🕒 <strong>UTC Midnight Rollover:</strong> Daily date advanced from <code>${escapeHtml(prevUtc)}</code> to <code>${escapeHtml(nextUtc)}</code>. Fresh Ranked daily puzzles have been loaded.</div>
+      <button class="btn" onclick="this.closest('.toast-banner').classList.remove('show')">Dismiss</button>
+    `;
+  }
+
+  function checkAndHandleUtcRollover() {
+    if (state.customSeed) return false;
+    const currentUtc = getUtcDateString();
+    const rChem = state.sessions.ranked.chemle;
+    const rSeq = state.sessions.ranked.seqle;
+    const staleChem = Boolean(rChem.initialized && rChem.utcDate && rChem.utcDate !== currentUtc);
+    const staleSeq = Boolean(rSeq.initialized && rSeq.utcDate && rSeq.utcDate !== currentUtc);
+    if (!staleChem && !staleSeq) return false;
+
+    const prevUtc = (staleChem ? rChem.utcDate : rSeq.utcDate) || "";
+    rChem.initialized = false;
+    rSeq.initialized = false;
+    ensureSessionInitialized("chemle", "ranked", false);
+    ensureSessionInitialized("seqle", "ranked", false);
+
+    if (state.profile === "ranked") {
+      showUtcRolloverNotice(prevUtc, currentUtc);
+      syncHeaderAndProfileControls();
+      if (state.mode === "chemle") renderChemleView();
+      else renderSeqleView();
+    }
+    return true;
+  }
+
   function updateUtcCountdownUI() {
+    checkAndHandleUtcRollover();
     const el = $("utc-countdown");
     if (!el) return;
     const now = new Date();
@@ -604,6 +722,22 @@
     el.textContent = `(UTC ${hh}:${mm}:${ss})`;
   }
 
+  function syncHintButtonUI() {
+    const hintBtn = $("btn-hint");
+    if (!hintBtn) return;
+    if (state.profile === "ranked") {
+      hintBtn.disabled = true;
+      hintBtn.textContent = "🔒 Auto-Clues (Ranked)";
+      hintBtn.title = "Ranked mode unlocks clues automatically by guess count only; manual hints are disabled.";
+      return;
+    }
+    const curSess = state.mode === "chemle" ? activeChemle() : activeSeqle();
+    const curLvl = curSess && curSess.target ? getUnlockedClueLevel(curSess, "learn") : 0;
+    hintBtn.disabled = Boolean(curSess && (curSess.revealed || curLvl >= 3));
+    hintBtn.textContent = "💡 Hint";
+    hintBtn.title = "Unlock next clue in the progressive Clue Ladder";
+  }
+
   function syncHeaderAndProfileControls() {
     const isRanked = state.profile === "ranked";
     const playBtn = $("btn-playstyle");
@@ -619,6 +753,8 @@
     rndBtn.title = isRanked
       ? "Ranked Daily uses a single canonical UTC puzzle per day. Switch to Learn Mode to roll random practice puzzles."
       : "Roll a random new puzzle from the active Learn answer pool";
+
+    syncHintButtonUI();
 
     const seqCountBadge = $("badge-seqle-count");
     if (seqCountBadge) {
@@ -708,7 +844,7 @@
         game,
         profile,
         utcDate,
-        DATASET_HASH,
+        SCHEDULE_HASH,
         ansPool.length,
         state.customSeed
       );
@@ -725,6 +861,7 @@
       sess.hintLevelUnlocked = 0;
       sess.revealed = false;
       sess.won = false;
+      sess.utcDate = utcDate;
       if (game === "seqle") {
         sess.currentInput = "";
         sess.keyStates = {};
@@ -766,7 +903,7 @@
         }
         sess.won = Boolean(saved.won);
         sess.revealed = Boolean(saved.gameOver);
-        sess.hintLevelUnlocked = saved.hintLevelUnlocked || 0;
+        sess.hintLevelUnlocked = 0;
       }
       sess.initialized = true;
     } else {
@@ -786,6 +923,7 @@
       sess.hintLevelUnlocked = 0;
       sess.revealed = false;
       sess.won = false;
+      sess.utcDate = null;
       if (game === "seqle") {
         sess.currentInput = "";
         sess.keyStates = {};
@@ -798,7 +936,7 @@
     if (state.profile !== "ranked") return;
     const sess = state.sessions.ranked[game];
     if (!sess || !sess.target) return;
-    const utcDate = getUtcDateString();
+    const utcDate = sess.utcDate || getUtcDateString();
     const targetId = game === "chemle" ? sess.target.id : sess.target.seq;
     const serializedGuesses =
       game === "chemle" ? sess.guesses.slice() : sess.guesses.map((g) => g.seq);
@@ -807,7 +945,9 @@
       guesses: serializedGuesses,
       won: sess.won,
       gameOver: sess.revealed,
-      hintLevelUnlocked: sess.hintLevelUnlocked,
+      hintLevelUnlocked: 0,
+      utcDate,
+      scheduleHash: SCHEDULE_HASH,
       datasetHash: DATASET_HASH,
     });
   }
@@ -820,7 +960,20 @@
     const t = ch.target;
     const profSpec = activeProfileSpec();
     const ansPool = getAnswerPool(DATA, "chemle", state.profile, state.learnCategoryFilter);
+    const maxLvl = getUnlockedClueLevel(ch, state.profile);
+    const ladder = (t.clue_ladder && t.clue_ladder[state.profile]) || [];
+    const scafThreshold = Number((profSpec && profSpec.scaffold_unlock_after_guesses) || 3);
+    const clueConstraint = {
+      profileId: state.profile,
+      level0Text: ladder[0] ? ladder[0].text : null,
+      superClass: maxLvl >= 1 ? t.super_class : null,
+      scaffoldUnlocked:
+        (state.profile === "learn" && maxLvl >= 1) ||
+        (state.profile === "ranked" && ch.guesses.length >= scafThreshold),
+      targetScaffoldSmiles: t.scaffold_smiles || "",
+    };
 
+    syncHintButtonUI();
     $("chemle-try-counter").textContent = `Guesses: ${ch.guesses.length} / ${ch.maxGuesses}`;
     const compat = countCompatibleChemleCandidates(
       ch.guesses,
@@ -828,7 +981,8 @@
       ansPool,
       DATA.chemle_similarity,
       profSpec,
-      CHEM_BY_ID
+      CHEM_BY_ID,
+      clueConstraint
     );
     $("chemle-candidates-pill").textContent = `Candidates: ${compat} / ${ansPool.length}`;
 
@@ -861,16 +1015,20 @@
     renderChemleGuesses();
   }
 
-  function getUnlockedClueLevel(sess) {
+  function getUnlockedClueLevel(sess, profileOverride) {
     if (sess.revealed) return 3;
-    const ladder = (sess.target.clue_ladder && sess.target.clue_ladder[state.profile]) || [];
+    const prof = profileOverride || state.profile;
+    const ladder = (sess.target.clue_ladder && sess.target.clue_ladder[prof]) || [];
     let autoLevel = 0;
     for (let i = 0; i < ladder.length; i++) {
       if (sess.guesses.length >= ladder[i].after_guesses) {
         autoLevel = Math.max(autoLevel, ladder[i].level);
       }
     }
-    return Math.min(3, Math.max(autoLevel, sess.hintLevelUnlocked));
+    if (prof === "ranked") {
+      return Math.min(3, autoLevel);
+    }
+    return Math.min(3, Math.max(autoLevel, sess.hintLevelUnlocked || 0));
   }
 
   function renderChemleInspector() {
@@ -881,15 +1039,17 @@
     const hintsList = $("chemle-hints-list");
     const fullProps = $("chemle-full-props");
 
-    const maxLvl = getUnlockedClueLevel(ch);
+    const maxLvl = getUnlockedClueLevel(ch, state.profile);
     const ladder = (t.clue_ladder && t.clue_ladder[state.profile]) || [];
+    const profSpec = activeProfileSpec();
+    const scafThreshold = Number((profSpec && profSpec.scaffold_unlock_after_guesses) || 3);
+    const scafUnlocked =
+      !ch.revealed &&
+      ((state.profile === "learn" && maxLvl >= 1) ||
+        (state.profile === "ranked" && ch.guesses.length >= scafThreshold));
 
     // 2D SVG well (Silhouette -> Scaffold -> Full Revealed)
-    const showScaffold =
-      !ch.revealed &&
-      t.has_scaffold &&
-      ((state.profile === "learn" && maxLvl >= 1) ||
-        (state.profile === "ranked" && ch.guesses.length >= 3));
+    const showScaffold = t.has_scaffold && scafUnlocked;
 
     if (ch.revealed) {
       well.className = "chem-svg-well";
@@ -930,7 +1090,7 @@
       if (nextClue) {
         const unlockMsg =
           state.profile === "ranked"
-            ? `Auto-unlocks after Guess ${nextClue.after_guesses} (or click 💡 Hint)`
+            ? `Auto-unlocks after Guess ${nextClue.after_guesses}`
             : `Click 💡 Hint to unlock ${nextClue.title}`;
         html += `
           <div class="hint-item" style="opacity:0.75;border-style:dashed;">
@@ -940,7 +1100,7 @@
       }
     }
 
-    if (!ch.revealed && !t.has_scaffold && maxLvl >= 1) {
+    if (!ch.revealed && !t.has_scaffold && scafUnlocked) {
       html += `
         <div class="hint-item">
           <strong>Topology Note</strong>
@@ -1141,6 +1301,11 @@
   }
 
   function submitChemleGuess(molId) {
+    if (state.profile === "ranked" && checkAndHandleUtcRollover()) {
+      $("chemle-search-input").value = "";
+      closeChemleDropdown();
+      return;
+    }
     const ch = activeChemle();
     if (ch.revealed || ch.won) return;
     if (!CHEM_BY_ID[molId]) return;
@@ -1152,7 +1317,7 @@
       ch.won = true;
       ch.revealed = true;
       if (state.profile === "ranked" && !state.customSeed) {
-        state.stats = evaluateDailyWinStreak(state.stats, "chemle", getUtcDateString());
+        state.stats = evaluateDailyWinStreak(state.stats, "chemle", ch.utcDate || getUtcDateString());
       } else {
         state.stats.chemWins = (state.stats.chemWins || 0) + 1;
       }
@@ -1294,14 +1459,23 @@
     const t = sq.target;
     const profSpec = activeProfileSpec();
     const ansPool = getAnswerPool(DATA, "seqle", state.profile, state.learnCategoryFilter);
+    const maxLvl = getUnlockedClueLevel(sq, state.profile);
+    const ladder = (t.clue_ladder && t.clue_ladder[state.profile]) || [];
+    const clueConstraint = {
+      profileId: state.profile,
+      level0Text: ladder[0] ? ladder[0].text : null,
+      level1Text: maxLvl >= 1 && ladder[1] ? ladder[1].text : null,
+    };
 
+    syncHintButtonUI();
     $("seqle-try-counter").textContent = `Guesses: ${sq.guesses.length} / ${sq.maxGuesses}`;
     const compat = countCompatibleSeqleCandidates(
       sq.guesses,
       t,
       ansPool,
       DATA.aa_properties,
-      profSpec
+      profSpec,
+      clueConstraint
     );
     const candPill = $("seqle-candidates-pill");
     if (candPill) {
@@ -1494,7 +1668,7 @@
     const hintsList = $("seqle-hints-list");
     const fullProps = $("seqle-full-props");
 
-    const maxLvl = getUnlockedClueLevel(sq);
+    const maxLvl = getUnlockedClueLevel(sq, state.profile);
     const ladder = (t.clue_ladder && t.clue_ladder[state.profile]) || [];
 
     if (sq.revealed) {
@@ -1529,7 +1703,7 @@
       if (nextClue) {
         const unlockMsg =
           state.profile === "ranked"
-            ? `Auto-unlocks after Guess ${nextClue.after_guesses} (or click 💡 Hint)`
+            ? `Auto-unlocks after Guess ${nextClue.after_guesses}`
             : `Click 💡 Hint to unlock ${nextClue.title}`;
         html += `
           <div class="hint-item" style="opacity:0.75;border-style:dashed;">
@@ -1607,6 +1781,7 @@
   }
 
   function submitSeqleGuess() {
+    if (state.profile === "ranked" && checkAndHandleUtcRollover()) return;
     const sq = activeSeqle();
     if (sq.revealed || sq.won) return;
     if (sq.currentInput.length !== 5) return;
@@ -1656,7 +1831,7 @@
       sq.won = true;
       sq.revealed = true;
       if (state.profile === "ranked" && !state.customSeed) {
-        state.stats = evaluateDailyWinStreak(state.stats, "seqle", getUtcDateString());
+        state.stats = evaluateDailyWinStreak(state.stats, "seqle", sq.utcDate || getUtcDateString());
       } else {
         state.stats.seqWins = (state.stats.seqWins || 0) + 1;
       }
@@ -1754,6 +1929,7 @@
     $("view-chemle").style.display = isChem ? "grid" : "none";
     $("view-seqle").style.display = isChem ? "none" : "grid";
 
+    checkAndHandleUtcRollover();
     ensureSessionInitialized(newMode, state.profile, false);
     if (isChem) renderChemleView();
     else renderSeqleView();
@@ -1761,6 +1937,7 @@
 
   function switchProfile(newProfile) {
     state.profile = newProfile;
+    checkAndHandleUtcRollover();
     syncHeaderAndProfileControls();
     ensureSessionInitialized("chemle", state.profile, false);
     ensureSessionInitialized("seqle", state.profile, false);
@@ -1804,19 +1981,23 @@
     });
 
     $("btn-hint").addEventListener("click", () => {
+      if (state.profile === "ranked") {
+        checkAndHandleUtcRollover();
+        return;
+      }
       if (state.mode === "chemle") {
         const ch = activeChemle();
-        if (!ch.revealed && ch.hintLevelUnlocked < 3) {
-          ch.hintLevelUnlocked += 1;
-          persistCurrentRankedState("chemle");
-          renderChemleInspector();
+        const curLvl = getUnlockedClueLevel(ch, "learn");
+        if (!ch.revealed && curLvl < 3) {
+          ch.hintLevelUnlocked = curLvl + 1;
+          renderChemleView();
         }
       } else {
         const sq = activeSeqle();
-        if (!sq.revealed && sq.hintLevelUnlocked < 3) {
-          sq.hintLevelUnlocked += 1;
-          persistCurrentRankedState("seqle");
-          renderSeqleInspector();
+        const curLvl = getUnlockedClueLevel(sq, "learn");
+        if (!sq.revealed && curLvl < 3) {
+          sq.hintLevelUnlocked = curLvl + 1;
+          renderSeqleView();
         }
       }
     });
@@ -1826,6 +2007,7 @@
     });
 
     $("btn-giveup").addEventListener("click", () => {
+      if (state.profile === "ranked" && checkAndHandleUtcRollover()) return;
       if (state.mode === "chemle") {
         const ch = activeChemle();
         ch.revealed = true;
