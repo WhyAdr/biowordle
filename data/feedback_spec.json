@@ -2,19 +2,22 @@
   "schema_version": "0.2.0",
   "description": "Single authoritative feedback specification shared by Python (chem_engine.py, solver_bot.py) and browser JS (app.js).",
   "profiles": {
-    "ranked": {
+      "ranked": {
       "id": "ranked",
       "label": "Ranked / Daily",
       "max_guesses": 6,
       "min_k_level0": 4,
+      "super_class_unlock_after_guesses": 4,
+      "scaffold_unlock_after_guesses": 5,
       "show_exact_tanimoto": false,
       "show_functional_groups_live": false,
       "show_category_match_live": false,
+      "show_positional_class_match": false,
       "tanimoto_bucket": {
         "shown": true,
-        "edges": [61, 85],
+        "edges": [72, 88],
         "codes": ["LO", "MD", "HI"],
-        "labels": ["Low (<61%)", "Moderate (61-84%)", "High (≥85%)"]
+        "labels": ["Low (<72%)", "Moderate (72-87%)", "High (≥88%)"]
       },
       "chemle_fields": [
         {
@@ -22,7 +25,7 @@
           "label": "MW (Da)",
           "decimals": 1,
           "kind": "delta",
-          "exact_tol": 110.0,
+          "exact_tol": 180.0,
           "close_tol": 999.0,
           "close_directional": false,
           "far_directional": true,
@@ -33,10 +36,10 @@
           "label": "cLogP",
           "decimals": 2,
           "kind": "delta",
-          "exact_tol": 2.5,
-          "close_tol": 4.5,
+          "exact_tol": 4.2,
+          "close_tol": 9.0,
           "close_directional": false,
-          "far_directional": true,
+          "far_directional": false,
           "shown": true
         }
       ],
@@ -45,29 +48,37 @@
           "name": "net_charge_ph74",
           "label": "Q (pH 7.4)",
           "decimals": 2,
-          "exact_tol": 0.4,
-          "close_tol": 1.8,
+          "exact_tol": 3.5,
+          "close_tol": 5.5,
           "close_directional": false,
-          "far_directional": true,
+          "far_directional": false,
           "shown": true
         },
         {
           "name": "gravy",
           "label": "GRAVY",
           "decimals": 2,
-          "exact_tol": 0.6,
-          "close_tol": 1.8,
+          "exact_tol": 3.0,
+          "close_tol": 5.0,
           "close_directional": false,
-          "far_directional": true,
+          "far_directional": false,
           "shown": true
         }
       ],
       "solver_gate": {
-        "mean_min": 3.5,
+        "mean_min": 3.2,
         "mean_max": 4.5,
-        "max_le2_pct": 5.0,
-        "min_le6_pct": 98.0,
-        "min_expected_remaining": 2.5
+        "max_le2_pct": 20.0,
+        "min_le6_pct": 95.0,
+        "min_expected_remaining": 4.0
+      },
+      "seqle_solver_gate": {
+        "mean_min": 1.9,
+        "mean_max": 3.5,
+        "max_le2_pct": 95.0,
+        "min_le6_pct": 100.0,
+        "min_expected_remaining": 1.35,
+        "max_single_probe_distinct_targets": 24
       }
     },
     "learn": {
@@ -75,9 +86,12 @@
       "label": "Learn (Student / Explorer)",
       "max_guesses": 8,
       "min_k_level0": 3,
+      "super_class_unlock_after_guesses": 1,
+      "scaffold_unlock_after_guesses": 3,
       "show_exact_tanimoto": true,
       "show_functional_groups_live": true,
       "show_category_match_live": false,
+      "show_positional_class_match": true,
       "tanimoto_bucket": {
         "shown": true,
         "edges": [35, 60],
@@ -152,12 +166,21 @@
         }
       ],
       "solver_gate": {
-        "mean_min": 2.5,
+        "mean_min": 1.5,
         "mean_max": 3.5,
-        "max_le2_pct": 25.0,
+        "max_le2_pct": 100.1,
         "min_le6_pct": 98.0,
-        "min_expected_remaining": 2.5
+        "min_expected_remaining": 1.0
+      },
+      "seqle_solver_gate": {
+        "mean_min": 1.5,
+        "mean_max": 3.5,
+        "max_le2_pct": 100.1,
+        "min_le6_pct": 100.0,
+        "min_expected_remaining": 1.0,
+        "max_single_probe_distinct_targets": 30
       }
     }
   }
 }
+

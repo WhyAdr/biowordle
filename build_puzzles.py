@@ -34,6 +34,7 @@ from chem_engine import (
     PEPTIDE_PKA_SPEC,
     SEQLE_REFERENCE_REGISTRY,
     STANDARDIZATION_SPEC,
+    assert_seqle_solver_gate,
     assert_solver_gate,
     audit_hint_text_leakage,
     build_scaffold_clue_svg,
@@ -46,6 +47,7 @@ from chem_engine import (
     evaluate_seqle_feedback_from_spec,
     render_responsive_svg,
     run_chemle_greedy_solver,
+    run_seqle_greedy_solver,
     select_k_anonymous_level0_features,
     standardize_and_audit,
     validate_seqle_motif_record,
@@ -989,6 +991,34 @@ def compute_canonical_dataset_hash(
     return hashlib.sha256(blob).hexdigest()[:12]
 
 
+def compute_schedule_version_hash(
+    chemle_records: Sequence[Dict[str, Any]],
+    seqle_records: Sequence[Dict[str, Any]],
+) -> str:
+    """Computes a daily-schedule hash strictly from catalog identities and mode eligibility.
+
+    Separated from `dataset_version_hash` so tuning descriptors or feedback thresholds
+    does not scramble the daily puzzle rotation or orphan active-day state.
+    """
+    payload = {
+        "schema_version": SCHEMA_VERSION,
+        "chemle_ids": sorted(r["id"] for r in chemle_records),
+        "seqle_catalog": sorted(
+            (
+                {
+                    "seq": r["seq"],
+                    "kind": r["kind"],
+                    "game_eligibility": sorted(r["game_eligibility"]),
+                }
+                for r in seqle_records
+            ),
+            key=lambda x: x["seq"],
+        ),
+    }
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()[:12]
+
+
 def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
     """Compiles, validates, and audits the complete Chemle + Seqle puzzle database."""
     # Sort raw catalogs canonically by ID / sequence first so output order is invariant (P1-3)
@@ -1081,26 +1111,34 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
         f"Learn Level-0 ({l_chem_feats}): k_min={l_chem_kmin}, groups={l_chem_groups}"
     )
 
+    ranked_super_unlock = int(feedback_spec["profiles"]["ranked"].get("super_class_unlock_after_guesses", 4))
+    learn_super_unlock = int(feedback_spec["profiles"]["learn"].get("super_class_unlock_after_guesses", 1))
     for idx, rec in enumerate(chemle_records):
         rec["clue_ladder"] = {
             "ranked": [
                 {"level": 0, "after_guesses": 0, "title": "Clue 1 · Molecular Size Band (k-Anonymous)", "text": r_chem_lvl0[idx]},
-                {"level": 1, "after_guesses": 2, "title": "Clue 2 · Chemical Super-Class", "text": f"Broad Super-Class: {rec['super_class']}"},
+                {"level": 1, "after_guesses": ranked_super_unlock, "title": "Clue 2 · Chemical Super-Class", "text": f"Broad Super-Class: {rec['super_class']}"},
                 {"level": 2, "after_guesses": 4, "title": "Clue 3 · Biochemical Role & Mechanism", "text": rec["hint_role"]},
                 {"level": 3, "after_guesses": 5, "title": "Clue 4 · Biosynthesis & Pathway Origin", "text": rec["hint_origin"]},
             ],
             "learn": [
                 {"level": 0, "after_guesses": 0, "title": "Clue 1 · Chemical Space Band (k-Anonymous)", "text": l_chem_lvl0[idx]},
-                {"level": 1, "after_guesses": 1, "title": "Clue 2 · Chemical Super-Class", "text": f"Broad Super-Class: {rec['super_class']}"},
+                {"level": 1, "after_guesses": learn_super_unlock, "title": "Clue 2 · Chemical Super-Class", "text": f"Broad Super-Class: {rec['super_class']}"},
                 {"level": 2, "after_guesses": 2, "title": "Clue 3 · Biochemical Role & Mechanism", "text": rec["hint_role"]},
                 {"level": 3, "after_guesses": 3, "title": "Clue 4 · Biosynthesis & Pathway Origin", "text": rec["hint_origin"]},
             ],
         }
 
-    # P0-2: Run greedy max-entropy solver for each profile and enforce solver build gate
+    # P0-2: Run clue-conditioned greedy max-entropy solver for each profile and enforce solver build gate
     solver_reports: Dict[str, Any] = {}
     for prof_id, prof_spec in feedback_spec["profiles"].items():
-        stats = run_chemle_greedy_solver(chemle_records, similarity_matrix, prof_spec)
+        stats = run_chemle_greedy_solver(
+            chemle_records,
+            similarity_matrix,
+            prof_spec,
+            profile_id=prof_id,
+            condition_on_clues=True,
+        )
         assert_solver_gate(stats, prof_spec["solver_gate"], prof_id)
         solver_reports[prof_id] = {
             k: v for k, v in stats.items() if k not in ("probe_metrics", "per_target_guesses")
@@ -1231,7 +1269,22 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
     for rec in seqle_records:
         rec["postgame_insights"] = seq_info[rec["seq"]]
 
+    seqle_solver_reports: Dict[str, Any] = {}
+    for prof_id, prof_spec in feedback_spec["profiles"].items():
+        seq_stats = run_seqle_greedy_solver(
+            seqle_records,
+            AA_PROPERTIES,
+            prof_spec,
+            profile_id=prof_id,
+            condition_on_clues=True,
+        )
+        assert_seqle_solver_gate(seq_stats, prof_spec["seqle_solver_gate"], prof_id)
+        seqle_solver_reports[prof_id] = {
+            k: v for k, v in seq_stats.items() if k not in ("per_target_guesses",)
+        }
+
     dataset_hash = compute_canonical_dataset_hash(chemle_records, seqle_records, feedback_spec)
+    schedule_hash = compute_schedule_version_hash(chemle_records, seqle_records)
 
     return {
         "metadata": {
@@ -1239,7 +1292,8 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             "generator": "BioWordle Independent RDKit Build Compiler (chem_engine.py)",
             "rdkit_version": Chem.rdBase.rdkitVersion,
             "dataset_version_hash": dataset_hash,
-            "daily_seed_policy": "FNV-1a over '{game}:{profile}:{utcDate}:{dataset_version_hash}' indexing canonically sorted pool",
+            "schedule_version_hash": schedule_hash,
+            "daily_seed_policy": "FNV-1a over '{game}:{profile}:{utcDate}:{schedule_version_hash}' indexing canonically sorted pool",
             "chemle_count": len(chemle_records),
             "seqle_count": len(seqle_records),
             "seqle_ranked_count": len(ranked_seq_pool),
@@ -1253,6 +1307,7 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
                 "seqle_learn": {"features": l_seq_feats, "k_min": l_seq_kmin, "group_sizes": l_seq_groups},
             },
             "solver_gate_audit": solver_reports,
+            "seqle_solver_gate_audit": seqle_solver_reports,
         },
         "feedback_spec": feedback_spec,
         "aa_properties": AA_PROPERTIES,

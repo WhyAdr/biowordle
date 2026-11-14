@@ -130,6 +130,22 @@
       });
     }
 
+    if (!isWin) {
+      if (profileSpec.show_exact_tanimoto) {
+        sigParts.push("SIM_PCT:" + Math.trunc(simPct));
+      }
+      if (profileSpec.show_functional_groups_live) {
+        const gFg = new Set(guess.functional_groups || []);
+        const tFg = target.functional_groups || [];
+        const shared = [];
+        for (let i = 0; i < tFg.length; i++) {
+          if (gFg.has(tFg[i])) shared.push(tFg[i]);
+        }
+        shared.sort();
+        sigParts.push("FG:" + shared.join(","));
+      }
+    }
+
     return {
       signature: sigParts.join("|"),
       sim_code: simCode,
@@ -226,7 +242,10 @@
   }
 
   function evaluateSeqleFeedbackFromSpec(guessSeq, targetSeq, aaProps, profileSpec, guessBiochem, targetBiochem) {
-    const tiles = evaluateSeqleTiles(guessSeq, targetSeq, aaProps);
+    let tiles = evaluateSeqleTiles(guessSeq, targetSeq, aaProps);
+    if (profileSpec.show_positional_class_match === false) {
+      tiles = tiles.map((t) => (t === "class" ? "absent" : t));
+    }
     const gBio = guessBiochem || computePeptideBiochem(guessSeq, aaProps);
     const tBio = targetBiochem || computePeptideBiochem(targetSeq, aaProps);
 

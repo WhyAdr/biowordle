@@ -20,9 +20,10 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 from chem_engine import (  # noqa: E402
+    assert_seqle_solver_gate,
     assert_solver_gate,
-    compute_seqle_information_metrics,
     run_chemle_greedy_solver,
+    run_seqle_greedy_solver,
 )
 
 
@@ -38,7 +39,9 @@ def run_all_gates(puzzles_path: Path, spec_path: Path) -> Dict[str, Any]:
     report: Dict[str, Any] = {"chemle": {}, "seqle": {}}
 
     for profile_name, profile_spec in spec["profiles"].items():
-        stats = run_chemle_greedy_solver(chemle, sim_matrix, profile_spec)
+        stats = run_chemle_greedy_solver(
+            chemle, sim_matrix, profile_spec, profile_id=profile_name, condition_on_clues=True
+        )
         assert_solver_gate(stats, profile_spec["solver_gate"], profile_name)
         report["chemle"][profile_name] = stats
         print(
@@ -51,24 +54,21 @@ def run_all_gates(puzzles_path: Path, spec_path: Path) -> Dict[str, Any]:
             f"dist={stats['distribution']}"
         )
 
-    # Also compute Seqle opening information metrics per profile
     for profile_name, profile_spec in spec["profiles"].items():
-        eligible_seq = [
-            m for m in seqle if profile_name in m.get("game_eligibility", ["learn"])
-        ]
-        metrics = compute_seqle_information_metrics(eligible_seq, aa_props)
-        min_exp_rem = min(m["expected_remaining_candidates"] for m in metrics.values())
-        max_ig = max(m["information_gain_bits"] for m in metrics.values())
-        report["seqle"][profile_name] = {
-            "eligible_count": len(eligible_seq),
-            "min_opening_expected_remaining": round(min_exp_rem, 2),
-            "max_opening_ig_bits": round(max_ig, 2),
-        }
+        seq_stats = run_seqle_greedy_solver(
+            seqle, aa_props, profile_spec, profile_id=profile_name, condition_on_clues=True
+        )
+        assert_seqle_solver_gate(seq_stats, profile_spec["seqle_solver_gate"], profile_name)
+        report["seqle"][profile_name] = seq_stats
         print(
             f"[Solver-Bot · Seqle  · {profile_name.upper():6s}] "
-            f"eligible={len(eligible_seq)}  "
-            f"min_opening_exp_rem={min_exp_rem:.2f}  "
-            f"max_opening_ig={max_ig:.2f} bits"
+            f"eligible={seq_stats['eligible_count']}  "
+            f"mean={seq_stats['mean']:.2f}  median={seq_stats['median']:.1f}  max={seq_stats['max']}  "
+            f"<=2-guess={seq_stats['pct_solved_le2']:.2f}%  "
+            f"yigsr_distinct={seq_stats['yigsr_distinct_signatures']}  "
+            f"max_probe_distinct={seq_stats['max_single_probe_distinct_targets']}  "
+            f"min_opening_exp_rem={seq_stats['min_opening_expected_remaining']:.2f}  "
+            f"dist={seq_stats['distribution']}"
         )
 
     return report

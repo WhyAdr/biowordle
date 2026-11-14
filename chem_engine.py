@@ -431,6 +431,16 @@ def evaluate_chemle_feedback_from_spec(
             }
         )
 
+    if not is_win:
+        if profile_spec.get("show_exact_tanimoto"):
+            sig_parts.append(f"SIM_PCT:{int(sim_pct)}")
+        if profile_spec.get("show_functional_groups_live"):
+            shared_fg = sorted(
+                set(guess.get("functional_groups", []))
+                & set(target.get("functional_groups", []))
+            )
+            sig_parts.append(f"FG:{','.join(shared_fg)}")
+
     return {
         "signature": "|".join(sig_parts),
         "sim_code": sim_code,
@@ -440,12 +450,93 @@ def evaluate_chemle_feedback_from_spec(
     }
 
 
+def _solve_chemle_pool(
+    ids: List[str],
+    by_id: Dict[str, Dict[str, Any]],
+    sig_table: Dict[Tuple[str, str], str],
+    profile_spec: Dict[str, Any],
+    profile_id: str,
+    condition_on_clues: bool,
+) -> Dict[str, int]:
+    """Runs greedy max-entropy search over Chemle IDs with optional clue conditioning."""
+    sc_after = int(profile_spec.get("super_class_unlock_after_guesses", 4 if profile_id == "ranked" else 1))
+    scaf_after = int(profile_spec.get("scaffold_unlock_after_guesses", 5 if profile_id == "ranked" else 3))
+
+    def pick_probe(cands: List[str]) -> str:
+        if len(cands) == 1:
+            return cands[0]
+        best_g = cands[0]
+        best_key: Optional[Tuple[float, bool, str]] = None
+        n_c = len(cands)
+        for g_id in ids:
+            parts = Counter(sig_table[(g_id, t_id)] for t_id in cands)
+            h = -sum((c / n_c) * math.log2(c / n_c) for c in parts.values())
+            key = (round(h, 9), g_id in cands, g_id)
+            if best_key is None or key > best_key:
+                best_g, best_key = g_id, key
+        return best_g
+
+    guess_counts: Dict[str, int] = {}
+    for t_id in ids:
+        target = by_id[t_id]
+        ladder = (target.get("clue_ladder") or {}).get(profile_id) or []
+        if condition_on_clues and ladder:
+            lvl0_text = ladder[0].get("text")
+            cands = [
+                cid
+                for cid in ids
+                if (((by_id[cid].get("clue_ladder") or {}).get(profile_id) or [{}])[0].get("text") == lvl0_text)
+            ]
+        else:
+            cands = list(ids)
+
+        steps = 0
+        while True:
+            g_id = pick_probe(cands)
+            steps += 1
+            if g_id == t_id or steps >= 12:
+                break
+            obs_sig = sig_table[(g_id, t_id)]
+            cands = [c for c in cands if sig_table[(g_id, c)] == obs_sig]
+            if condition_on_clues:
+                if steps >= sc_after:
+                    cands = [c for c in cands if by_id[c].get("super_class") == target.get("super_class")]
+                if steps >= scaf_after:
+                    t_scaf = target.get("scaffold_smiles") or ""
+                    cands = [c for c in cands if (by_id[c].get("scaffold_smiles") or "") == t_scaf]
+        guess_counts[t_id] = steps
+    return guess_counts
+
+
+def _summarize_guess_counts(guess_counts: Dict[str, int]) -> Dict[str, Any]:
+    vals = sorted(guess_counts.values())
+    dist = dict(sorted(Counter(vals).items()))
+    mean_v = round(statistics.mean(vals), 2)
+    median_v = round(float(statistics.median(vals)), 2)
+    p95_idx = min(len(vals) - 1, int(math.ceil(0.95 * len(vals))) - 1)
+    p95_v = vals[p95_idx]
+    max_v = max(vals)
+    le2_pct = round(100.0 * sum(x <= 2 for x in vals) / len(vals), 2)
+    le6_pct = round(100.0 * sum(x <= 6 for x in vals) / len(vals), 2)
+    return {
+        "distribution": {str(k): v for k, v in dist.items()},
+        "mean": mean_v,
+        "median": median_v,
+        "p95": p95_v,
+        "max": max_v,
+        "pct_solved_le2": le2_pct,
+        "pct_solved_le6": le6_pct,
+    }
+
+
 def run_chemle_greedy_solver(
     records: Sequence[Dict[str, Any]],
     sim_matrix: Dict[str, Dict[str, int]],
     profile_spec: Dict[str, Any],
+    profile_id: str = "ranked",
+    condition_on_clues: bool = True,
 ) -> Dict[str, Any]:
-    """Runs the greedy max-entropy solver against `profile_spec` and returns gate statistics."""
+    """Runs the greedy max-entropy solver against `profile_spec` (with optional clue conditioning) and returns gate statistics."""
     ids = [r["id"] for r in records]
     by_id = {r["id"]: r for r in records}
     n_total = len(ids)
@@ -472,54 +563,23 @@ def run_chemle_greedy_solver(
             "expected_remaining_candidates": exp_rem,
         }
 
-    def pick_probe(cands: List[str]) -> str:
-        best_g = cands[0]
-        best_key: Optional[Tuple[float, bool, str]] = None
-        n_c = len(cands)
-        for g_id in ids:
-            parts = Counter(sig_table[(g_id, t_id)] for t_id in cands)
-            h = -sum((c / n_c) * math.log2(c / n_c) for c in parts.values())
-            # Prefer highest entropy, then in-candidate guess, then lexicographical stability
-            key = (round(h, 9), g_id in cands, g_id)
-            if best_key is None or key > best_key:
-                best_g, best_key = g_id, key
-        return best_g
-
-    guess_counts: Dict[str, int] = {}
-    for t_id in ids:
-        cands = list(ids)
-        steps = 0
-        while True:
-            g_id = pick_probe(cands)
-            steps += 1
-            if g_id == t_id or steps >= 12:
-                break
-            obs_sig = sig_table[(g_id, t_id)]
-            cands = [c for c in cands if sig_table[(g_id, c)] == obs_sig]
-        guess_counts[t_id] = steps
-
-    vals = sorted(guess_counts.values())
-    dist = dict(sorted(Counter(vals).items()))
-    mean_v = round(statistics.mean(vals), 2)
-    median_v = round(float(statistics.median(vals)), 2)
-    p95_idx = min(len(vals) - 1, int(math.ceil(0.95 * len(vals))) - 1)
-    p95_v = vals[p95_idx]
-    max_v = max(vals)
-    le2_pct = round(100.0 * sum(x <= 2 for x in vals) / len(vals), 2)
-    le6_pct = round(100.0 * sum(x <= 6 for x in vals) / len(vals), 2)
-
-    return {
-        "distribution": {str(k): v for k, v in dist.items()},
-        "mean": mean_v,
-        "median": median_v,
-        "p95": p95_v,
-        "max": max_v,
-        "pct_solved_le2": le2_pct,
-        "pct_solved_le6": le6_pct,
+    guess_counts = _solve_chemle_pool(
+        ids, by_id, sig_table, profile_spec, profile_id, condition_on_clues
+    )
+    summary = _summarize_guess_counts(guess_counts)
+    out: Dict[str, Any] = {
+        **summary,
         "min_opening_expected_remaining": round(min_exp_rem, 2),
         "probe_metrics": probe_metrics,
         "per_target_guesses": guess_counts,
+        "conditioned_on_clues": condition_on_clues,
     }
+    if condition_on_clues:
+        raw_counts = _solve_chemle_pool(
+            ids, by_id, sig_table, profile_spec, profile_id, condition_on_clues=False
+        )
+        out["unconditioned_summary"] = _summarize_guess_counts(raw_counts)
+    return out
 
 
 def assert_solver_gate(solver_stats: Dict[str, Any], gate: Dict[str, Any], profile_id: str) -> None:
@@ -543,6 +603,17 @@ def assert_solver_gate(solver_stats: Dict[str, Any], gate: Dict[str, Any], profi
         raise AssertionError(
             f"[{profile_id}] Min opening expected remaining {solver_stats['min_opening_expected_remaining']} "
             f"below min {gate['min_expected_remaining']}"
+        )
+
+
+def assert_seqle_solver_gate(solver_stats: Dict[str, Any], gate: Dict[str, Any], profile_id: str) -> None:
+    """Asserts that Seqle full-solver stats pass all thresholds in `gate`."""
+    assert_solver_gate(solver_stats, gate, f"seqle:{profile_id}")
+    max_dist = gate.get("max_single_probe_distinct_targets")
+    if max_dist is not None and solver_stats["max_single_probe_distinct_targets"] > int(max_dist):
+        raise AssertionError(
+            f"[seqle:{profile_id}] Max single-probe distinct targets "
+            f"{solver_stats['max_single_probe_distinct_targets']} exceeds max {max_dist}"
         )
 
 
@@ -594,6 +665,8 @@ def evaluate_seqle_feedback_from_spec(
 ) -> Dict[str, Any]:
     """Computes full Seqle tile + strip feedback from `feedback_spec.json`."""
     tiles = evaluate_seqle_guess(guess_seq, target_seq, aa_props)
+    if not profile_spec.get("show_positional_class_match", True):
+        tiles = ["absent" if t == "class" else t for t in tiles]
     strip_cells: List[Dict[str, Any]] = []
     sig_parts = ["".join(t[0].upper() for t in tiles)]
 
@@ -618,6 +691,109 @@ def evaluate_seqle_feedback_from_spec(
         "strip": strip_cells,
         "signature": "|".join(sig_parts),
     }
+
+
+def run_seqle_greedy_solver(
+    records: Sequence[Dict[str, Any]],
+    aa_props: Dict[str, Dict[str, Any]],
+    profile_spec: Dict[str, Any],
+    profile_id: str = "ranked",
+    condition_on_clues: bool = True,
+) -> Dict[str, Any]:
+    """Runs full multi-step greedy max-entropy solver for Seqle using tile + strip + clue feedback."""
+    all_seqs = [r["seq"] for r in records]
+    by_seq = {r["seq"]: r for r in records}
+    target_seqs = [
+        r["seq"] for r in records if profile_id in r.get("game_eligibility", ["learn"])
+    ]
+    n_t = len(target_seqs)
+
+    sig_table: Dict[Tuple[str, str], str] = {}
+    for g_seq in all_seqs:
+        g_rec = by_seq[g_seq]
+        for t_seq in all_seqs:
+            sig_table[(g_seq, t_seq)] = evaluate_seqle_feedback_from_spec(
+                g_rec, by_seq[t_seq], g_seq, t_seq, aa_props, profile_spec
+            )["signature"]
+
+    min_exp_rem = float("inf")
+    max_distinct_targets = 0
+    yigsr_distinct = 0
+    for g_seq in all_seqs:
+        cnts = Counter(sig_table[(g_seq, t_seq)] for t_seq in target_seqs)
+        n_dist = len(cnts)
+        if n_dist > max_distinct_targets:
+            max_distinct_targets = n_dist
+        if g_seq == "YIGSR":
+            yigsr_distinct = n_dist
+        exp_rem = round(sum((c * c) / n_t for c in cnts.values()), 2)
+        if exp_rem < min_exp_rem:
+            min_exp_rem = exp_rem
+
+    def solve_pool(cond: bool) -> Dict[str, int]:
+        def pick_probe(cands: List[str]) -> str:
+            if len(cands) == 1:
+                return cands[0]
+            best_g = cands[0]
+            best_key: Optional[Tuple[float, bool, str]] = None
+            n_c = len(cands)
+            for g_seq in all_seqs:
+                parts = Counter(sig_table[(g_seq, t_seq)] for t_seq in cands)
+                h = -sum((c / n_c) * math.log2(c / n_c) for c in parts.values())
+                key = (round(h, 9), g_seq in cands, g_seq)
+                if best_key is None or key > best_key:
+                    best_g, best_key = g_seq, key
+            return best_g
+
+        counts: Dict[str, int] = {}
+        for t_seq in target_seqs:
+            target = by_seq[t_seq]
+            ladder = (target.get("clue_ladder") or {}).get(profile_id) or []
+            if cond and ladder:
+                lvl0_text = ladder[0].get("text")
+                cands = [
+                    s
+                    for s in target_seqs
+                    if (((by_seq[s].get("clue_ladder") or {}).get(profile_id) or [{}])[0].get("text") == lvl0_text)
+                ]
+            else:
+                cands = list(target_seqs)
+
+            steps = 0
+            while True:
+                g_seq = pick_probe(cands)
+                steps += 1
+                if g_seq == t_seq or steps >= 12:
+                    break
+                obs_sig = sig_table[(g_seq, t_seq)]
+                cands = [c for c in cands if sig_table[(g_seq, c)] == obs_sig]
+                if cond and len(ladder) > 1:
+                    lvl1 = ladder[1]
+                    if steps >= int(lvl1.get("after_guesses", 99)):
+                        lvl1_text = lvl1.get("text")
+                        cands = [
+                            c
+                            for c in cands
+                            if (((by_seq[c].get("clue_ladder") or {}).get(profile_id) or [{}, {}])[1].get("text") == lvl1_text)
+                        ]
+            counts[t_seq] = steps
+        return counts
+
+    guess_counts = solve_pool(condition_on_clues)
+    summary = _summarize_guess_counts(guess_counts)
+    out: Dict[str, Any] = {
+        **summary,
+        "eligible_count": n_t,
+        "yigsr_distinct_signatures": yigsr_distinct,
+        "max_single_probe_distinct_targets": max_distinct_targets,
+        "min_opening_expected_remaining": round(min_exp_rem, 2),
+        "per_target_guesses": guess_counts,
+        "conditioned_on_clues": condition_on_clues,
+    }
+    if condition_on_clues:
+        raw_counts = solve_pool(False)
+        out["unconditioned_summary"] = _summarize_guess_counts(raw_counts)
+    return out
 
 
 def _consensus_tokens(consensus: str) -> List[str]:
