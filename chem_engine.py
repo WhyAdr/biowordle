@@ -108,19 +108,19 @@ _BRENK_CATALOG = FilterCatalog(_BRENK_PARAMS)
 # ---------------------------------------------------------------------------
 FUNCTIONAL_GROUP_SMARTS: List[Tuple[str, str]] = [
     ("Aliphatic Alcohol (-OH)", "[OX2H1][CX4]"),
-    ("Phenol / Enol (-OH)", "[OX2H1][c,CX3]"),
-    ("Carboxylic Acid (-COOH)", "[CX3](=O)[OX2H1,OX1-]"),
-    ("Aldehyde (-CHO)", "[CX3H1](=O)[#6,#1]"),
+    ("Phenol / Enol (-OH)", "[OX2H1][$([c]),$([CX3]=[CX3])]"),
+    ("Carboxylic Acid (-COOH)", "[CX3;H1,$([CX3]-[#6])](=O)[OX2H1,OX1-]"),
+    ("Aldehyde (-CHO)", "[$([CX3H1](=O)[#6]),$([CX3H2]=O)]"),
     ("Ketone (C-C(=O)-C)", "[#6][CX3](=O)[#6]"),
-    ("Ester / Lactone", "[#6,#1][CX3](=O)[OX2H0][#6]"),
+    ("Ester / Lactone", "[CX3;H1,$([CX3]-[#6])](=O)[OX2H0][#6]"),
     ("Ether / Methoxy (C-O-C)", "[OD2]([#6;!$(C=O)])[#6;!$(C=O)]"),
-    ("Primary / Secondary Amine", "[NX3;H2,H1;!$(NC=O)]"),
-    ("Tertiary Amine", "[NX3;H0;!$(NC=O);!$(N=O)]"),
-    ("Amide / Lactam", "[NX3][CX3](=[OX1])[#6,#1]"),
+    ("Primary / Secondary Amine", "[NX3;H2,H1;!$(N[C,S,P]=[O,S,N]);!$(N=*)]"),
+    ("Tertiary Amine", "[NX3;H0;!$(N[C,S,P]=[O,S,N]);!$(N=*)]"),
+    ("Amide / Lactam", "[NX3][CX3]=[OX1]"),
     ("Indole / Pyrrole Ring", "[nH1]1cccc1"),
     ("Heteroaromatic N", "[n]"),
-    ("Halogen (F/Cl/Br)", "[F,Cl,Br,I]"),
-    ("Sulfur / Thioether", "[#16]"),
+    ("Halogen (F/Cl/Br/I)", "[F,Cl,Br,I]"),
+    ("Sulfur-containing group", "[#16]"),
 ]
 
 COMPILED_FG_SMARTS = [

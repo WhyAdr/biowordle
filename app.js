@@ -703,6 +703,7 @@
   const DATA = globalScope.BIOWORDLE_DATA;
   const FEEDBACK_SPEC = DATA.feedback_spec;
   const DATASET_HASH = (DATA.metadata && DATA.metadata.dataset_version_hash) || "v02";
+  const CHEMLE_RULES_HASH = DATA.metadata.chemle_rules_hash;
   const CHEMLE_SCHEDULE_HASH =
     (DATA.metadata && DATA.metadata.chemle_schedule_hash) ||
     (DATA.metadata && DATA.metadata.schedule_version_hash) ||
@@ -884,7 +885,8 @@
   }
 
   function getDailyStorageKey(game, utcDate, customSeed, hashOverride) {
-    const h = hashOverride || getScheduleHashForGame(game);
+    const h = hashOverride || (game === "chemle" && CHEMLE_RULES_HASH
+      ? `${CHEMLE_SCHEDULE_HASH}:${CHEMLE_RULES_HASH}` : getScheduleHashForGame(game));
     if (customSeed) {
       return `biowordle_seed_v2:${game}:${customSeed}:${h}`;
     }
@@ -919,18 +921,37 @@
   function loadPersistedDailyGame(game, utcDate, customSeed, expectedTargetId) {
     try {
       const currentHash = getScheduleHashForGame(game);
-      const currentKey = getDailyStorageKey(game, utcDate, customSeed, currentHash);
+      const currentKey = getDailyStorageKey(game, utcDate, customSeed);
       const raw = localStorage.getItem(currentKey);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (!isValidPersistedPayload(game, parsed)) {
           return { kind: "invalid", payload: null, sourceKey: currentKey, sourceHash: currentHash };
         }
-        if (expectedTargetId && parsed.targetId !== expectedTargetId) {
+        if ((game === "chemle" && parsed.rulesHash !== CHEMLE_RULES_HASH) || (expectedTargetId && parsed.targetId !== expectedTargetId)) {
           recordLegacyArchive({ ...parsed, game, utcDate, customSeed, sourceKey: currentKey, sourceHash: currentHash, expectedTargetId });
           return { kind: "incompatible", payload: parsed, sourceKey: currentKey, sourceHash: currentHash };
         }
         return { kind: "exact", payload: parsed, sourceKey: currentKey, sourceHash: currentHash };
+      }
+
+      // A scientific rules cutover must never replay old guesses against new structures.
+      // Scan historical keys (including future previous rule hashes), preserving the originals.
+      if (game === "chemle" && CHEMLE_RULES_HASH) {
+        const prefix = customSeed ? `biowordle_seed_v2:chemle:${customSeed}:`
+          : `biowordle_daily_v2:chemle:${utcDate}:`;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key || !key.startsWith(prefix) || key === currentKey) continue;
+          try {
+            const parsed = JSON.parse(localStorage.getItem(key));
+            if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.guesses)) continue;
+            recordLegacyArchive({ ...parsed, game, utcDate, customSeed, sourceKey: key,
+              sourceHash: key.slice(prefix.length), expectedTargetId, reason: "scientific_rules_cutover" });
+            return { kind: "incompatible", payload: parsed, sourceKey: key, sourceHash: key.slice(prefix.length) };
+          } catch (_) { /* Leave unreadable historical data intact. */ }
+        }
+        return { kind: "none", payload: null, sourceKey: null, sourceHash: null };
       }
 
       for (let i = 0; i < LEGACY_SCHEDULE_HASHES.length; i++) {
@@ -1450,6 +1471,7 @@
       utcDate,
       scheduleHash: gameSchedHash,
       datasetHash: DATASET_HASH,
+      rulesHash: game === "chemle" ? CHEMLE_RULES_HASH : null,
     });
   }
 
@@ -1654,7 +1676,7 @@
       html += `
         <div class="hint-item" data-testid="chemle-legacy-archive" style="border-color:var(--amber);">
           <strong>Archived Legacy Result (${escapeHtml(a.sourceHash || "legacy")})</strong>
-          Prior daily record for <code>${escapeHtml(a.targetId)}</code> (${Array.isArray(a.guesses) ? a.guesses.length : 0} guesses, ${a.won ? "Solved" : a.gameOver ? "Revealed" : "In Progress"}) was archived cleanly because the current schedule selects <code>${escapeHtml(a.expectedTargetId)}</code>.
+          A prior record (${Array.isArray(a.guesses) ? a.guesses.length : 0} guesses, ${a.won ? "Solved" : a.gameOver ? "Revealed" : "In Progress"}) is preserved under its original scientific rules. Start a fresh session with the current rules; earlier guesses are not re-scored.
         </div>`;
     }
 
@@ -1944,6 +1966,7 @@
         utcDate,
         scheduleHash: getScheduleHashForGame("chemle"),
         datasetHash: DATASET_HASH,
+        rulesHash: CHEMLE_RULES_HASH,
       } : null;
       _commitGameWinAndPersist("chemle", ch, {
         creditId,

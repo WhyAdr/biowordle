@@ -518,9 +518,11 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     }, { d: utcDate, chemId: chemTarget.id, guessSeqId: wrongChem.id, seqCode: seqTarget.seq });
 
     await page.goto("/");
-    // Compatible Chemle imported cleanly with 2 guesses & won state (no archive banner)
-    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(2);
-    await expect(page.locator('[data-testid="chemle-legacy-archive"]')).toHaveCount(0);
+    // Matching target is still incompatible: the old science must not be replayed.
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(0);
+    await expect(page.locator('[data-testid="chemle-legacy-archive"]')).toBeVisible();
+    const preserved = await page.evaluate((d) => JSON.parse(localStorage.getItem(`biowordle_daily_v2:chemle:${d}:919ad8afb190`)), utcDate);
+    expect(preserved.guesses).toEqual([wrongChem.id, chemTarget.id]);
 
     // Incompatible KKMPQ Seqle archived cleanly & board fresh at 0 guesses for real seqTarget
     await page.locator("#tab-seqle").click();
@@ -550,6 +552,38 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     await expect(page2.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(0);
     await ctx2.close();
     expect(pageErrors).toEqual([]);
+  });
+
+  test("7c. scientific cutover isolates active old tabs and restores only matching rules", async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    const day = "2026-11-14";
+    const target = dailyTargetForDate("chemle", day);
+    const wrong = BioWordleEngine.getGuessPool(PUZZLES, "chemle", "ranked").find(x => x.id !== target.id);
+    await page.addInitScript(d => { window.__BIOWORDLE_TEST_UTC_DATE__ = d; }, day);
+    await page.goto("/");
+    // An old tab can still write the former key after the new app opened.
+    const old = await ctx.newPage();
+    await old.goto("/");
+    const oldKey = `biowordle_daily_v2:chemle:${day}:${CHEM_SCHEDULE_HASH}`;
+    await old.evaluate(({key, t, g}) => localStorage.setItem(key, JSON.stringify({targetId:t, guesses:[g], won:false, gameOver:false})),
+      {key:oldKey, t:target.id, g:wrong.id});
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(0);
+    await page.reload();
+    await expect(page.locator('[data-testid="chemle-legacy-archive"]')).toBeVisible();
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(0);
+    // A new-version move writes a distinct key; reloading restores that move only.
+    await page.locator("#chemle-search-input").fill(wrong.name);
+    await page.locator("#chemle-search-input").press("ArrowDown");
+    await page.locator("#chemle-search-input").press("Enter");
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
+    const saved = await page.evaluate(({key, d, h, r}) => ({old:JSON.parse(localStorage.getItem(key)), current:JSON.parse(localStorage.getItem(`biowordle_daily_v2:chemle:${d}:${h}:${r}`))}),
+      {key:oldKey, d:day, h:CHEM_SCHEDULE_HASH, r:PUZZLES.metadata.chemle_rules_hash});
+    expect(saved.old.guesses).toEqual([wrong.id]);
+    expect(saved.current.rulesHash).toBe(PUZZLES.metadata.chemle_rules_hash);
+    await page.reload();
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
+    await ctx.close();
   });
 
   test("8. Phase 1 offline file:// standalone HTML smoke test (zero external requests, interactive Chemle + Seqle)", async ({ page }) => {

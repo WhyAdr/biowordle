@@ -689,6 +689,25 @@ def compute_canonical_dataset_hash(
     return hashlib.sha256(blob).hexdigest()[:12]
 
 
+def compute_chemle_rules_hash(chemle_records, similarity_matrix, feedback_spec):
+    """Identity of Chemle gameplay inputs; increment engine revision for algorithm changes.
+
+    This is independent of release and roster schedule identities. It includes the
+    full playable catalogue because any of its compounds can be a submitted guess.
+    """
+    fields = ("id", "inchikey", "canonical_smiles", "MW", "cLogP", "TPSA",
+              "HBD", "HBA", "Rings", "AromaticRings", "HeavyAtoms",
+              "functional_groups", "Category", "super_class", "clue_ladder",
+              "game_eligibility", "guess_eligibility")
+    payload = {"engine_revision": 1, "fingerprint_spec": FINGERPRINT_SPEC,
+               "standardization_spec": STANDARDIZATION_SPEC,
+               "feedback_spec": feedback_spec,
+               "records": [{k: r.get(k) for k in fields}
+                           for r in sorted(chemle_records, key=lambda x: x["id"])],
+               "similarity": similarity_matrix}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()[:12]
+
+
 LEGACY_SCHEDULE_HASHES = ["9257bd168fa6", "8bb96ac156cc", "919ad8afb190"]
 V021_CHEMLE_ROSTER_DIGEST = "87689dabf71408a8"
 
@@ -1094,6 +1113,8 @@ def build_all(
     return {
         "metadata": {
             "schema_version": SCHEMA_VERSION,
+            "release_version": "0.3.1",
+            "chemle_rules_hash": compute_chemle_rules_hash(chemle_records, similarity_matrix, feedback_spec),
             "generator": "BioWordle Independent RDKit Build Compiler (chem_engine.py)",
             "rdkit_version": Chem.rdBase.rdkitVersion,
             "dataset_version_hash": dataset_hash,

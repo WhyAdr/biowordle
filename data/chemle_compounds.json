@@ -423,9 +423,9 @@
         "plant_natural_product",
         "specialized_metabolite"
       ],
-      "input_isomeric_smiles": "C[C@@H]1CC[C@H]2[C@@H](C)C(=O)O[C@@H]3O[C@@]4(C)CC[C@@H]1[C@]23OO4",
-      "expected_standardized_smiles": "C[C@@H]1CC[C@H]2[C@@H](C)C(=O)O[C@@H]3O[C@@]4(C)CC[C@@H]1[C@@]32OO4",
-      "expected_inchikey": "BLUAFEHZUWYNDE-GZEPNZDPSA-N",
+      "input_isomeric_smiles": "C[C@@H]1CC[C@H]2[C@H](C(=O)O[C@H]3[C@@]24[C@H]1CC[C@](O3)(OO4)C)C",
+      "expected_standardized_smiles": "C[C@@H]1CC[C@H]2[C@@H](C)C(=O)O[C@@H]3O[C@@]4(C)CC[C@@H]1[C@]32OO4",
+      "expected_inchikey": "BLUAFEHZUWYNDE-NNWCWBAJSA-N",
       "expected_formula": "C15H22O5",
       "stereo_status": "defined_stereo",
       "protonation_policy": "neutral_canonical",
@@ -438,15 +438,15 @@
         "ranked"
       ],
       "structure_refs": {
-        "pubchem_cid": 138059745,
+        "pubchem_cid": 68827,
         "chebi_id": "CHEBI:223316",
         "pubchem_matched_inchikey": true
       },
       "evidence_refs": [
         {
           "source": "PubChem",
-          "id": "CID:138059745",
-          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/138059745",
+          "id": "CID:68827",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/68827",
           "role": "canonical_structure"
         },
         {
@@ -460,7 +460,7 @@
       "hint_origin": "Isolated from sweet wormwood leaves in Project 523 (2015 Nobel Prize in Medicine).",
       "structural_note": "Tetracyclic cage sesquiterpene lactone with 7 stereocenters, Fsp3 = 0.93, and zero aromatic rings.",
       "review_status": "baseline_legacy",
-      "review_notes": "Preserved v0.2.2 Ranked SMILES (matches PubChem CID 138059745 enantiomer/stereoisomer rather than canonical (+)-artemisinin CID 68827) to maintain schedule hash parity."
+      "review_notes": "Corrected against PubChem; see BIOWORDLE_v0.3.1_SCIENTIFIC_CORRECTIONS.md for evidence and representation limits."
     },
     {
       "id": "ascorbic_acid",
@@ -918,9 +918,9 @@
         "primary_metabolite",
         "core_metabolism"
       ],
-      "input_isomeric_smiles": "C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(C)CC[C@H]3[C@H]2CC=C4[C@@]3(C)CC[C@@H](O)C4",
-      "expected_standardized_smiles": "CC(C)CCC[C@@H](C)[C@H]1CC[C@H]2[C@@H]3CC=C4C[C@H](O)CC[C@@]4(C)[C@H]3CC[C@@]12C",
-      "expected_inchikey": "HVYWMOMLDIMFJA-PZIGXULQSA-N",
+      "input_isomeric_smiles": "C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CC[C@@H](C4)O)C)C",
+      "expected_standardized_smiles": "CC(C)CCC[C@@H](C)[C@H]1CC[C@H]2[C@@H]3CC=C4C[C@@H](O)CC[C@]4(C)[C@H]3CC[C@]12C",
+      "expected_inchikey": "HVYWMOMLDIMFJA-DPAQBDIFSA-N",
       "expected_formula": "C27H46O",
       "stereo_status": "defined_stereo",
       "protonation_policy": "neutral_canonical",
@@ -935,14 +935,14 @@
       "structure_refs": {
         "pubchem_cid": 5997,
         "chebi_id": "CHEBI:16113",
-        "pubchem_matched_inchikey": false
+        "pubchem_matched_inchikey": true
       },
       "evidence_refs": [
         {
           "source": "PubChem",
           "id": "CID:5997",
           "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5997",
-          "role": "canonical_parent_reference"
+          "role": "canonical_structure"
         },
         {
           "source": "ChEBI",
@@ -955,7 +955,7 @@
       "hint_origin": "Formed by lanosterol synthase / oxidosqualene cyclase chair-boat-chair-boat polycyclization.",
       "structural_note": "8 chiral centers, 4 fused aliphatic rings, 0 aromatic rings, and extreme lipophilicity (cLogP 7.39).",
       "review_status": "baseline_legacy",
-      "review_notes": "Preserved v0.2.2 Ranked SMILES (inverted configuration at one chiral center vs PubChem CID 5997 HVYWMOMLDIMFJA-DPAQBDIFSA-N) to maintain schedule hash parity."
+      "review_notes": "Corrected against PubChem; see BIOWORDLE_v0.3.1_SCIENTIFIC_CORRECTIONS.md for evidence and representation limits."
     },
     {
       "id": "ciprofloxacin",
@@ -1515,11 +1515,11 @@
         "microbial_natural_product",
         "secondary_metabolism"
       ],
-      "input_isomeric_smiles": "C[C@H]1CCCC2(C)[C@H]1CC[C@@]2(C)O",
-      "expected_standardized_smiles": "C[C@H]1CCCC2(C)[C@H]1CC[C@@]2(C)O",
-      "expected_inchikey": "SQFNUAVVZSZPMP-XMACVGRKSA-N",
+      "input_isomeric_smiles": "C[C@H]1CCC[C@@]2([C@@]1(CCCC2)O)C",
+      "expected_standardized_smiles": "C[C@H]1CCC[C@@]2(C)CCCC[C@]12O",
+      "expected_inchikey": "JLPUXFOGCDVKGO-TUAOUCFPSA-N",
       "expected_formula": "C12H22O",
-      "stereo_status": "unspecified_legacy",
+      "stereo_status": "defined_stereo",
       "protonation_policy": "neutral_canonical",
       "game_eligibility": [
         "learn",
@@ -1531,20 +1531,20 @@
       ],
       "structure_refs": {
         "pubchem_cid": 29746,
-        "chebi_id": "CHEBI:46703",
-        "pubchem_matched_inchikey": false
+        "chebi_id": "CHEBI:46702",
+        "pubchem_matched_inchikey": true
       },
       "evidence_refs": [
         {
           "source": "PubChem",
           "id": "CID:29746",
           "url": "https://pubchem.ncbi.nlm.nih.gov/compound/29746",
-          "role": "canonical_parent_reference"
+          "role": "canonical_structure"
         },
         {
           "source": "ChEBI",
-          "id": "CHEBI:46703",
-          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:46703",
+          "id": "CHEBI:46702",
+          "url": "https://www.ebi.ac.uk/chebi/CHEBI:46702",
           "role": "ontology_classification"
         }
       ],
@@ -1552,7 +1552,7 @@
       "hint_origin": "Formed from farnesyl diphosphate by a bifunctional germacradienol synthase (Sco6073) in Streptomyces.",
       "structural_note": "Fully saturated bicyclic alcohol (C12H22O, Fsp3 = 1.00, 2 aliphatic rings, 3 stereocenters).",
       "review_status": "baseline_legacy",
-      "review_notes": "Preserved v0.2.2 Ranked SMILES (legacy connectivity and 1 unspecified chiral center vs PubChem CID 29746 JLPUXFOGCDVKGO-TUAOUCFPSA-N) to maintain schedule hash parity."
+      "review_notes": "Corrected against PubChem; see BIOWORDLE_v0.3.1_SCIENTIFIC_CORRECTIONS.md for evidence and representation limits."
     },
     {
       "id": "histamine",
@@ -2828,11 +2828,11 @@
         "microbial_natural_product",
         "secondary_metabolism"
       ],
-      "input_isomeric_smiles": "CCCCC1=CC(=C(N1)C=C2C=CC(=N2)C3=CC(=CN3)OC)C",
-      "expected_standardized_smiles": "CCCCc1cc(C)c(C=C2C=CC(c3cc(OC)c[nH]3)=N2)[nH]1",
-      "expected_inchikey": "LCNZNMPZJFZRAP-UHFFFAOYSA-N",
-      "expected_formula": "C19H23N3O",
-      "stereo_status": "unspecified_legacy",
+      "input_isomeric_smiles": "CCCCCC1=C/C(=C\\C2=C(C=C(N2)C3=CC=CN3)OC)/N=C1C",
+      "expected_standardized_smiles": "CCCCCC1=C/C(=C\\c2[nH]c(-c3ccc[nH]3)cc2OC)N=C1C",
+      "expected_inchikey": "SZXDNGVQRDTJSD-FOWTUZBSSA-N",
+      "expected_formula": "C20H25N3O",
+      "stereo_status": "defined_stereo",
       "protonation_policy": "neutral_canonical",
       "game_eligibility": [
         "learn",
@@ -2845,14 +2845,14 @@
       "structure_refs": {
         "pubchem_cid": 172897611,
         "chebi_id": "CHEBI:82758",
-        "pubchem_matched_inchikey": false
+        "pubchem_matched_inchikey": true
       },
       "evidence_refs": [
         {
           "source": "PubChem",
           "id": "CID:172897611",
           "url": "https://pubchem.ncbi.nlm.nih.gov/compound/172897611",
-          "role": "canonical_parent_reference"
+          "role": "canonical_structure"
         },
         {
           "source": "ChEBI",
@@ -2865,7 +2865,7 @@
       "hint_origin": "Biosynthesized via convergent hybrid NRPS-PKS pig/red gene clusters in Serratia and marine Vibrio.",
       "structural_note": "Three conjugated pyrrole rings (4-methoxy-2,2'-bipyrrole + 2-methyl-3-pentylpyrrole) linked by a methene bridge.",
       "review_status": "baseline_legacy",
-      "review_notes": "Preserved v0.2.2 Ranked SMILES (C4 sidechain C19H23N3O and unspecified methine double-bond stereo vs canonical C20H25N3O PubChem CID 172897611) to maintain schedule hash parity."
+      "review_notes": "Corrected against PubChem; see BIOWORDLE_v0.3.1_SCIENTIFIC_CORRECTIONS.md for evidence and representation limits. PubChem and ChEBI methine stereochemistry conflict; PubChem E representation is provisional."
     },
     {
       "id": "protocatechuic_acid",
@@ -2919,18 +2919,16 @@
     {
       "id": "pyocyanin",
       "name": "Pyocyanin",
-      "aliases": [
-        "10-Methylphenazin-2(10H)-one"
-      ],
+      "aliases": [],
       "Category": "Microbial Natural Product",
       "primary_class": "microbial_&_aromatic_catabolite",
       "role_tags": [
         "microbial_natural_product",
         "secondary_metabolism"
       ],
-      "input_isomeric_smiles": "Cn1c2ccccc2nc2ccc(=O)cc21",
-      "expected_standardized_smiles": "Cn1c2cc(=O)ccc-2nc2ccccc21",
-      "expected_inchikey": "HAQCALIJITZJCC-UHFFFAOYSA-N",
+      "input_isomeric_smiles": "CN1C2=CC=CC=C2N=C3C1=CC=CC3=O",
+      "expected_standardized_smiles": "Cn1c2cccc(=O)c-2nc2ccccc21",
+      "expected_inchikey": "YNCMLFHHXWETLD-UHFFFAOYSA-N",
       "expected_formula": "C13H10N2O",
       "stereo_status": "achiral",
       "protonation_policy": "neutral_major_tautomer",
@@ -2943,15 +2941,15 @@
         "ranked"
       ],
       "structure_refs": {
-        "pubchem_cid": 14360019,
+        "pubchem_cid": 6817,
         "chebi_id": "CHEBI:8653",
         "pubchem_matched_inchikey": true
       },
       "evidence_refs": [
         {
           "source": "PubChem",
-          "id": "CID:14360019",
-          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14360019",
+          "id": "CID:6817",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6817",
           "role": "canonical_structure"
         },
         {
@@ -2961,11 +2959,11 @@
           "role": "ontology_classification"
         }
       ],
-      "hint_role": "Blue redox-active tricyclic phenazine zwitterion and quorum-sensing respiratory virulence factor.",
+      "hint_role": "Blue redox-active tricyclic phenazine pigment and quorum-sensing respiratory virulence factor.",
       "hint_origin": "Secreted by Pseudomonas aeruginosa via the phzABCDEFG/M/S pathway; cycles with cellular NAD(P)H.",
       "structural_note": "Planar N-methylphenazin-1-one tricyclic heteroaromatic pigment (Fsp3 = 0.08, 3 aromatic rings).",
       "review_status": "baseline_legacy",
-      "review_notes": "Preserved v0.2.2 neutral keto-tautomer form (10-methylphenazin-2(10H)-one, PubChem CID 14360019) rather than zwitterionic betaine resonance contributor to maintain schedule hash parity."
+      "review_notes": "Corrected against PubChem; see BIOWORDLE_v0.3.1_SCIENTIFIC_CORRECTIONS.md for evidence and representation limits."
     },
     {
       "id": "pyrrolnitrin",
@@ -3079,9 +3077,9 @@
         "alkaloid",
         "specialized_metabolite"
       ],
-      "input_isomeric_smiles": "COc1ccc2nccc([C@@H](O)[C@H]3C[C@@H]4CCN3C[C@@H]4C=C)c2c1",
-      "expected_standardized_smiles": "C=C[C@H]1CN2CC[C@H]1C[C@@H]2[C@H](O)c1ccnc2ccc(OC)cc12",
-      "expected_inchikey": "LOUPRKONTZGTKE-AFHBHXEDSA-N",
+      "input_isomeric_smiles": "COC1=CC2=C(C=CN=C2C=C1)[C@H]([C@@H]3C[C@@H]4CCN3C[C@@H]4C=C)O",
+      "expected_standardized_smiles": "C=C[C@H]1CN2CC[C@H]1C[C@H]2[C@H](O)c1ccnc2ccc(OC)cc12",
+      "expected_inchikey": "LOUPRKONTZGTKE-WZBLMQSHSA-N",
       "expected_formula": "C20H24N2O2",
       "stereo_status": "unspecified_legacy",
       "protonation_policy": "neutral_canonical",
@@ -3094,15 +3092,15 @@
         "ranked"
       ],
       "structure_refs": {
-        "pubchem_cid": 94175,
+        "pubchem_cid": 3034034,
         "chebi_id": "CHEBI:15854",
         "pubchem_matched_inchikey": true
       },
       "evidence_refs": [
         {
           "source": "PubChem",
-          "id": "CID:94175",
-          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/94175",
+          "id": "CID:3034034",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3034034",
           "role": "canonical_structure"
         },
         {
@@ -3116,7 +3114,7 @@
       "hint_origin": "Derived from strictosidine via a tryptophan-terpenoid indole-to-quinoline rearrangement.",
       "structural_note": "Contains 4 rings (2 aromatic 6-methoxyquinoline + 2 bridged bicyclic quinuclidine) and 4 stereocenters.",
       "review_status": "baseline_legacy",
-      "review_notes": "Preserved v0.2.2 Ranked SMILES (matches PubChem CID 94175 epiquinidine / unspecified bridgehead nitrogen rather than canonical Quinine CID 3034034) to maintain schedule hash parity."
+      "review_notes": "Corrected against PubChem; see BIOWORDLE_v0.3.1_SCIENTIFIC_CORRECTIONS.md for evidence and representation limits. Four carbon stereocenters are specified; RDKit flags the bridgehead nitrogen as potential unspecified stereo."
     },
     {
       "id": "resveratrol",
@@ -3830,11 +3828,11 @@
         "microbial_natural_product",
         "secondary_metabolism"
       ],
-      "input_isomeric_smiles": "O=C1NC(=C(c2c[nH]c3ccccc23)C1=C1Nc2ccccc2C1=O)c1c[nH]c2ccc(O)cc12",
-      "expected_standardized_smiles": "O=C1NC(c2c[nH]c3ccc(O)cc23)=C(c2c[nH]c3ccccc23)C1=C1Nc2ccccc2C1=O",
-      "expected_inchikey": "PJAOXHSAWDWRMO-UHFFFAOYSA-N",
-      "expected_formula": "C28H18N4O3",
-      "stereo_status": "unspecified_legacy",
+      "input_isomeric_smiles": "C1=CC2=C(C(=O)N=C2C=C1)C3=C(NC(=C3)C4=CNC5=C4C=C(C=C5)O)O",
+      "expected_standardized_smiles": "O=C1N=c2ccccc2=C1c1cc(-c2c[nH]c3ccc(O)cc23)[nH]c1O",
+      "expected_inchikey": "SHLJIZCPRXXHHZ-UHFFFAOYSA-N",
+      "expected_formula": "C20H13N3O3",
+      "stereo_status": "achiral",
       "protonation_policy": "neutral_canonical",
       "game_eligibility": [
         "learn",
@@ -3847,14 +3845,14 @@
       "structure_refs": {
         "pubchem_cid": 11053,
         "chebi_id": "CHEBI:131914",
-        "pubchem_matched_inchikey": false
+        "pubchem_matched_inchikey": true
       },
       "evidence_refs": [
         {
           "source": "PubChem",
           "id": "CID:11053",
           "url": "https://pubchem.ncbi.nlm.nih.gov/compound/11053",
-          "role": "canonical_parent_reference"
+          "role": "canonical_structure"
         },
         {
           "source": "ChEBI",
@@ -3865,9 +3863,9 @@
       ],
       "hint_role": "Deep-violet bis-indole bacterial pigment with antiprotozoal and Gram-positive antibacterial activity.",
       "hint_origin": "Assembled from two indole amino acid units by the five-enzyme VioABCDE oxidative cascade.",
-      "structural_note": "Five-ring conjugated system (5-hydroxyindole + oxindole + central pyrrolidone + indole, Fsp3 = 0.00).",
+      "structural_note": "Conjugated pigment containing a hydroxyindole, a central pyrrole and an oxindole-related ring system; the PubChem representation does not specify E/Z geometry.",
       "review_status": "baseline_legacy",
-      "review_notes": "Preserved v0.2.2 Ranked SMILES (extra indole substituent C28H18N4O3 and unspecified double bond vs canonical C20H13N3O3 PubChem CID 11053) to maintain schedule hash parity."
+      "review_notes": "Corrected against PubChem; see BIOWORDLE_v0.3.1_SCIENTIFIC_CORRECTIONS.md for evidence and representation limits. PubChem graph lacks an E/Z assignment; ChEBI representation differs and requires further review."
     },
     {
       "id": "xanthine",

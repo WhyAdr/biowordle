@@ -26,6 +26,7 @@ import unittest
 from pathlib import Path
 
 from rdkit import Chem, DataStructs
+from rdkit.Chem import rdMolDescriptors
 
 import build_puzzles
 import chem_engine
@@ -387,6 +388,40 @@ class TestBioWordleAudit(unittest.TestCase):
             "schedule_version_hash must change when game_eligibility changes",
         )
 
+    def test_corrected_baseline_reference_identities(self) -> None:
+        # Fixed PubChem reference keys, independently of manifest expectations.
+        expected = {
+            "artemisinin": ("C15H22O5", "BLUAFEHZUWYNDE-NNWCWBAJSA-N"),
+            "cholesterol": ("C27H46O", "HVYWMOMLDIMFJA-DPAQBDIFSA-N"),
+            "geosmin": ("C12H22O", "JLPUXFOGCDVKGO-TUAOUCFPSA-N"),
+            "prodigiosin": ("C20H25N3O", "SZXDNGVQRDTJSD-FOWTUZBSSA-N"),
+            "pyocyanin": ("C13H10N2O", "YNCMLFHHXWETLD-UHFFFAOYSA-N"),
+            "quinine": ("C20H24N2O2", "LOUPRKONTZGTKE-WZBLMQSHSA-N"),
+            "violacein": ("C20H13N3O3", "SHLJIZCPRXXHHZ-UHFFFAOYSA-N"),
+        }
+        manifest = json.loads((Path(__file__).parent / "data" / "chemle_compounds.json").read_text(encoding="utf-8"))["compounds"]
+        for item in manifest:
+            if item["id"] not in expected:
+                continue
+            with self.subTest(item=item["id"]):
+                mol = Chem.MolFromSmiles(item["input_isomeric_smiles"])
+                self.assertEqual((rdMolDescriptors.CalcMolFormula(mol), Chem.MolToInchiKey(mol)), expected[item["id"]])
+
+    def test_chemle_rules_hash_is_stable_and_science_sensitive(self) -> None:
+        chem = self.data["chemle"]
+        matrix = self.data["chemle_similarity"]
+        spec = self.feedback_spec
+        current = build_puzzles.compute_chemle_rules_hash(chem, matrix, spec)
+        self.assertEqual(current, self.data["metadata"]["chemle_rules_hash"])
+        self.assertEqual(current, build_puzzles.compute_chemle_rules_hash(list(reversed(chem)), matrix, spec))
+        changed = copy.deepcopy(chem)
+        changed[0]["inchikey"] = "CHANGE"
+        self.assertNotEqual(current, build_puzzles.compute_chemle_rules_hash(changed, matrix, spec))
+        self.assertEqual(build_puzzles.compute_chemle_schedule_hash(chem), build_puzzles.compute_chemle_schedule_hash(changed))
+        changed_spec = copy.deepcopy(spec)
+        changed_spec["profiles"]["ranked"]["chemle_fields"][0]["exact_tol"] += 1
+        self.assertNotEqual(current, build_puzzles.compute_chemle_rules_hash(chem, matrix, changed_spec))
+
     def test_09_p1_5_split_carbonyl_smarts(self) -> None:
         """Verify non-overlapping split carbonyl SMARTS distinguish ketone, aldehyde, acid, ester, and amide."""
         cases = [
@@ -405,6 +440,32 @@ class TestBioWordleAudit(unittest.TestCase):
                 self.assertIn(req, fgs, f"{smi} failed to match {req}; got {fgs}")
             for excl in must_not_have:
                 self.assertNotIn(excl, fgs, f"{smi} falsely matched {excl}; got {fgs}")
+
+    def test_functional_group_catalog_positive_and_negative(self) -> None:
+        # Functional-group names describe graph motifs, not inferred pH or activity.
+        cases = {
+            "Aliphatic Alcohol (-OH)": (["CCO", "OC1CCCCC1"], ["CC(=O)O", "c1ccccc1O"]),
+            "Phenol / Enol (-OH)": (["Oc1ccccc1", "C=C(O)C"], ["CC(=O)O", "CC(=O)[O-]", "CCO", "CC(=O)OC"]),
+            "Carboxylic Acid (-COOH)": (["CC(=O)O", "CC(=O)[O-]", "O=CO"], ["CC(=O)OC", "CCO", "O=C(O)O", "NC(=O)O"]),
+            "Aldehyde (-CHO)": (["CC=O", "O=Cc1ccccc1", "C=O"], ["CC(=O)C", "CC(=O)O"]),
+            "Ketone (C-C(=O)-C)": (["CC(=O)C", "O=C1CCCCC1"], ["CC=O", "CC(=O)O"]),
+            "Ester / Lactone": (["COC=O", "O=C1OCCC1"], ["CC(=O)O", "CCOC", "COC(=O)N", "COC(=O)OC"]),
+            "Ether / Methoxy (C-O-C)": (["COC", "COc1ccccc1"], ["CO", "CC(=O)OC"]),
+            "Primary / Secondary Amine": (["CN", "CNC"], ["CC(=O)N", "CS(=O)(=O)N", "C[N+](C)(C)C"]),
+            "Tertiary Amine": (["CN(C)C", "CN1CCCCC1"], ["CC(=O)N(C)C", "CS(=O)(=O)N(C)C", "C[N+](C)(C)C"]),
+            "Amide / Lactam": (["NC=O", "NC(=O)N", "O=C1NCCC1"], ["CN", "CC(=O)OC"]),
+            "Indole / Pyrrole Ring": (["c1cc[nH]c1", "c1ccc2[nH]ccc2c1"], ["c1ccncc1", "C1CCNC1"]),
+            "Heteroaromatic N": (["c1ccncc1"], ["c1ccccc1", "C1CCNCC1"]),
+            "Halogen (F/Cl/Br/I)": (["CF", "CI"], ["CC", "CO"]),
+            "Sulfur-containing group": (["CSC", "CS(=O)(=O)O"], ["CCO", "CCN"]),
+        }
+        self.assertEqual(set(cases), {name for name, _ in chem_engine.FUNCTIONAL_GROUP_SMARTS})
+        for name, (positives, negatives) in cases.items():
+            for smiles, expected in [(x, True) for x in positives] + [(x, False) for x in negatives]:
+                with self.subTest(group=name, smiles=smiles):
+                    mol = Chem.MolFromSmiles(smiles)
+                    self.assertIsNotNone(mol)
+                    self.assertEqual(name in chem_engine.detect_functional_groups(mol), expected)
 
     def test_10_p2_3_hint_leakage_audit(self) -> None:
         """Verify all catalog items pass hint leakage lint and negative cases raise AssertionError."""
