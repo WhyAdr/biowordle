@@ -3,7 +3,7 @@
     "schema_version": "0.2.2",
     "generator": "BioWordle Independent RDKit Build Compiler (chem_engine.py)",
     "rdkit_version": "2026.09.2",
-    "dataset_version_hash": "7e169e929352",
+    "dataset_version_hash": "1e2d982c4209",
     "schedule_version_hash": "8872c7e7db89",
     "chemle_schedule_hash": "9257bd168fa6",
     "seqle_schedule_hash": "623f02623c18",
@@ -19,6 +19,10 @@
     "uniprot_release": "2026_04",
     "daily_seed_policy": "FNV-1a over '{game}:{profile}:{utcDate}:{gameScheduleHash}' indexing canonically sorted Ranked answer pool",
     "chemle_count": 36,
+    "chemle_ranked_count": 36,
+    "chemle_ranked_guess_count": 36,
+    "chemle_learn_count": 36,
+    "chemle_learn_guess_count": 36,
     "seqle_count": 30,
     "seqle_ranked_count": 28,
     "fingerprint_spec": {
@@ -101,6 +105,113 @@
           8
         ]
       },
+      "chemle_learn_packs": {
+        "Alkaloid / Metabolite": {
+          "count": 3,
+          "k_min": 1,
+          "group_sizes": [
+            1,
+            1,
+            1
+          ],
+          "exploratory": true
+        },
+        "Biogenic Amine": {
+          "count": 1,
+          "k_min": 1,
+          "group_sizes": [
+            1
+          ],
+          "exploratory": true
+        },
+        "Cofactor / Vitamin": {
+          "count": 2,
+          "k_min": 1,
+          "group_sizes": [
+            1,
+            1
+          ],
+          "exploratory": true
+        },
+        "Hormone / Metabolite": {
+          "count": 1,
+          "k_min": 1,
+          "group_sizes": [
+            1
+          ],
+          "exploratory": true
+        },
+        "Hormone / Neurotransmitter": {
+          "count": 1,
+          "k_min": 1,
+          "group_sizes": [
+            1
+          ],
+          "exploratory": true
+        },
+        "Hydrocarbon Degradation": {
+          "count": 7,
+          "k_min": 1,
+          "group_sizes": [
+            1,
+            2,
+            4
+          ],
+          "exploratory": true
+        },
+        "Microbial Natural Product": {
+          "count": 4,
+          "k_min": 1,
+          "group_sizes": [
+            1,
+            1,
+            2
+          ],
+          "exploratory": true
+        },
+        "Neurotransmitter": {
+          "count": 2,
+          "k_min": 1,
+          "group_sizes": [
+            1,
+            1
+          ],
+          "exploratory": true
+        },
+        "Plant Natural Product": {
+          "count": 5,
+          "k_min": 1,
+          "group_sizes": [
+            1,
+            1,
+            1,
+            2
+          ],
+          "exploratory": true
+        },
+        "Primary Metabolite": {
+          "count": 4,
+          "k_min": 1,
+          "group_sizes": [
+            1,
+            1,
+            2
+          ],
+          "exploratory": true
+        },
+        "Therapeutic Drug": {
+          "count": 6,
+          "k_min": 1,
+          "group_sizes": [
+            1,
+            1,
+            1,
+            1,
+            2
+          ],
+          "exploratory": true
+        }
+      },
       "seqle_ranked": {
         "features": [
           "charge_band"
@@ -149,6 +260,8 @@
         "pct_solved_le6": 100.0,
         "pct_solved_le8": 100.0,
         "pct_solved_by_cap": 100.0,
+        "eligible_count": 36,
+        "probe_count": 36,
         "min_opening_expected_remaining": 13.61,
         "conditioned_on_clues": true,
         "unconditioned_summary": {
@@ -196,6 +309,8 @@
         "pct_solved_le6": 100.0,
         "pct_solved_le8": 100.0,
         "pct_solved_by_cap": 100.0,
+        "eligible_count": 36,
+        "probe_count": 36,
         "min_opening_expected_remaining": 1.0,
         "conditioned_on_clues": true,
         "unconditioned_summary": {
@@ -968,6 +1083,14 @@
       "name": "Acetaminophen",
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CC(=O)Nc1ccc(O)cc1",
       "curated_canonical_smiles": "CC(=O)Nc1ccc(O)cc1",
       "curated_inchikey": "RZVAJINKPMORJF-UHFFFAOYSA-N",
@@ -1094,6 +1217,14 @@
       "name": "Adrenaline",
       "Category": "Hormone / Neurotransmitter",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CNC[C@H](O)c1ccc(O)c(O)c1",
       "curated_canonical_smiles": "CNC[C@H](O)c1ccc(O)c(O)c1",
       "curated_inchikey": "UCTWMZQNUQWSLP-VIFPVBQESA-N",
@@ -1224,6 +1355,14 @@
       "name": "Artemisinin",
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "C[C@@H]1CC[C@H]2[C@@H](C)C(=O)O[C@@H]3O[C@@]4(C)CC[C@@H]1[C@]23OO4",
       "curated_canonical_smiles": "C[C@@H]1CC[C@H]2[C@@H](C)C(=O)O[C@@H]3O[C@@]4(C)CC[C@@H]1[C@@]32OO4",
       "curated_inchikey": "BLUAFEHZUWYNDE-GZEPNZDPSA-N",
@@ -1350,6 +1489,14 @@
       "name": "Ascorbic Acid",
       "Category": "Cofactor / Vitamin",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C1O[C@H]([C@@H](O)CO)C(O)=C1O",
       "curated_canonical_smiles": "O=C1O[C@H]([C@@H](O)CO)C(O)=C1O",
       "curated_inchikey": "CIWBSHSKHKDKBQ-JLAZNSOCSA-N",
@@ -1473,6 +1620,14 @@
       "name": "Aspirin",
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CC(=O)Oc1ccccc1C(=O)O",
       "curated_canonical_smiles": "CC(=O)Oc1ccccc1C(=O)O",
       "curated_inchikey": "BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
@@ -1600,6 +1755,14 @@
       "name": "Biotin",
       "Category": "Cofactor / Vitamin",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C(O)CCCC[C@@H]1SC[C@@H]2NC(=O)N[C@H]12",
       "curated_canonical_smiles": "O=C(O)CCCC[C@@H]1SC[C@@H]2NC(=O)N[C@@H]21",
       "curated_inchikey": "YBJHBAHKTGYVGT-ZKWXMUAHSA-N",
@@ -1729,6 +1892,14 @@
       "name": "Caffeine",
       "Category": "Alkaloid / Metabolite",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
       "curated_canonical_smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
       "curated_inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
@@ -1850,6 +2021,14 @@
       "name": "Camphor",
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CC1(C)[C@@H]2CC[C@@]1(C)C(=O)C2",
       "curated_canonical_smiles": "CC1(C)[C@@H]2CC[C@@]1(C)C(=O)C2",
       "curated_inchikey": "DSSYKIVIOFKYAU-XCBNKYQSSA-N",
@@ -1971,6 +2150,14 @@
       "name": "Capsaicin",
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "COc1cc(CNC(=O)CCCC/C=C/C(C)C)ccc1O",
       "curated_canonical_smiles": "COc1cc(CNC(=O)CCCC/C=C/C(C)C)ccc1O",
       "curated_inchikey": "YKPUWZUDDOIDPM-SOFGYWHQSA-N",
@@ -2100,6 +2287,14 @@
       "name": "Catechol",
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "Oc1ccccc1O",
       "curated_canonical_smiles": "Oc1ccccc1O",
       "curated_inchikey": "YCIMNLLNPGFGHC-UHFFFAOYSA-N",
@@ -2228,6 +2423,14 @@
       "name": "Cholesterol",
       "Category": "Primary Metabolite",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(C)CC[C@H]3[C@H]2CC=C4[C@@]3(C)CC[C@@H](O)C4",
       "curated_canonical_smiles": "CC(C)CCC[C@@H](C)[C@H]1CC[C@H]2[C@@H]3CC=C4C[C@H](O)CC[C@@]4(C)[C@H]3CC[C@@]12C",
       "curated_inchikey": "HVYWMOMLDIMFJA-PZIGXULQSA-N",
@@ -2355,6 +2558,14 @@
       "name": "Ciprofloxacin",
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C(O)c1cn(C2CC2)c2cc(N3CCNCC3)c(F)cc2c1=O",
       "curated_canonical_smiles": "O=C(O)c1cn(C2CC2)c2cc(N3CCNCC3)c(F)cc2c1=O",
       "curated_inchikey": "MYSWGUAQZAJSOK-UHFFFAOYSA-N",
@@ -2481,6 +2692,14 @@
       "name": "Citric Acid",
       "Category": "Primary Metabolite",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C(O)CC(O)(CC(=O)O)C(=O)O",
       "curated_canonical_smiles": "O=C(O)CC(O)(CC(=O)O)C(=O)O",
       "curated_inchikey": "KRKNYBCHXYNGOX-UHFFFAOYSA-N",
@@ -2604,6 +2823,14 @@
       "name": "Curcumin",
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "COc1cc(/C=C/C(=O)CC(=O)/C=C/c2ccc(O)c(OC)c2)ccc1O",
       "curated_canonical_smiles": "COc1cc(/C=C/C(=O)CC(=O)/C=C/c2ccc(O)c(OC)c2)ccc1O",
       "curated_inchikey": "VFLDPWHFBUODDF-FCXRPNKRSA-N",
@@ -2733,6 +2960,14 @@
       "name": "Dopamine",
       "Category": "Neurotransmitter",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "NCCc1ccc(O)c(O)c1",
       "curated_canonical_smiles": "NCCc1ccc(O)c(O)c1",
       "curated_inchikey": "VYFYYTLLBUKUHU-UHFFFAOYSA-N",
@@ -2862,6 +3097,14 @@
       "name": "Fluoxetine",
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CNCCC(Oc1ccc(C(F)(F)F)cc1)c1ccccc1",
       "curated_canonical_smiles": "CNCCC(Oc1ccc(C(F)(F)F)cc1)c1ccccc1",
       "curated_inchikey": "RTHCYVBBDHJXIQ-UHFFFAOYSA-N",
@@ -2985,6 +3228,14 @@
       "name": "Gentisic Acid",
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C(O)c1cc(O)ccc1O",
       "curated_canonical_smiles": "O=C(O)c1cc(O)ccc1O",
       "curated_inchikey": "WXTMDXOMEHJXQO-UHFFFAOYSA-N",
@@ -3111,6 +3362,14 @@
       "name": "Geosmin",
       "Category": "Microbial Natural Product",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "C[C@H]1CCCC2(C)[C@H]1CC[C@@]2(C)O",
       "curated_canonical_smiles": "C[C@H]1CCCC2(C)[C@H]1CC[C@@]2(C)O",
       "curated_inchikey": "SQFNUAVVZSZPMP-XMACVGRKSA-N",
@@ -3232,6 +3491,14 @@
       "name": "Histamine",
       "Category": "Biogenic Amine",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "NCCc1c[nH]cn1",
       "curated_canonical_smiles": "NCCc1c[nH]cn1",
       "curated_inchikey": "NTYJJOPFIAHURM-UHFFFAOYSA-N",
@@ -3354,6 +3621,14 @@
       "name": "Ibuprofen",
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CC(C)Cc1ccc(C(C)C(=O)O)cc1",
       "curated_canonical_smiles": "CC(C)Cc1ccc(C(C)C(=O)O)cc1",
       "curated_inchikey": "HEFNNWSXXWATRW-UHFFFAOYSA-N",
@@ -3476,6 +3751,14 @@
       "name": "Melatonin",
       "Category": "Hormone / Metabolite",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CC(=O)NCCc1c[nH]c2ccc(OC)cc12",
       "curated_canonical_smiles": "COc1ccc2[nH]cc(CCNC(C)=O)c2c1",
       "curated_inchikey": "DRLFMBDRBRZALE-UHFFFAOYSA-N",
@@ -3600,6 +3883,14 @@
       "name": "Naphthalene",
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "c1ccc2ccccc2c1",
       "curated_canonical_smiles": "c1ccc2ccccc2c1",
       "curated_inchikey": "UFWIBTONFRDIAS-UHFFFAOYSA-N",
@@ -3719,6 +4010,14 @@
       "name": "Nicotine",
       "Category": "Alkaloid / Metabolite",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CN1CCC[C@H]1c2cccnc2",
       "curated_canonical_smiles": "CN1CCC[C@H]1c1cccnc1",
       "curated_inchikey": "SNICXCGAKADSCV-JTQLQIEISA-N",
@@ -3841,6 +4140,14 @@
       "name": "Penicillin G",
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CC1(C)S[C@@H]2[C@H](NC(=O)Cc3ccccc3)C(=O)N2[C@H]1C(=O)O",
       "curated_canonical_smiles": "CC1(C)S[C@@H]2[C@H](NC(=O)Cc3ccccc3)C(=O)N2[C@H]1C(=O)O",
       "curated_inchikey": "JGSARLDLIJGVTE-MBNYWOFBSA-N",
@@ -3965,6 +4272,14 @@
       "name": "Phenanthrene",
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "c1ccc2c(c1)ccc3ccccc23",
       "curated_canonical_smiles": "c1ccc2c(c1)ccc1ccccc12",
       "curated_inchikey": "YNPNZTXNASCQKK-UHFFFAOYSA-N",
@@ -4088,6 +4403,14 @@
       "name": "Prodigiosin",
       "Category": "Microbial Natural Product",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "CCCCC1=CC(=C(N1)C=C2C=CC(=N2)C3=CC(=CN3)OC)C",
       "curated_canonical_smiles": "CCCCc1cc(C)c(C=C2C=CC(c3cc(OC)c[nH]3)=N2)[nH]1",
       "curated_inchikey": "LCNZNMPZJFZRAP-UHFFFAOYSA-N",
@@ -4211,6 +4534,14 @@
       "name": "Protocatechuic Acid",
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C(O)c1ccc(O)c(O)c1",
       "curated_canonical_smiles": "O=C(O)c1ccc(O)c(O)c1",
       "curated_inchikey": "YQUVCSBJEUQKSH-UHFFFAOYSA-N",
@@ -4340,6 +4671,14 @@
       "name": "Pyocyanin",
       "Category": "Microbial Natural Product",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "Cn1c2ccccc2nc2ccc(=O)cc21",
       "curated_canonical_smiles": "Cn1c2cc(=O)ccc-2nc2ccccc21",
       "curated_inchikey": "HAQCALIJITZJCC-UHFFFAOYSA-N",
@@ -4465,6 +4804,14 @@
       "name": "Quinine",
       "Category": "Alkaloid / Metabolite",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "COc1ccc2nccc([C@@H](O)[C@H]3C[C@@H]4CCN3C[C@@H]4C=C)c2c1",
       "curated_canonical_smiles": "C=C[C@H]1CN2CC[C@H]1C[C@@H]2[C@H](O)c1ccnc2ccc(OC)cc12",
       "curated_inchikey": "LOUPRKONTZGTKE-AFHBHXEDSA-N",
@@ -4593,6 +4940,14 @@
       "name": "Resveratrol",
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "Oc1ccc(/C=C/c2cc(O)cc(O)c2)cc1",
       "curated_canonical_smiles": "Oc1ccc(/C=C/c2cc(O)cc(O)c2)cc1",
       "curated_inchikey": "LUKBXSAWLPMMSZ-OWOJBTEDSA-N",
@@ -4718,6 +5073,14 @@
       "name": "Salicylic Acid",
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C(O)c1ccccc1O",
       "curated_canonical_smiles": "O=C(O)c1ccccc1O",
       "curated_inchikey": "YGSDEFSMJLZEOE-UHFFFAOYSA-N",
@@ -4840,6 +5203,14 @@
       "name": "Serotonin",
       "Category": "Neurotransmitter",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "NCCc1c[nH]c2ccc(O)cc12",
       "curated_canonical_smiles": "NCCc1c[nH]c2ccc(O)cc12",
       "curated_inchikey": "QZAYGJVTTNCVMB-UHFFFAOYSA-N",
@@ -4964,6 +5335,14 @@
       "name": "Shikimic Acid",
       "Category": "Primary Metabolite",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](O)C1",
       "curated_canonical_smiles": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](O)C1",
       "curated_inchikey": "JXOHGGNKMLTUBP-HSUXUTPPSA-N",
@@ -5087,6 +5466,14 @@
       "name": "L-Tryptophan",
       "Category": "Primary Metabolite",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "N[C@@H](Cc1c[nH]c2ccccc12)C(=O)O",
       "curated_canonical_smiles": "N[C@@H](Cc1c[nH]c2ccccc12)C(=O)O",
       "curated_inchikey": "QIVBCDIJIAJPQS-VIFPVBQESA-N",
@@ -5212,6 +5599,14 @@
       "name": "Vanillin",
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "COc1cc(C=O)ccc1O",
       "curated_canonical_smiles": "COc1cc(C=O)ccc1O",
       "curated_inchikey": "MWOOGOJBHIARFG-UHFFFAOYSA-N",
@@ -5339,6 +5734,14 @@
       "name": "Violacein",
       "Category": "Microbial Natural Product",
       "super_class": "Microbial & Aromatic Catabolite",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
       "curated_smiles": "O=C1NC(=C(c2c[nH]c3ccccc23)C1=C1Nc2ccccc2C1=O)c1c[nH]c2ccc(O)cc12",
       "curated_canonical_smiles": "O=C1NC(c2c[nH]c3ccc(O)cc23)=C(c2c[nH]c3ccccc23)C1=C1Nc2ccccc2C1=O",
       "curated_inchikey": "PJAOXHSAWDWRMO-UHFFFAOYSA-N",

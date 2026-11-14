@@ -560,4 +560,124 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     expect(externalUrls).toEqual([]);
     expect(pageErrors).toEqual([]);
   });
+
+  test("9. Chemle pool separation, Ranked rejection of Learn-only probes, Learn pack denominators & invalid pack fallback", async ({ page }) => {
+    const pageErrors = attachPageErrorTrap(page);
+    const clonedData = JSON.parse(JSON.stringify(PUZZLES));
+    const baseMol = clonedData.chemle[0];
+    const learnMolId = "synthetic_learn_probe";
+    const learnMol = {
+      ...JSON.parse(JSON.stringify(baseMol)),
+      id: learnMolId,
+      name: "Synthetic Learn Probe",
+      Category: baseMol.Category,
+      inchikey: "SYNTHLEARNPROB-UHFFFAOYSA-N",
+      game_eligibility: ["learn"],
+      guess_eligibility: ["learn"],
+    };
+    clonedData.chemle.push(learnMol);
+    clonedData.chemle_similarity[learnMolId] = {};
+    for (const m of clonedData.chemle) {
+      const s = m.id === learnMolId ? 100 : (clonedData.chemle_similarity[baseMol.id][m.id] ?? 0);
+      clonedData.chemle_similarity[learnMolId][m.id] = s;
+      clonedData.chemle_similarity[m.id][learnMolId] = s;
+    }
+    clonedData.metadata.chemle_count = clonedData.chemle.length;
+    clonedData.metadata.chemle_ranked_count = 36;
+    clonedData.metadata.chemle_ranked_guess_count = 36;
+    clonedData.metadata.chemle_learn_count = 37;
+    clonedData.metadata.chemle_learn_guess_count = 37;
+
+    await page.route("**/data/puzzles_data.js", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/javascript; charset=utf-8",
+        body: `window.BIOWORDLE_DATA = ${JSON.stringify(clonedData)};`,
+      });
+    });
+
+    await page.addInitScript(() => {
+      window.__BIOWORDLE_TEST_UTC_DATE__ = "2026-11-14";
+    });
+    await page.goto("/");
+
+    // Ranked mode sees 36 Ranked / 36 denominator and excludes the Learn-only probe
+    await expect(page.locator("#badge-chemle-count")).toHaveText("36 Ranked");
+    await expect(page.locator("#chemle-candidates-pill")).toHaveText(/^Candidates: \d+ \/ 36$/);
+    await page.locator("#chemle-search-input").fill("Synthetic Learn Probe");
+    await expect(page.locator("#chemle-dropdown")).toContainText("No remaining molecules match");
+    await page.locator("#chemle-search-input").press("Enter");
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(0);
+
+    // Ranked keyboard entry works cleanly
+    await page.locator("#chemle-search-input").fill("Aspirin");
+    await page.locator("#chemle-search-input").press("ArrowDown");
+    await page.locator("#chemle-search-input").press("Enter");
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
+
+    // Switch to Learn mode -> sees 37 Mols / 37 denominator and accepts Synthetic Learn Probe via mouse click
+    await page.locator("#btn-playstyle").click();
+    await expect(page.locator("#badge-chemle-count")).toHaveText("37 Mols");
+    await expect(page.locator("#chemle-candidates-pill")).toHaveText(/^Candidates: \d+ \/ 37$/);
+    await expect(page.locator("#chemle-cat-filter")).toContainText("All Answer Packs (37 Mols)");
+
+    await page.locator("#chemle-search-input").fill("Synthetic Learn Probe");
+    const opt = page.locator(`#chemle-opt-${learnMolId}`);
+    await expect(opt).toBeVisible();
+    await opt.click();
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
+    await expect(page.locator("#chemle-guesses")).toContainText("Synthetic Learn Probe");
+
+    // Pack filter shows exact Learn answer denominator and invalid filter selection falls back safely
+    const targetCat = baseMol.Category;
+    const expectedPackAnsCount = clonedData.chemle.filter(
+      (m) => (m.game_eligibility || []).includes("learn") && m.Category === targetCat
+    ).length;
+    await page.locator("#chemle-cat-filter").selectOption(targetCat);
+    await expect(page.locator("#chemle-cat-filter option:checked")).toContainText(`(${expectedPackAnsCount})`);
+    await expect(page.locator("#chemle-candidates-pill")).toHaveText(
+      new RegExp(`^Candidates: \\d+ / ${expectedPackAnsCount}$`)
+    );
+
+    // Selecting an invalid pack via script + change handler falls back cleanly to ALL
+    await page.evaluate(() => {
+      const sel = document.getElementById("chemle-cat-filter");
+      const badOpt = document.createElement("option");
+      badOpt.value = "NONEXISTENT_PACK";
+      badOpt.textContent = "Broken Pack";
+      sel.appendChild(badOpt);
+      sel.value = "NONEXISTENT_PACK";
+      sel.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await expect(page.locator("#chemle-cat-filter")).toHaveValue("ALL");
+
+    // Target selection near start and end of sorted pool both resolve & accept guesses
+    const pool = BioWordleEngine.getAnswerPool(PUZZLES, "chemle", "ranked", "ALL");
+    let startSeed = null;
+    let endSeed = null;
+    for (let i = 0; i < 400 && (!startSeed || !endSeed); i++) {
+      const candidateSeed = `boundary-check-${i}`;
+      const idx = BioWordleEngine.selectDailyIndex(
+        "chemle",
+        "ranked",
+        "2026-11-14",
+        CHEM_SCHEDULE_HASH,
+        pool.length,
+        candidateSeed
+      );
+      if (!startSeed && idx <= 2) startSeed = candidateSeed;
+      if (!endSeed && idx >= pool.length - 3) endSeed = candidateSeed;
+    }
+    expect(startSeed && endSeed).toBeTruthy();
+
+    for (const seed of [startSeed, endSeed]) {
+      await page.goto(`/?seed=${seed}`);
+      await expect(page.locator("#chemle-structure-well")).toBeVisible();
+      await page.locator("#chemle-search-input").fill("Caffeine");
+      await page.locator("#chemle-search-input").press("Enter");
+      await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
+    }
+
+    expect(pageErrors).toEqual([]);
+  });
 });

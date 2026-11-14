@@ -31,9 +31,10 @@ from chem_engine import (  # noqa: E402
 def _format_solver_summary(label: str, stats: Dict[str, Any]) -> str:
     mean_s = f"{stats['mean']:.2f}" if stats.get("mean") is not None else "n/a"
     med_s = f"{stats['median']:.1f}" if stats.get("median") is not None else "n/a"
+    probe_n = stats.get("probe_count", stats["target_count"])
     return (
         f"[{label}] "
-        f"targets={stats['target_count']} solved={stats['solved_count']} unsolved={stats['unsolved_count']} "
+        f"targets={stats['target_count']} probes={probe_n} solved={stats['solved_count']} unsolved={stats['unsolved_count']} "
         f"cap={stats['mode_cap']} ({stats['pct_solved_by_cap']:.1f}% solved) "
         f"mean={mean_s} median={med_s} p95={stats['p95']} max={stats['max']} "
         f"<=2-guess={stats['pct_solved_le2']:.2f}% <=6-guess={stats['pct_solved_le6']:.1f}% "
@@ -57,8 +58,24 @@ def run_all_gates(
     report: Dict[str, Any] = {"chemle": {}, "seqle": {}, "seqle_legal_probe": {}}
 
     for profile_name, profile_spec in spec["profiles"].items():
+        ans_ids = [
+            r["id"]
+            for r in chemle
+            if profile_name in r.get("game_eligibility", ["learn", "ranked"])
+        ]
+        probe_ids = [
+            r["id"]
+            for r in chemle
+            if profile_name in r.get("guess_eligibility", r.get("game_eligibility", ["learn", "ranked"]))
+        ]
         stats = run_chemle_greedy_solver(
-            chemle, sim_matrix, profile_spec, profile_id=profile_name, condition_on_clues=True
+            chemle,
+            sim_matrix,
+            profile_spec,
+            profile_id=profile_name,
+            condition_on_clues=True,
+            answer_ids=ans_ids,
+            probe_ids=probe_ids,
         )
         assert_solver_gate(stats, profile_spec["solver_gate"], profile_name)
         report["chemle"][profile_name] = stats

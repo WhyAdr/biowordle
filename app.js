@@ -284,15 +284,26 @@
     };
   }
 
-  function getGuessPool(data, mode) {
-    // P0-3 Invariant: guessPool is ALWAYS the full catalog and never filtered by category/pack
-    return mode === "chemle" ? data.chemle.slice() : data.seqle.slice();
+  function _chemleProfileList(mol, field) {
+    if (Array.isArray(mol[field])) return mol[field];
+    if (Array.isArray(mol.game_eligibility)) return mol.game_eligibility;
+    return ["learn", "ranked"];
+  }
+
+  function getGuessPool(data, mode, profile) {
+    // P0-3 Invariant: guessPool ignores category/pack filter, but respects profile guess_eligibility for Chemle
+    if (mode === "chemle") {
+      const prof = profile || "ranked";
+      return data.chemle.filter((m) => _chemleProfileList(m, "guess_eligibility").includes(prof));
+    }
+    return data.seqle.slice();
   }
 
   function getAnswerPool(data, mode, profile, packFilter) {
+    const prof = profile || "ranked";
     if (mode === "chemle") {
-      const base = data.chemle.slice();
-      if (profile === "ranked" || !packFilter || packFilter === "ALL") {
+      const base = data.chemle.filter((m) => _chemleProfileList(m, "game_eligibility").includes(prof));
+      if (prof === "ranked" || !packFilter || packFilter === "ALL") {
         return base;
       }
       const filtered = base.filter((m) => m.Category === packFilter);
@@ -300,7 +311,7 @@
     } else {
       return data.seqle.filter((m) => {
         const elig = Array.isArray(m.game_eligibility) ? m.game_eligibility : ["learn"];
-        return elig.includes(profile);
+        return elig.includes(prof);
       });
     }
   }
@@ -1147,6 +1158,26 @@
 
     syncHintButtonUI();
 
+    const chemCountBadge = $("badge-chemle-count");
+    const chemGuessPool = getGuessPool(DATA, "chemle", state.profile);
+    if (chemCountBadge) {
+      const chemAnsAll = getAnswerPool(DATA, "chemle", state.profile, "ALL");
+      chemCountBadge.textContent = isRanked ? `${chemAnsAll.length} Ranked` : `${chemAnsAll.length} Mols`;
+    }
+
+    const searchInput = $("chemle-search-input");
+    if (searchInput) {
+      const scopeLabel = isRanked ? "Ranked" : "Learn";
+      searchInput.setAttribute(
+        "aria-label",
+        `Search all ${chemGuessPool.length} ${scopeLabel} molecules by name, formula, or functional group`
+      );
+      searchInput.setAttribute(
+        "placeholder",
+        `Search all ${chemGuessPool.length} ${scopeLabel} molecules by name, formula (e.g. C8H10N4O2), or functional group...`
+      );
+    }
+
     const seqCountBadge = $("badge-seqle-count");
     if (seqCountBadge) {
       const ansPool = getAnswerPool(DATA, "seqle", state.profile, state.learnCategoryFilter);
@@ -1177,28 +1208,34 @@
     const sel = $("chemle-cat-filter");
     if (!sel) return;
     if (state.profile === "ranked") {
-      sel.innerHTML = `<option value="ALL">All Categories (Ranked Daily Pool: ${DATA.chemle.length})</option>`;
+      const rankedAns = getAnswerPool(DATA, "chemle", "ranked", "ALL");
+      const rankedGuesses = getGuessPool(DATA, "chemle", "ranked");
+      sel.innerHTML = `<option value="ALL">All Categories (Ranked Daily Pool: ${rankedAns.length})</option>`;
       sel.value = "ALL";
       sel.disabled = true;
       sel.title =
-        `Category pack filtering is disabled in Ranked Daily so the daily answer is never excluded. All ${DATA.chemle.length} molecules remain searchable.`;
+        `Category pack filtering is disabled in Ranked Daily so the daily answer is never excluded. All ${rankedGuesses.length} Ranked molecules remain searchable.`;
       return;
     }
 
     sel.disabled = false;
+    const learnAns = getAnswerPool(DATA, "chemle", "learn", "ALL");
+    const learnGuesses = getGuessPool(DATA, "chemle", "learn");
     sel.title =
-      `In Learn Mode, selecting a pack restricts the target answer pool while keeping all ${DATA.chemle.length} molecules available as probing guesses.`;
+      `In Learn Mode, selecting a pack restricts the target answer pool while keeping all ${learnGuesses.length} Learn molecules available as probing guesses.`;
     const counts = {};
-    DATA.chemle.forEach((m) => {
+    learnAns.forEach((m) => {
       counts[m.Category] = (counts[m.Category] || 0) + 1;
     });
     const cats = Object.keys(counts).sort();
     sel.innerHTML =
-      `<option value="ALL">All Answer Packs (${DATA.chemle.length} Mols)</option>` +
+      `<option value="ALL">All Answer Packs (${learnAns.length} Mols)</option>` +
       cats
         .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)} (${counts[c]})</option>`)
         .join("");
-    sel.value = state.learnCategoryFilter || "ALL";
+    const wantPack = state.learnCategoryFilter || "ALL";
+    state.learnCategoryFilter = wantPack === "ALL" || counts[wantPack] ? wantPack : "ALL";
+    sel.value = state.learnCategoryFilter;
   }
 
   function populateSeqleMotifPicker() {
@@ -1224,7 +1261,8 @@
     const targetKey = game === "chemle" ? target.id : target.seq;
     if (!saved || saved.targetId !== targetKey || !Array.isArray(saved.guesses)) return false;
     if (game === "chemle") {
-      sess.guesses = saved.guesses.filter((gId) => Boolean(CHEM_BY_ID[gId]));
+      const rankedGuessIds = new Set(getGuessPool(DATA, "chemle", "ranked").map((m) => m.id));
+      sess.guesses = saved.guesses.filter((gId) => Boolean(CHEM_BY_ID[gId]) && rankedGuessIds.has(gId));
     } else {
       sess.keyStates = {};
       sess.guesses = saved.guesses.map((gSeq) => {
@@ -1303,8 +1341,13 @@
       return;
     }
 
-    const ansPool = getAnswerPool(DATA, game, profile, state.learnCategoryFilter);
-    const guessPool = getGuessPool(DATA, game);
+    let ansPool = getAnswerPool(DATA, game, profile, state.learnCategoryFilter);
+    if (profile === "learn" && game === "chemle" && ansPool.length === 0) {
+      state.learnCategoryFilter = "ALL";
+      ansPool = getAnswerPool(DATA, game, profile, "ALL");
+      syncHeaderAndProfileControls();
+    }
+    const guessPool = getGuessPool(DATA, game, profile);
     const utcDate = getUtcDateString();
     const gameSchedHash = getScheduleHashForGame(game);
 
@@ -1591,6 +1634,21 @@
         </div>`;
     }
 
+    const packAudit =
+      state.profile === "learn" &&
+      state.learnCategoryFilter !== "ALL" &&
+      DATA.metadata &&
+      DATA.metadata.k_anonymity_audit &&
+      DATA.metadata.k_anonymity_audit.chemle_learn_packs &&
+      DATA.metadata.k_anonymity_audit.chemle_learn_packs[state.learnCategoryFilter];
+    if (packAudit && packAudit.exploratory) {
+      html += `
+        <div class="hint-item" style="border-style:dashed;">
+          <strong>Exploratory Practice Pack (${packAudit.pool_size} molecules · k<sub>min</sub> = ${packAudit.k_min})</strong>
+          Focused family filter for guided study; Level-0 clues narrow quickly across small packs.
+        </div>`;
+    }
+
     if (ch.archivedLegacy) {
       const a = ch.archivedLegacy;
       html += `
@@ -1621,24 +1679,29 @@
           difficulty_tier: t.difficulty_tier,
         };
 
+      const guessPool = getGuessPool(DATA, "chemle", state.profile);
+
       // Top-5 Tanimoto neighbors for Post-Game Similarity Explorer (P3-3)
       const simMap = DATA.chemle_similarity[t.id] || {};
-      const topNeighbors = DATA.chemle
+      const topNeighbors = guessPool
         .filter((m) => m.id !== t.id)
         .map((m) => ({ mol: m, sim: simMap[m.id] || 0 }))
-        .sort((a, b) => b.sim - a.sim)
+        .sort((a, b) => b.sim - a.sim || a.mol.name.localeCompare(b.mol.name))
         .slice(0, 5);
 
-      // Best opening probe across the catalog for this profile
-      const bestOpeningMol = DATA.chemle
-        .slice()
-        .sort((a, b) => {
-          const qa =
-            (a.opening_probe_quality && a.opening_probe_quality[state.profile]) || {};
-          const qb =
-            (b.opening_probe_quality && b.opening_probe_quality[state.profile]) || {};
-          return (qb.information_gain_bits || 0) - (qa.information_gain_bits || 0);
-        })[0];
+      // Best opening probe across the profile-eligible guess pool
+      const bestOpeningMol =
+        guessPool
+          .filter((m) => m.opening_probe_quality && m.opening_probe_quality[state.profile])
+          .slice()
+          .sort((a, b) => {
+            const qa = a.opening_probe_quality[state.profile] || {};
+            const qb = b.opening_probe_quality[state.profile] || {};
+            return (
+              (qb.information_gain_bits || 0) - (qa.information_gain_bits || 0) ||
+              a.name.localeCompare(b.name)
+            );
+          })[0] || guessPool[0] || t;
       const bestProbeQual =
         (bestOpeningMol.opening_probe_quality &&
           bestOpeningMol.opening_probe_quality[state.profile]) ||
@@ -1709,9 +1772,10 @@
     const container = $("chemle-guesses");
 
     if (ch.guesses.length === 0) {
+      const guessCount = getGuessPool(DATA, "chemle", state.profile).length;
       container.innerHTML = `
         <div class="hint-item" style="text-align:center;padding:18px;color:var(--muted-foreground);">
-          Type or select any of the <strong>36 curated molecules</strong> above to make your first guess.<br/>
+          Type or select any of the <strong>${guessCount} curated molecules</strong> above to make your first guess.<br/>
           <small>In <strong>${escapeHtml(state.profile.toUpperCase())}</strong> profile, each guess compares ${(profSpec.chemle_fields || []).map((f) => f.label).join(", ")} and Chiral Morgan Tanimoto similarity.</small>
         </div>
       `;
@@ -1827,6 +1891,8 @@
     }
     if (ch.revealed || ch.won) return;
     if (!CHEM_BY_ID[molId]) return;
+    const guessPool = getGuessPool(DATA, "chemle", state.profile);
+    if (!guessPool.some((m) => m.id === molId)) return;
     if (ch.guesses.includes(molId)) return;
 
     ch.guesses.push(molId);
@@ -1894,9 +1960,9 @@
       return;
     }
 
-    // P0-3: Search ALWAYS queries the full 36-compound guessPool!
+    // Search queries the full profile-eligible guessPool!
     const q = (query || "").trim().toLowerCase();
-    const fullGuessPool = getGuessPool(DATA, "chemle");
+    const fullGuessPool = getGuessPool(DATA, "chemle", state.profile);
     const matches = fullGuessPool.filter((m) => {
       if (ch.guesses.includes(m.id)) return false;
       if (!q) return true;
@@ -1904,15 +1970,24 @@
         m.name.toLowerCase().includes(q) ||
         m.Category.toLowerCase().includes(q) ||
         m.Formula.toLowerCase().includes(q) ||
+        (Array.isArray(m.aliases) && m.aliases.some((a) => String(a).toLowerCase().includes(q))) ||
         m.functional_groups.some((fg) => fg.toLowerCase().includes(q))
       );
     });
 
-    // In Learn mode with a pack selected, sort pack members first while keeping all 36 selectable
+    // In Learn mode with a pack selected, sort pack answer members first while keeping all eligible guesses selectable
     if (state.profile === "learn" && state.learnCategoryFilter !== "ALL") {
       matches.sort((a, b) => {
-        const aIn = a.Category === state.learnCategoryFilter ? 0 : 1;
-        const bIn = b.Category === state.learnCategoryFilter ? 0 : 1;
+        const aIn =
+          a.Category === state.learnCategoryFilter &&
+          _chemleProfileList(a, "game_eligibility").includes("learn")
+            ? 0
+            : 1;
+        const bIn =
+          b.Category === state.learnCategoryFilter &&
+          _chemleProfileList(b, "game_eligibility").includes("learn")
+            ? 0
+            : 1;
         if (aIn !== bIn) return aIn - bIn;
         return a.name.localeCompare(b.name);
       });
@@ -1934,7 +2009,8 @@
         const inPack =
           state.profile === "learn" &&
           state.learnCategoryFilter !== "ALL" &&
-          m.Category === state.learnCategoryFilter;
+          m.Category === state.learnCategoryFilter &&
+          _chemleProfileList(m, "game_eligibility").includes("learn");
         // P0-1: Do NOT show exact MW or IG bits in pre-guess search dropdown!
         return `
       <div id="${optId}"
@@ -2592,7 +2668,11 @@
     });
 
     if (DATA.metadata && $("app-meta-subtitle")) {
-      $("app-meta-subtitle").textContent = `RDKit ${DATA.metadata.rdkit_version} · v${DATA.metadata.schema_version} · DB #${DATA.metadata.dataset_version_hash.slice(0, 8)} · ${DATA.metadata.chemle_count} Mols · ${DATA.metadata.seqle_ranked_count} Ranked / ${DATA.metadata.seqle_count} Learn Motifs`;
+      const cRanked = DATA.metadata.chemle_ranked_count ?? DATA.metadata.chemle_count;
+      const cLearn = DATA.metadata.chemle_learn_count ?? DATA.metadata.chemle_count;
+      const chemLabel =
+        cRanked === cLearn ? `${cRanked} Mols` : `${cRanked} Ranked / ${cLearn} Learn Mols`;
+      $("app-meta-subtitle").textContent = `RDKit ${DATA.metadata.rdkit_version} · v${DATA.metadata.schema_version} · DB #${DATA.metadata.dataset_version_hash.slice(0, 8)} · ${chemLabel} · ${DATA.metadata.seqle_ranked_count} Ranked / ${DATA.metadata.seqle_count} Learn Motifs`;
     }
 
     syncHeaderAndProfileControls();
@@ -2679,6 +2759,7 @@
     $("chemle-cat-filter").addEventListener("change", (e) => {
       if (state.profile !== "learn") return;
       state.learnCategoryFilter = e.target.value;
+      syncHeaderAndProfileControls();
       ensureSessionInitialized("chemle", "learn", true);
       renderChemleView();
     });

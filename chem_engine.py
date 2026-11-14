@@ -460,7 +460,8 @@ def _ladder_clue_text(record: Dict[str, Any], profile_id: str, level: int) -> Op
 
 
 def _solve_chemle_pool(
-    ids: List[str],
+    answer_ids: Sequence[str],
+    probe_ids: Sequence[str],
     by_id: Dict[str, Dict[str, Any]],
     sig_table: Dict[Tuple[str, str], str],
     profile_spec: Dict[str, Any],
@@ -468,7 +469,7 @@ def _solve_chemle_pool(
     condition_on_clues: bool,
     max_steps: Optional[int] = None,
 ) -> Dict[str, Tuple[int, bool]]:
-    """Runs greedy max-entropy search over Chemle IDs with full clue-ladder conditioning."""
+    """Runs greedy max-entropy search over `answer_ids` using `probe_ids` with clue-ladder conditioning."""
     sc_after = int(profile_spec.get("super_class_unlock_after_guesses", 4 if profile_id == "ranked" else 1))
     scaf_after = int(profile_spec.get("scaffold_unlock_after_guesses", 5 if profile_id == "ranked" else 3))
     step_cap = int(max_steps if max_steps is not None else profile_spec.get("max_guesses", 12))
@@ -476,22 +477,23 @@ def _solve_chemle_pool(
     def pick_probe(cands: List[str]) -> str:
         if len(cands) == 1:
             return cands[0]
+        cand_set = set(cands)
         best_g = cands[0]
         best_key: Optional[Tuple[float, bool, str]] = None
         n_c = len(cands)
-        for g_id in ids:
+        for g_id in probe_ids:
             parts = Counter(sig_table[(g_id, t_id)] for t_id in cands)
             h = -sum((c / n_c) * math.log2(c / n_c) for c in parts.values())
-            key = (round(h, 9), g_id in cands, g_id)
+            key = (round(h, 9), g_id in cand_set, g_id)
             if best_key is None or key > best_key:
                 best_g, best_key = g_id, key
         return best_g
 
     results: Dict[str, Tuple[int, bool]] = {}
-    for t_id in ids:
+    for t_id in answer_ids:
         target = by_id[t_id]
         ladder = sorted((target.get("clue_ladder") or {}).get(profile_id) or [], key=lambda e: int(e.get("level", 0)))
-        cands = list(ids)
+        cands = list(answer_ids)
         if condition_on_clues:
             for clue in ladder:
                 if int(clue.get("after_guesses", 99)) <= 0:
@@ -592,30 +594,55 @@ def run_chemle_greedy_solver(
     profile_id: str = "ranked",
     condition_on_clues: bool = True,
     max_steps: Optional[int] = None,
+    answer_ids: Optional[Sequence[str]] = None,
+    probe_ids: Optional[Sequence[str]] = None,
 ) -> Dict[str, Any]:
-    """Runs the greedy max-entropy solver against `profile_spec` (with optional clue conditioning) and returns gate statistics."""
-    ids = [r["id"] for r in records]
+    """Runs the greedy max-entropy solver over `answer_ids` and `probe_ids` under `profile_spec`."""
     by_id = {r["id"]: r for r in records}
-    n_total = len(ids)
+    resolved_answers = (
+        list(answer_ids)
+        if answer_ids is not None
+        else [
+            r["id"]
+            for r in records
+            if profile_id in r.get("game_eligibility", ["learn", "ranked"])
+        ]
+    )
+    resolved_probes = (
+        list(probe_ids)
+        if probe_ids is not None
+        else [
+            r["id"]
+            for r in records
+            if profile_id in r.get("guess_eligibility", r.get("game_eligibility", ["learn", "ranked"]))
+        ]
+    )
+    if not resolved_answers:
+        raise ValueError(f"[{profile_id}] Chemle solver answer_ids cannot be empty")
+    if not set(resolved_answers).issubset(set(resolved_probes)):
+        missing = sorted(set(resolved_answers) - set(resolved_probes))
+        raise ValueError(f"[{profile_id}] Eligible answers must also be legal probes; missing={missing}")
+
+    n_ans = len(resolved_answers)
     mode_cap = int(profile_spec.get("max_guesses", 6 if profile_id == "ranked" else 8))
     step_cap = int(max_steps if max_steps is not None else mode_cap)
 
     sig_table: Dict[Tuple[str, str], str] = {}
-    for g_id in ids:
-        for t_id in ids:
+    for g_id in resolved_probes:
+        for t_id in resolved_answers:
             sig_table[(g_id, t_id)] = evaluate_chemle_feedback_from_spec(
                 by_id[g_id], by_id[t_id], sim_matrix[g_id][t_id], profile_spec
             )["signature"]
 
-    # Opening-probe information metrics over the whole pool (diagnostic)
-    h_prior = math.log2(n_total) if n_total > 1 else 0.0
+    # Opening-probe information metrics over the active answer universe (diagnostic)
+    h_prior = math.log2(n_ans) if n_ans > 1 else 0.0
     probe_metrics: Dict[str, Dict[str, float]] = {}
     min_exp_rem = float("inf")
-    for g_id in ids:
-        cnts = Counter(sig_table[(g_id, t_id)] for t_id in ids)
-        exp_post_h = sum((c / n_total) * math.log2(c) for c in cnts.values() if c > 1)
+    for g_id in resolved_probes:
+        cnts = Counter(sig_table[(g_id, t_id)] for t_id in resolved_answers)
+        exp_post_h = sum((c / n_ans) * math.log2(c) for c in cnts.values() if c > 1)
         ig = round(h_prior - exp_post_h, 2)
-        exp_rem = round(sum((c * c) / n_total for c in cnts.values()), 2)
+        exp_rem = round(sum((c * c) / n_ans for c in cnts.values()), 2)
         min_exp_rem = min(min_exp_rem, exp_rem)
         probe_metrics[g_id] = {
             "information_gain_bits": ig,
@@ -623,11 +650,13 @@ def run_chemle_greedy_solver(
         }
 
     guess_results = _solve_chemle_pool(
-        ids, by_id, sig_table, profile_spec, profile_id, condition_on_clues, max_steps=step_cap
+        resolved_answers, resolved_probes, by_id, sig_table, profile_spec, profile_id, condition_on_clues, max_steps=step_cap
     )
     summary = _summarize_guess_counts(guess_results, mode_cap=mode_cap)
     out: Dict[str, Any] = {
         **summary,
+        "eligible_count": n_ans,
+        "probe_count": len(resolved_probes),
         "min_opening_expected_remaining": round(min_exp_rem, 2),
         "probe_metrics": probe_metrics,
         "per_target_guesses": {k: (v[0] if v[1] else None) for k, v in guess_results.items()},
@@ -636,7 +665,7 @@ def run_chemle_greedy_solver(
     }
     if condition_on_clues:
         raw_results = _solve_chemle_pool(
-            ids, by_id, sig_table, profile_spec, profile_id, condition_on_clues=False, max_steps=12
+            resolved_answers, resolved_probes, by_id, sig_table, profile_spec, profile_id, condition_on_clues=False, max_steps=12
         )
         out["unconditioned_summary"] = _summarize_guess_counts(raw_results, mode_cap=mode_cap)
     return out

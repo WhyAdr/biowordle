@@ -647,6 +647,71 @@ class TestBioWordleAudit(unittest.TestCase):
             compute_schedule_version_hash(chemle, seqle),
         )
 
+    def test_15_chemle_pool_isolation_with_learn_only_fixture(self):
+        """Learn-only compounds (even descriptor extremes) must not mutate Ranked quantiles, Level-0 clues, k-anonymity, or solver/schedule."""
+        import copy
+        from build_puzzles import (
+            CHEMLE_RAW_COMPOUNDS,
+            build_all,
+            compute_chemle_schedule_hash,
+            compute_seqle_schedule_hash,
+        )
+
+        learn_extreme = {
+            "id": "synthetic_lycopene_probe",
+            "name": "Synthetic Polyene Extreme",
+            "Category": "Plant Natural Product",
+            "smiles": "CC(=CCC/C(=C/C=C/C(=C/C=C/C(=C/C=C/C=C(/C=C/C=C(/C=C/C=C(/CCC=C(C)C)\\C)\\C)\\C)/C)/C)/C)C",
+            "hint_role": "Lipophilic conjugated hydrocarbon pigment used to test pool separation.",
+            "hint_origin": "Test fixture with elevated molecular weight and zero heteroatoms.",
+            "structural_note": "Eleven conjugated trans double bonds with no heteroatoms.",
+            "game_eligibility": ["learn"],
+            "guess_eligibility": ["learn"],
+        }
+        feedback_spec = copy.deepcopy(self.data["feedback_spec"])
+        augmented_raw = copy.deepcopy(CHEMLE_RAW_COMPOUNDS) + [learn_extreme]
+        ext_db = build_all(feedback_spec, chemle_raw_compounds=augmented_raw)
+
+        self.assertEqual(ext_db["metadata"]["chemle_ranked_count"], 36)
+        self.assertEqual(ext_db["metadata"]["chemle_ranked_guess_count"], 36)
+        self.assertEqual(ext_db["metadata"]["chemle_learn_count"], 37)
+        self.assertEqual(ext_db["metadata"]["chemle_learn_guess_count"], 37)
+        self.assertEqual(ext_db["metadata"]["chemle_schedule_hash"], "9257bd168fa6")
+        self.assertEqual(ext_db["metadata"]["seqle_schedule_hash"], "623f02623c18")
+        self.assertEqual(compute_chemle_schedule_hash(ext_db["chemle"]), "9257bd168fa6")
+        self.assertEqual(compute_seqle_schedule_hash(ext_db["seqle"]), "623f02623c18")
+
+        base_by_id = {m["id"]: m for m in self.data["chemle"]}
+        ext_by_id = {m["id"]: m for m in ext_db["chemle"]}
+        self.assertNotIn("ranked", ext_by_id["synthetic_lycopene_probe"]["game_eligibility"])
+        self.assertNotIn("ranked", ext_by_id["synthetic_lycopene_probe"]["guess_eligibility"])
+
+        for mid, base_m in base_by_id.items():
+            ext_m = ext_by_id[mid]
+            self.assertEqual(ext_m["game_eligibility"], base_m["game_eligibility"])
+            self.assertEqual(ext_m["guess_eligibility"], base_m["guess_eligibility"])
+            self.assertEqual(ext_m["clue_ladder"]["ranked"], base_m["clue_ladder"]["ranked"])
+            self.assertEqual(
+                ext_m["opening_probe_quality"]["ranked"],
+                base_m["opening_probe_quality"]["ranked"],
+            )
+
+        self.assertEqual(
+            ext_db["metadata"]["k_anonymity_audit"]["chemle_ranked"],
+            self.data["metadata"]["k_anonymity_audit"]["chemle_ranked"],
+        )
+        self.assertEqual(
+            ext_db["metadata"]["solver_gate_audit"]["ranked"],
+            self.data["metadata"]["solver_gate_audit"]["ranked"],
+        )
+
+        # Invariant: every profile where a compound is an answer must also allow it as a guess
+        bad_raw = copy.deepcopy(CHEMLE_RAW_COMPOUNDS)
+        bad_raw[0]["game_eligibility"] = ["ranked"]
+        bad_raw[0]["guess_eligibility"] = ["learn"]
+        with self.assertRaises(ValueError):
+            build_all(feedback_spec, chemle_raw_compounds=bad_raw)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

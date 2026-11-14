@@ -25,7 +25,7 @@ import hashlib
 import json
 import os
 import sys
-from typing import Any, Callable, Dict, List, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from rdkit import Chem, DataStructs
 
@@ -959,6 +959,8 @@ def compute_canonical_dataset_hash(
             "AromaticRings": r["AromaticRings"],
             "HeavyAtoms": r["HeavyAtoms"],
             "functional_groups": r["functional_groups"],
+            "game_eligibility": r.get("game_eligibility", ["learn", "ranked"]),
+            "guess_eligibility": r.get("guess_eligibility", r.get("game_eligibility", ["learn", "ranked"])),
             "clue_ladder": r["clue_ladder"],
         }
         for r in sorted(chemle_records, key=lambda x: x["id"])
@@ -1041,10 +1043,14 @@ def compute_schedule_version_hash(
     return hashlib.sha256(blob).hexdigest()[:12]
 
 
-def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
+def build_all(
+    feedback_spec: Dict[str, Any],
+    chemle_raw_compounds: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
     """Compiles, validates, and audits the complete Chemle + Seqle puzzle database."""
     # Sort raw catalogs canonically by ID / sequence first so output order is invariant (P1-3)
-    sorted_raw_chem = sorted(CHEMLE_RAW_COMPOUNDS, key=lambda x: x["id"])
+    raw_chem_source = CHEMLE_RAW_COMPOUNDS if chemle_raw_compounds is None else chemle_raw_compounds
+    sorted_raw_chem = sorted(raw_chem_source, key=lambda x: x["id"])
     sorted_raw_seq = sorted(SEQLE_RAW_MOTIFS, key=lambda x: x["seq"])
 
     chemle_records: List[Dict[str, Any]] = []
@@ -1062,6 +1068,15 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
         if cid in seen_ids:
             raise ValueError(f"Duplicate Chemle ID: {cid}")
         seen_ids.add(cid)
+
+        game_elig = list(item.get("game_eligibility", ["learn", "ranked"]))
+        guess_elig = list(item.get("guess_eligibility", game_elig))
+        if not game_elig or not set(game_elig).issubset({"learn", "ranked"}):
+            raise ValueError(f"Invalid game_eligibility for {cid}: {game_elig}")
+        if not guess_elig or not set(guess_elig).issubset({"learn", "ranked"}):
+            raise ValueError(f"Invalid guess_eligibility for {cid}: {guess_elig}")
+        if not set(game_elig).issubset(set(guess_elig)):
+            raise ValueError(f"Eligible answer profile(s) missing from guess_eligibility for {cid}: game={game_elig}, guess={guess_elig}")
 
         mol, audit = standardize_and_audit(item["smiles"])
         if audit["inchikey"] in seen_inchikeys:
@@ -1086,6 +1101,8 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             "name": item["name"],
             "Category": item["Category"],
             "super_class": SUPER_CLASS_MAP[item["Category"]],
+            "game_eligibility": game_elig,
+            "guess_eligibility": guess_elig,
             **audit,
             **desc,
             "functional_groups": fg_list,
@@ -1117,49 +1134,92 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
                 sim = DataStructs.TanimotoSimilarity(chemle_fps[i], chemle_fps[j])
                 similarity_matrix[id_i][id_j] = int(round(sim * 100))
 
-    # P0-1: Select k-anonymous Level-0 opening clues for Chemle (Ranked & Learn)
-    chem_extractors = _build_chemle_candidate_extractors(chemle_records)
+    # P0-1: Separate profile answer pools & legal guess pools; fit extractors on each profile's answer universe
+    chem_pools = {
+        prof: {
+            "answers": [r for r in chemle_records if prof in r["game_eligibility"]],
+            "guesses": [r for r in chemle_records if prof in r["guess_eligibility"]],
+        }
+        for prof in ("ranked", "learn")
+    }
+    for prof in ("ranked", "learn"):
+        ans_ids = {r["id"] for r in chem_pools[prof]["answers"]}
+        guess_ids = {r["id"] for r in chem_pools[prof]["guesses"]}
+        if not ans_ids or not ans_ids.issubset(guess_ids):
+            raise ValueError(f"Invalid Chemle {prof} pools: answers={len(ans_ids)} guesses={len(guess_ids)}")
+
     r_min_k = int(feedback_spec["profiles"]["ranked"]["min_k_level0"])
     l_min_k = int(feedback_spec["profiles"]["learn"]["min_k_level0"])
 
+    r_chem_answers = chem_pools["ranked"]["answers"]
+    l_chem_answers = chem_pools["learn"]["answers"]
+
+    r_chem_extractors = _build_chemle_candidate_extractors(r_chem_answers)
     r_chem_feats, r_chem_lvl0, r_chem_kmin, r_chem_groups = select_k_anonymous_level0_features(
-        chemle_records, chem_extractors, min_k=r_min_k, max_features=1
+        r_chem_answers, r_chem_extractors, min_k=r_min_k, max_features=1
     )
+    l_chem_extractors = _build_chemle_candidate_extractors(l_chem_answers)
     l_chem_feats, l_chem_lvl0, l_chem_kmin, l_chem_groups = select_k_anonymous_level0_features(
-        chemle_records, chem_extractors, min_k=l_min_k, max_features=2
+        l_chem_answers, l_chem_extractors, min_k=l_min_k, max_features=2
     )
+    r_lvl0_by_id = {rec["id"]: r_chem_lvl0[idx] for idx, rec in enumerate(r_chem_answers)}
+    l_lvl0_by_id = {rec["id"]: l_chem_lvl0[idx] for idx, rec in enumerate(l_chem_answers)}
+
+    learn_pack_audit: Dict[str, Any] = {}
+    for cat in sorted({r["Category"] for r in l_chem_answers}):
+        cat_recs = [r for r in l_chem_answers if r["Category"] == cat]
+        pack_counts: Dict[str, int] = {}
+        for r in cat_recs:
+            txt = l_lvl0_by_id[r["id"]]
+            pack_counts[txt] = pack_counts.get(txt, 0) + 1
+        sizes = sorted(pack_counts.values())
+        k_min_pack = min(sizes) if sizes else 0
+        learn_pack_audit[cat] = {
+            "count": len(cat_recs),
+            "k_min": k_min_pack,
+            "group_sizes": sizes,
+            "exploratory": k_min_pack < l_min_k,
+        }
+
     print(
-        f"[P0-1 Chemle k-Anonymity] Ranked Level-0 ({r_chem_feats}): k_min={r_chem_kmin}, groups={r_chem_groups} | "
-        f"Learn Level-0 ({l_chem_feats}): k_min={l_chem_kmin}, groups={l_chem_groups}"
+        f"[P0-1 Chemle k-Anonymity] Ranked Level-0 ({r_chem_feats}, N={len(r_chem_answers)}): k_min={r_chem_kmin}, groups={r_chem_groups} | "
+        f"Learn Level-0 ({l_chem_feats}, N={len(l_chem_answers)}): k_min={l_chem_kmin}, groups={l_chem_groups}"
     )
 
     ranked_super_unlock = int(feedback_spec["profiles"]["ranked"].get("super_class_unlock_after_guesses", 4))
     learn_super_unlock = int(feedback_spec["profiles"]["learn"].get("super_class_unlock_after_guesses", 1))
-    for idx, rec in enumerate(chemle_records):
-        rec["clue_ladder"] = {
-            "ranked": [
-                {"level": 0, "after_guesses": 0, "title": "Clue 1 · Molecular Size Band (k-Anonymous)", "text": r_chem_lvl0[idx]},
+    for rec in chemle_records:
+        cid = rec["id"]
+        ladders: Dict[str, List[Dict[str, Any]]] = {}
+        if cid in r_lvl0_by_id:
+            ladders["ranked"] = [
+                {"level": 0, "after_guesses": 0, "title": "Clue 1 · Molecular Size Band (k-Anonymous)", "text": r_lvl0_by_id[cid]},
                 {"level": 1, "after_guesses": ranked_super_unlock, "title": "Clue 2 · Chemical Super-Class", "text": f"Broad Super-Class: {rec['super_class']}"},
                 {"level": 2, "after_guesses": 4, "title": "Clue 3 · Biochemical Role & Mechanism", "text": rec["hint_role"]},
                 {"level": 3, "after_guesses": 5, "title": "Clue 4 · Biosynthesis & Pathway Origin", "text": rec["hint_origin"]},
-            ],
-            "learn": [
-                {"level": 0, "after_guesses": 0, "title": "Clue 1 · Chemical Space Band (k-Anonymous)", "text": l_chem_lvl0[idx]},
+            ]
+        if cid in l_lvl0_by_id:
+            ladders["learn"] = [
+                {"level": 0, "after_guesses": 0, "title": "Clue 1 · Chemical Space Band (k-Anonymous)", "text": l_lvl0_by_id[cid]},
                 {"level": 1, "after_guesses": learn_super_unlock, "title": "Clue 2 · Chemical Super-Class", "text": f"Broad Super-Class: {rec['super_class']}"},
                 {"level": 2, "after_guesses": 2, "title": "Clue 3 · Biochemical Role & Mechanism", "text": rec["hint_role"]},
                 {"level": 3, "after_guesses": 3, "title": "Clue 4 · Biosynthesis & Pathway Origin", "text": rec["hint_origin"]},
-            ],
-        }
+            ]
+        rec["clue_ladder"] = ladders
 
-    # P0-2: Run clue-conditioned greedy max-entropy solver for each profile and enforce solver build gate
+    # P0-2: Run clue-conditioned greedy max-entropy solver over each profile's answers & legal probes
     solver_reports: Dict[str, Any] = {}
     for prof_id, prof_spec in feedback_spec["profiles"].items():
+        ans_ids = [r["id"] for r in chem_pools[prof_id]["answers"]]
+        probe_ids = [r["id"] for r in chem_pools[prof_id]["guesses"]]
         stats = run_chemle_greedy_solver(
             chemle_records,
             similarity_matrix,
             prof_spec,
             profile_id=prof_id,
             condition_on_clues=True,
+            answer_ids=ans_ids,
+            probe_ids=probe_ids,
         )
         assert_solver_gate(stats, prof_spec["solver_gate"], prof_id)
         solver_reports[prof_id] = {
@@ -1168,12 +1228,14 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             if k not in ("probe_metrics", "per_target_guesses", "per_target_results")
         }
         print(
-            f"[P0-2 Solver Gate PASS · {prof_id}] mean={stats['mean']} median={stats['median']} "
+            f"[P0-2 Solver Gate PASS · {prof_id}] targets={stats['eligible_count']} probes={stats['probe_count']} "
+            f"mean={stats['mean']} median={stats['median']} "
             f"max={stats['max']} <=2:{stats['pct_solved_le2']}% <=6:{stats['pct_solved_le6']}% "
             f"min_exp_rem={stats['min_opening_expected_remaining']} dist={stats['distribution']}"
         )
         for rec in chemle_records:
-            rec.setdefault("opening_probe_quality", {})[prof_id] = stats["probe_metrics"][rec["id"]]
+            if rec["id"] in stats["probe_metrics"]:
+                rec.setdefault("opening_probe_quality", {})[prof_id] = stats["probe_metrics"][rec["id"]]
 
     # Attach post-game nearest-neighbor info (explicitly labeled for post-game only)
     for rec in chemle_records:
@@ -1184,12 +1246,14 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             if other["id"] != cid
         )
         max_sim, nearest_name = other_sims[-1] if other_sims else (0, "None")
+        r_qual = rec.get("opening_probe_quality", {}).get("ranked", {})
+        l_qual = rec.get("opening_probe_quality", {}).get("learn", {})
         rec["postgame_insights"] = {
             "nearest_neighbor": nearest_name,
             "nearest_neighbor_tanimoto": max_sim,
-            "opening_ig_ranked_bits": rec["opening_probe_quality"]["ranked"]["information_gain_bits"],
-            "opening_ig_learn_bits": rec["opening_probe_quality"]["learn"]["information_gain_bits"],
-            "expected_remaining_ranked": rec["opening_probe_quality"]["ranked"]["expected_remaining_candidates"],
+            "opening_ig_ranked_bits": r_qual.get("information_gain_bits"),
+            "opening_ig_learn_bits": l_qual.get("information_gain_bits"),
+            "expected_remaining_ranked": r_qual.get("expected_remaining_candidates"),
         }
 
     print(
@@ -1338,6 +1402,10 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             "uniprot_release": UNIPROT_VERIFIED_RELEASE,
             "daily_seed_policy": "FNV-1a over '{game}:{profile}:{utcDate}:{gameScheduleHash}' indexing canonically sorted Ranked answer pool",
             "chemle_count": len(chemle_records),
+            "chemle_ranked_count": len(chem_pools["ranked"]["answers"]),
+            "chemle_ranked_guess_count": len(chem_pools["ranked"]["guesses"]),
+            "chemle_learn_count": len(chem_pools["learn"]["answers"]),
+            "chemle_learn_guess_count": len(chem_pools["learn"]["guesses"]),
             "seqle_count": len(seqle_records),
             "seqle_ranked_count": len(ranked_seq_pool),
             "fingerprint_spec": FINGERPRINT_SPEC,
@@ -1346,6 +1414,7 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             "k_anonymity_audit": {
                 "chemle_ranked": {"features": r_chem_feats, "k_min": r_chem_kmin, "group_sizes": r_chem_groups},
                 "chemle_learn": {"features": l_chem_feats, "k_min": l_chem_kmin, "group_sizes": l_chem_groups},
+                "chemle_learn_packs": learn_pack_audit,
                 "seqle_ranked": {"features": r_seq_feats, "k_min": r_seq_kmin, "group_sizes": r_seq_groups},
                 "seqle_learn": {"features": l_seq_feats, "k_min": l_seq_kmin, "group_sizes": l_seq_groups},
             },

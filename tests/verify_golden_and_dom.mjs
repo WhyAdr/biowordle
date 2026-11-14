@@ -348,6 +348,39 @@ const offCatalogFB = BioWordleEngine.evaluateSeqleFeedbackFromSpec(
 assert.equal(offCatalogFB.tiles[1], "exact");
 assert.equal(puzzlesData.metadata.chemle_schedule_hash, "9257bd168fa6", "Chemle schedule hash must remain pinned to 9257bd168fa6");
 
+// 8. Commit 2: Chemle answerPool vs guessPool separation & subset invariant
+const synthChemData = {
+  chemle: [
+    { id: "r_only", name: "Ranked Only", Category: "Alpha", game_eligibility: ["ranked"], guess_eligibility: ["ranked"] },
+    { id: "l_only", name: "Learn Only", Category: "Beta", game_eligibility: ["learn"], guess_eligibility: ["learn"] },
+    { id: "l_probe", name: "Learn Probe Only", Category: "Beta", game_eligibility: [], guess_eligibility: ["learn"] },
+    { id: "both", name: "Dual", Category: "Alpha", game_eligibility: ["learn", "ranked"], guess_eligibility: ["learn", "ranked"] },
+  ],
+};
+assert.deepEqual(
+  BioWordleEngine.getAnswerPool(synthChemData, "chemle", "ranked", "ALL").map((m) => m.id),
+  ["r_only", "both"]
+);
+assert.deepEqual(
+  BioWordleEngine.getGuessPool(synthChemData, "chemle", "ranked").map((m) => m.id),
+  ["r_only", "both"]
+);
+const learnAnsIds = BioWordleEngine.getAnswerPool(synthChemData, "chemle", "learn", "ALL").map((m) => m.id);
+const learnGuessIds = BioWordleEngine.getGuessPool(synthChemData, "chemle", "learn").map((m) => m.id);
+assert.deepEqual(learnAnsIds, ["l_only", "both"]);
+assert.deepEqual(learnGuessIds, ["l_only", "l_probe", "both"]);
+for (const aid of learnAnsIds) {
+  assert.ok(learnGuessIds.includes(aid), `Answer ${aid} must be in Learn guessPool`);
+}
+assert.deepEqual(
+  BioWordleEngine.getAnswerPool(synthChemData, "chemle", "learn", "Beta").map((m) => m.id),
+  ["l_only"]
+);
+assert.equal(puzzlesData.metadata.chemle_ranked_count, BioWordleEngine.getAnswerPool(puzzlesData, "chemle", "ranked", "ALL").length);
+assert.equal(puzzlesData.metadata.chemle_ranked_guess_count, BioWordleEngine.getGuessPool(puzzlesData, "chemle", "ranked").length);
+assert.equal(puzzlesData.metadata.chemle_learn_count, BioWordleEngine.getAnswerPool(puzzlesData, "chemle", "learn", "ALL").length);
+assert.equal(puzzlesData.metadata.chemle_learn_guess_count, BioWordleEngine.getGuessPool(puzzlesData, "chemle", "learn").length);
+
 console.log(
-  `[Golden & DOM Verification PASS] ${chemChecked} Chemle vectors + ${seqChecked} Seqle vectors + P0-1/P0-3/P1-2/P2-2/P4 invariants verified.`
+  `[Golden & DOM Verification PASS] ${chemChecked} Chemle vectors + ${seqChecked} Seqle vectors + P0-1/P0-3/P1-2/P2-2/P4/Commit2 invariants verified.`
 );
