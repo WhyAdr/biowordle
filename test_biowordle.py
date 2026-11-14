@@ -858,6 +858,43 @@ class TestBioWordleAudit(unittest.TestCase):
             })
         validate_chemle_manifest(iso_entries)
 
+    def test_17_chemle_pilot_report_and_density_invariants(self):
+        """Verify Commit 5 pilot benchmark report, compact size bounds, and zero indistinguishable pairs."""
+        from tools.chemle_pilot import build_signature_table, compute_density_and_collisions
+
+        report_path = Path(BASE_DIR) / "data" / "chemle_pilot_report.json"
+        md_path = Path(BASE_DIR) / "CHEMLE_v0.3_PILOT_BENCHMARK.md"
+        self.assertTrue(report_path.exists(), "data/chemle_pilot_report.json missing")
+        self.assertTrue(md_path.exists(), "CHEMLE_v0.3_PILOT_BENCHMARK.md missing")
+        self.assertLessEqual(report_path.stat().st_size, 50 * 1024, "Pilot JSON report must stay compact (<=50 KB)")
+        self.assertLessEqual(md_path.stat().st_size, 50 * 1024, "Pilot Markdown report must stay compact (<=50 KB)")
+
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        self.assertEqual(report["meta"]["chemle_schedule_hash"], "9257bd168fa6")
+        self.assertEqual(report["meta"]["seqle_schedule_hash"], "623f02623c18")
+        self.assertEqual(report["meta"]["ranked_count"], 36)
+        self.assertEqual(report["meta"]["learn_count"], 78)
+        self.assertFalse(report["ranked_promotion_evaluation"]["promote_to_ranked"])
+        self.assertEqual(len(report["solver_matrix"]), 32)
+        self.assertEqual(len(report["family_breakdown"]), 7)
+        self.assertEqual(len(report["category_pack_breakdown"]), 11)
+        self.assertEqual(len(report["walkthroughs"]), 3)
+        self.assertIsNotNone(report["mobile_chromium"])
+        self.assertEqual(len(report["mobile_chromium"]["runs"]), 5)
+        self.assertTrue(report["mobile_chromium"]["summary"]["all_zero_external_requests"])
+
+        # Re-verify density/collision calculation live against compiled puzzles.json
+        chemle_all = self.data["chemle"]
+        learn_pool = [c for c in chemle_all if "learn" in c.get("game_eligibility", [])]
+        sim_mat = self.data["chemle_similarity"]
+        profiles = self.data["feedback_spec"]["profiles"]
+        sigs_r = build_signature_table(chemle_all, sim_mat, profiles["ranked"])
+        sigs_l = build_signature_table(chemle_all, sim_mat, profiles["learn"])
+        density_78 = compute_density_and_collisions(learn_pool, sim_mat, sigs_r, sigs_l)
+        self.assertEqual(density_78["count"], 78)
+        self.assertEqual(density_78["ranked_feedback_indistinguishable_pairs"], [])
+        self.assertEqual(density_78["learn_feedback_indistinguishable_pairs"], [])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
