@@ -8,11 +8,20 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const revision = '83f05f96102abea5d2fcce0ed75dbf3535127f71';
-const runs = Number(process.argv[2] || 3);
+const args = process.argv.slice(2);
+const useWorking = args.includes('--working');
+const positional = args.filter(a => !a.startsWith('--'));
+const revision = useWorking ? 'working-tree' : '83f05f96102abea5d2fcce0ed75dbf3535127f71';
+const runs = Number(positional[0] || 3);
 if (!Number.isInteger(runs) || runs < 1 || runs > 20) throw Error('runs must be 1..20');
 const files = ['index.html', 'styles.css', 'app.js', 'data/puzzles_data.js', 'dist/biowordle_standalone.html'];
-const base = Object.fromEntries(files.map(f => [f, execFileSync('git', ['show', `${revision}:${f}`], { cwd: root, maxBuffer: 16 * 1024 * 1024 })]));
+const { readFileSync } = await import('node:fs');
+const base = Object.fromEntries(files.map(f => [
+  f,
+  useWorking
+    ? readFileSync(path.join(root, f))
+    : execFileSync('git', ['show', `${revision}:${f}`], { cwd: root, maxBuffer: 16 * 1024 * 1024 }),
+]));
 const sizes = b => ({ raw: b.length, gzip: gzipSync(b, { level: 9 }).length, brotli: brotliCompressSync(b, { params: { [constants.BROTLI_PARAM_QUALITY]: 11 } }).length });
 const payload = JSON.parse(base['data/puzzles_data.js'].toString().replace(/^[\s\S]*?window\.BIOWORDLE_DATA\s*=\s*/, '').replace(/;\s*$/, ''));
 const compact = x => Buffer.from('window.BIOWORDLE_DATA = ' + JSON.stringify(x) + ';');
@@ -76,9 +85,8 @@ async function sample(mode) {
   return { cold, warm, switch_ms, search_ms, guess_ms, js_heap_used_bytes: heap.usedSize, page_errors: failures, external_requests: outside };
 }
 try {
-  // file:// points at the working tree: require byte-identical baseline for honest comparison.
-  const { readFileSync } = await import('node:fs');
-  const fileMatches = readFileSync(path.join(root, 'dist/biowordle_standalone.html')).equals(base['dist/biowordle_standalone.html']);
+  // file:// points at the working tree: require byte-identical bundle for honest comparison.
+  const fileMatches = useWorking || readFileSync(path.join(root, 'dist/biowordle_standalone.html')).equals(base['dist/biowordle_standalone.html']);
   for (const mode of ['raw', 'gzip', 'cache', ...(fileMatches ? ['file'] : [])]) {
     output.samples[mode] = [];
     for (let i = 0; i < runs; i++) output.samples[mode].push(await sample(mode));

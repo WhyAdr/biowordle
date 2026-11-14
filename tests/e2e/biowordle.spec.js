@@ -813,4 +813,132 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     expect(errs2).toEqual([]);
     await ctx2.close();
   });
+
+  test("11. Challenge Practice (78) enforces 4/5 auto-clue milestones, reload & rules-hash isolation, and zero Ranked streak/stats mutation", async ({ page }) => {
+    const pageErrors = attachPageErrorTrap(page);
+    const chalSeed = "e2e-chal-1";
+    const chalPool = BioWordleEngine.getAnswerPool(PUZZLES, "chemle", "challenge", "ALL");
+    expect(chalPool.length).toBe(78);
+    const rosterHash = PUZZLES.metadata.chemle_challenge_roster_hash;
+    const targetIdx = BioWordleEngine.selectDailyIndex("chemle", "challenge", "", rosterHash, chalPool.length, chalSeed);
+    const target = chalPool[targetIdx];
+
+    // Pre-seed an older-rules Challenge record + Ranked stats snapshot to test isolation & cutover safety
+    await page.addInitScript(({ statsVal, rulesOld, utcDate }) => {
+      window.__BIOWORDLE_TEST_UTC_DATE__ = utcDate;
+      if (sessionStorage.getItem("__e2e_chal_seeded")) return;
+      sessionStorage.setItem("__e2e_chal_seeded", "1");
+      localStorage.setItem("biowordle_stats_v2", JSON.stringify(statsVal));
+      localStorage.setItem(
+        "biowordle_challenge_active_v1",
+        JSON.stringify({
+          key: `biowordle_challenge_v1:chemle:old_roster:${rulesOld}:old-seed:s0`,
+          rosterHash: "old_roster",
+          rulesHash: rulesOld,
+          seed: "old-seed",
+          sessionId: "s0",
+        })
+      );
+      localStorage.setItem(
+        `biowordle_challenge_v1:chemle:old_roster:${rulesOld}:old-seed:s0`,
+        JSON.stringify({
+          targetId: "aspirin",
+          guesses: ["caffeine"],
+          won: false,
+          gameOver: false,
+        })
+      );
+    }, {
+      utcDate: "2026-11-14",
+      statsVal: {
+        schema: 2,
+        chemWins: 2,
+        seqWins: 1,
+        streak: 3,
+        maxStreak: 4,
+        lastDailyWinUtcByGame: { chemle: "2026-11-14", seqle: "2026-11-14" },
+        lastStreakIncrementUtc: "2026-11-14",
+        rankedDailyWins: { chemle: ["2026-11-14"], seqle: ["2026-11-14"] },
+        nonDailyWinIds: ["chemle:learn:old1"],
+        baseline: { chemWins: 0, seqWins: 0 },
+        streakAnchor: { date: "2026-11-14", streak: 3, maxStreak: 4 },
+      },
+      rulesOld: "deadbeef0000",
+    });
+
+    await page.goto(`/?profile=challenge&seed=${chalSeed}`);
+    await expect(page.locator("#chemle-challenge-bar")).toBeVisible();
+    await expect(page.locator("#chemle-challenge-seed-pill")).toContainText(chalSeed);
+    await expect(page.locator("#badge-chemle-count")).toHaveText("78 Mols");
+    await expect(page.locator("#chemle-try-counter")).toHaveText("Guesses: 0 / 8");
+    await expect(page.locator("#chemle-cat-filter")).toBeDisabled();
+    await expect(page.locator("#btn-hint")).toBeDisabled();
+    await expect(page.locator("#chemle-clue-stage")).toHaveText(/Level 0/);
+
+    // Verify stale-rules Challenge pointer did NOT leak onto current Challenge session
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(0);
+
+    // Submit 4 non-target guesses -> Guess 4 unlocks Super-Class (Level 1), still hides Scaffold & narrative hints
+    const wrongGuesses = chalPool.filter((m) => m.id !== target.id).slice(0, 5);
+    for (let i = 0; i < 4; i++) {
+      await page.locator("#chemle-search-input").fill(wrongGuesses[i].name);
+      await page.locator(`#chemle-dropdown .chemle-opt[data-mol-id="${wrongGuesses[i].id}"]`).click();
+    }
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(4);
+    await expect(page.locator("#chemle-clue-stage")).toHaveText("Level 1 · Clues Active");
+    await expect(page.locator("#chemle-hints-list")).toContainText(target.super_class);
+    await expect(page.locator("#chemle-hints-list")).not.toContainText(target.hint_role);
+    await expect(page.locator("#chemle-hints-list")).not.toContainText(target.hint_origin);
+    // Coarse Tanimoto bucket only (no exact percentages like "34%"), no green shared FG chips pre-reveal
+    const cardText = await page.locator("#chemle-guesses .chemle-guess-card").first().innerText();
+    expect(cardText).toMatch(/Low \(<60%\)|Moderate \(60-79%\)|High \(≥80%\)/);
+    expect(cardText).not.toMatch(/Tanimoto:\s*\d+%/);
+    await expect(page.locator("#chemle-guesses .fg-chip.shared")).toHaveCount(0);
+
+    // Guess 5 unlocks scaffold preview
+    await page.locator("#chemle-search-input").fill(wrongGuesses[4].name);
+    await page.locator(`#chemle-dropdown .chemle-opt[data-mol-id="${wrongGuesses[4].id}"]`).click();
+    await expect(page.locator("#chemle-clue-stage")).toHaveText("Level 1 · Scaffold");
+
+    // Reload preserves exact Challenge session & immutable feedbackSnapshots under current rulesHash
+    await page.reload();
+    await expect(page.locator("#chemle-challenge-bar")).toBeVisible();
+    await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(5);
+    await expect(page.locator("#chemle-clue-stage")).toHaveText("Level 1 · Scaffold");
+
+    const storedAfter5 = await page.evaluate((expRules) => {
+      const ptr = JSON.parse(localStorage.getItem("biowordle_challenge_active_v1") || "{}");
+      const sess = JSON.parse(localStorage.getItem(ptr.key) || "{}");
+      return {
+        ptrKey: ptr.key || "",
+        rulesMatch: sess.rulesHash === expRules,
+        snapCount: Array.isArray(sess.feedbackSnapshots) ? sess.feedbackSnapshots.length : -1,
+      };
+    }, PUZZLES.metadata.chemle_rules_hash);
+    expect(storedAfter5.ptrKey).toContain(`biowordle_challenge_v1:chemle:${rosterHash}:${PUZZLES.metadata.chemle_rules_hash}:${chalSeed}:`);
+    expect(storedAfter5.rulesMatch).toBe(true);
+    expect(storedAfter5.snapCount).toBe(5);
+
+    // Solve target -> reveals post-game properties, but leaves Ranked stats, pending wins, and streak UNCHANGED
+    await page.locator("#chemle-search-input").fill(target.name);
+    await page.locator(`#chemle-dropdown .chemle-opt[data-mol-id="${target.id}"]`).click();
+    await expect(page.locator("#chemle-full-props")).toBeVisible();
+    await expect(page.locator("#chemle-banner")).toContainText("Solved in 6/8!");
+    await expect(page.locator("#stat-chem")).toHaveText("2");
+    await expect(page.locator("#stat-seq")).toHaveText("1");
+
+    const postWinStorage = await page.evaluate(() => ({
+      stats: JSON.parse(localStorage.getItem("biowordle_stats_v2") || "{}"),
+      pending: localStorage.getItem("biowordle_pending_wins_v2"),
+    }));
+    expect(postWinStorage.stats.chemWins).toBe(2);
+    expect(postWinStorage.stats.seqWins).toBe(1);
+    expect(postWinStorage.stats.streak).toBe(3);
+    expect(postWinStorage.pending).toBeNull();
+
+    // Rolling a new Challenge seed resets guesses to 0/8 without disturbing Ranked
+    await page.locator("#btn-new-challenge").click();
+    await expect(page.locator("#chemle-try-counter")).toHaveText("Guesses: 0 / 8");
+    expect(pageErrors).toEqual([]);
+  });
 });

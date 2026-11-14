@@ -294,7 +294,8 @@
     // P0-3 Invariant: guessPool ignores category/pack filter, but respects profile guess_eligibility for Chemle
     if (mode === "chemle") {
       const prof = profile || "ranked";
-      return data.chemle.filter((m) => _chemleProfileList(m, "guess_eligibility").includes(prof));
+      const poolProf = prof === "challenge" ? "learn" : prof;
+      return data.chemle.filter((m) => _chemleProfileList(m, "guess_eligibility").includes(poolProf));
     }
     return data.seqle.slice();
   }
@@ -302,16 +303,18 @@
   function getAnswerPool(data, mode, profile, packFilter) {
     const prof = profile || "ranked";
     if (mode === "chemle") {
-      const base = data.chemle.filter((m) => _chemleProfileList(m, "game_eligibility").includes(prof));
-      if (prof === "ranked" || !packFilter || packFilter === "ALL") {
+      const poolProf = prof === "challenge" ? "learn" : prof;
+      const base = data.chemle.filter((m) => _chemleProfileList(m, "game_eligibility").includes(poolProf));
+      if (prof === "ranked" || prof === "challenge" || !packFilter || packFilter === "ALL") {
         return base;
       }
       const filtered = base.filter((m) => m.Category === packFilter);
       return filtered.length > 0 ? filtered : base;
     } else {
+      const seqProf = prof === "challenge" ? "learn" : prof;
       return data.seqle.filter((m) => {
         const elig = Array.isArray(m.game_eligibility) ? m.game_eligibility : ["learn"];
-        return elig.includes(prof);
+        return elig.includes(seqProf);
       });
     }
   }
@@ -704,6 +707,8 @@
   const FEEDBACK_SPEC = DATA.feedback_spec;
   const DATASET_HASH = (DATA.metadata && DATA.metadata.dataset_version_hash) || "v02";
   const CHEMLE_RULES_HASH = DATA.metadata.chemle_rules_hash;
+  const CHEMLE_CHALLENGE_ROSTER_HASH =
+    (DATA.metadata && DATA.metadata.chemle_challenge_roster_hash) || "challenge78";
   const CHEMLE_SCHEDULE_HASH =
     (DATA.metadata && DATA.metadata.chemle_schedule_hash) ||
     (DATA.metadata && DATA.metadata.schedule_version_hash) ||
@@ -741,6 +746,7 @@
   const STATS_KEY_V1 = "biowordle_stats_v1";
   const PENDING_WINS_KEY_V2 = "biowordle_pending_wins_v2";
   const ARCHIVE_KEY_V2 = "biowordle_legacy_archive_v2";
+  const CHALLENGE_ACTIVE_KEY_V1 = "biowordle_challenge_active_v1";
   const STORAGE_LOCK_NAME = "biowordle_storage_lock_v2";
 
   function loadStatsV2() {
@@ -983,13 +989,104 @@
     }
   }
 
-  // Parse optional ?seed=<string> or ?profile=learn from URL (P3-1)
+  function rollChallengeSeedString() {
+    const num = Math.floor(Math.random() * 0xffffffff) >>> 0;
+    return `ch-${num.toString(36)}`;
+  }
+
+  function createChallengeSessionId() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+  }
+
+  function getChallengeStorageKey(rosterHash, rulesHash, seed, sessionId) {
+    return `biowordle_challenge_v1:chemle:${rosterHash}:${rulesHash}:${seed}:${sessionId}`;
+  }
+
+  function loadPersistedChallengeGame(expectedRosterHash, expectedRulesHash, wantedSeed, expectedTargetBySeedFn) {
+    try {
+      const pointerRaw = localStorage.getItem(CHALLENGE_ACTIVE_KEY_V1);
+      if (!pointerRaw) return null;
+      const pointer = JSON.parse(pointerRaw);
+      if (!pointer || typeof pointer !== "object" || !pointer.key) return null;
+      if (pointer.rosterHash !== expectedRosterHash || pointer.rulesHash !== expectedRulesHash) {
+        return null;
+      }
+      if (wantedSeed && pointer.seed !== wantedSeed) {
+        return null;
+      }
+      const raw = localStorage.getItem(pointer.key);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (
+        !parsed ||
+        parsed.rosterHash !== expectedRosterHash ||
+        parsed.rulesHash !== expectedRulesHash ||
+        !isValidPersistedPayload("chemle", parsed)
+      ) {
+        return null;
+      }
+      if (wantedSeed && typeof expectedTargetBySeedFn === "function") {
+        const expected = expectedTargetBySeedFn(wantedSeed);
+        if (expected && parsed.targetId !== expected.id) {
+          return null;
+        }
+      }
+      return { storageKey: pointer.key, payload: parsed };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function savePersistedChallengeGame(sess) {
+    if (!sess || !sess.target || !sess.challengeSeed || !sess.sessionId) return false;
+    const key = getChallengeStorageKey(
+      CHEMLE_CHALLENGE_ROSTER_HASH,
+      CHEMLE_RULES_HASH,
+      sess.challengeSeed,
+      sess.sessionId
+    );
+    const payload = {
+      schema: 1,
+      profile: "challenge",
+      rosterHash: CHEMLE_CHALLENGE_ROSTER_HASH,
+      rulesHash: CHEMLE_RULES_HASH,
+      seed: sess.challengeSeed,
+      sessionId: sess.sessionId,
+      targetId: sess.target.id,
+      guesses: sess.guesses.slice(),
+      feedbackSnapshots: Array.isArray(sess.feedbackSnapshots) ? sess.feedbackSnapshots.slice() : [],
+      won: Boolean(sess.won),
+      gameOver: Boolean(sess.revealed),
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(key, JSON.stringify(payload));
+      localStorage.setItem(
+        CHALLENGE_ACTIVE_KEY_V1,
+        JSON.stringify({
+          key,
+          rosterHash: CHEMLE_CHALLENGE_ROSTER_HASH,
+          rulesHash: CHEMLE_RULES_HASH,
+          seed: sess.challengeSeed,
+          sessionId: sess.sessionId,
+        })
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Parse optional ?seed=<string> or ?profile=learn|challenge from URL (P3-1)
   function parseUrlParams() {
     try {
       const params = new URLSearchParams(globalScope.location.search || "");
+      const rawProf = params.get("profile");
+      const profile =
+        rawProf === "challenge" ? "challenge" : rawProf === "learn" ? "learn" : "ranked";
       return {
         seed: params.get("seed") ? params.get("seed").trim() : null,
-        profile: params.get("profile") === "learn" ? "learn" : "ranked",
+        profile,
       };
     } catch (_) {
       return { seed: null, profile: "ranked" };
@@ -1002,6 +1099,9 @@
     return {
       target: null,
       guesses: [],
+      feedbackSnapshots: [],
+      challengeSeed: null,
+      sessionId: null,
       maxGuesses: 6,
       hintLevelUnlocked: 0,
       revealed: false,
@@ -1034,7 +1134,7 @@
 
   const state = {
     mode: "chemle", // 'chemle' | 'seqle'
-    profile: urlCfg.profile, // 'ranked' | 'learn'
+    profile: urlCfg.profile, // 'ranked' | 'learn' | 'challenge'
     customSeed: urlCfg.seed,
     learnCategoryFilter: "ALL",
     stats: loadStatsV2(),
@@ -1047,19 +1147,30 @@
         chemle: createBlankChemleSession(),
         seqle: createBlankSeqleSession(),
       },
+      challenge: {
+        chemle: createBlankChemleSession(),
+      },
     },
   };
+
+  function effectiveProfileForGame(game, profileOverride) {
+    const prof = profileOverride || state.profile;
+    if (game === "seqle" && prof === "challenge") return "learn";
+    return prof;
+  }
 
   function activeChemle() {
     return state.sessions[state.profile].chemle;
   }
 
   function activeSeqle() {
-    return state.sessions[state.profile].seqle;
+    return state.sessions[effectiveProfileForGame("seqle")].seqle;
   }
 
-  function activeProfileSpec() {
-    return FEEDBACK_SPEC.profiles[state.profile];
+  function activeProfileSpec(gameOverride) {
+    const g = gameOverride || state.mode || "chemle";
+    const eff = effectiveProfileForGame(g);
+    return FEEDBACK_SPEC.profiles[eff] || FEEDBACK_SPEC.profiles.ranked;
   }
 
   // ---------------------------------------------------------------------------
@@ -1154,8 +1265,15 @@
       hintBtn.title = "Ranked mode unlocks clues automatically by guess count only; manual hints are disabled.";
       return;
     }
+    if (state.profile === "challenge" && state.mode === "chemle") {
+      hintBtn.disabled = true;
+      hintBtn.textContent = "🔒 Auto-Clues (Challenge)";
+      hintBtn.title = "Challenge Practice unlocks Super-Class after Guess 4 and Scaffold after Guess 5. Target narrative hints stay hidden.";
+      return;
+    }
+    const effProf = effectiveProfileForGame(state.mode);
     const curSess = state.mode === "chemle" ? activeChemle() : activeSeqle();
-    const curLvl = curSess && curSess.target ? getUnlockedClueLevel(curSess, "learn") : 0;
+    const curLvl = curSess && curSess.target ? getUnlockedClueLevel(curSess, effProf) : 0;
     hintBtn.disabled = Boolean(curSess && (curSess.revealed || curLvl >= 3));
     hintBtn.textContent = "💡 Hint";
     hintBtn.title = "Unlock next clue in the progressive Clue Ladder";
@@ -1163,6 +1281,7 @@
 
   function syncHeaderAndProfileControls() {
     const isRanked = state.profile === "ranked";
+    const isChallenge = state.profile === "challenge";
     const playBtn = $("btn-playstyle");
     if (state.customSeed && isRanked) {
       playBtn.textContent = `🎓 Seed: ${state.customSeed}`;
@@ -1171,10 +1290,18 @@
     }
     playBtn.classList.toggle("btn-primary", isRanked);
 
+    const chalBtn = $("btn-challenge-practice");
+    if (chalBtn) {
+      chalBtn.classList.toggle("btn-primary", isChallenge);
+      chalBtn.setAttribute("aria-pressed", isChallenge ? "true" : "false");
+    }
+
     const rndBtn = $("btn-new-puzzle");
     rndBtn.disabled = isRanked && !state.customSeed;
     rndBtn.title = isRanked
       ? "Ranked Daily uses a single canonical UTC puzzle per day. Switch to Learn Mode to roll random practice puzzles."
+      : isChallenge
+      ? "Roll a fresh seeded Challenge Practice puzzle across all 78 molecules"
       : "Roll a random new puzzle from the active Learn answer pool";
 
     syncHintButtonUI();
@@ -1188,7 +1315,7 @@
 
     const searchInput = $("chemle-search-input");
     if (searchInput) {
-      const scopeLabel = isRanked ? "Ranked" : "Learn";
+      const scopeLabel = isRanked ? "Ranked" : isChallenge ? "Challenge" : "Learn";
       searchInput.setAttribute(
         "aria-label",
         `Search all ${chemGuessPool.length} ${scopeLabel} molecules by name, formula, or functional group`
@@ -1199,26 +1326,35 @@
       );
     }
 
+    const seqEffProf = effectiveProfileForGame("seqle");
     const seqCountBadge = $("badge-seqle-count");
     if (seqCountBadge) {
-      const ansPool = getAnswerPool(DATA, "seqle", state.profile, state.learnCategoryFilter);
-      seqCountBadge.textContent = isRanked ? `${ansPool.length} Ranked` : `${ansPool.length} Motifs`;
+      const ansPool = getAnswerPool(DATA, "seqle", seqEffProf, state.learnCategoryFilter);
+      seqCountBadge.textContent = seqEffProf === "ranked" ? `${ansPool.length} Ranked` : `${ansPool.length} Motifs`;
     }
 
     const chemProfBadge = $("chemle-profile-badge");
     const seqProfBadge = $("seqle-profile-badge");
-    const badgeLabel = isRanked
+    const chemBadgeLabel = isRanked
       ? state.customSeed
         ? `🎓 Classroom Seed (${state.customSeed})`
         : "🏆 Ranked Profile"
+      : isChallenge
+      ? "⚗️ Challenge Practice (Exp.)"
       : "🎓 Learn Profile";
     if (chemProfBadge) {
-      chemProfBadge.textContent = badgeLabel;
-      chemProfBadge.className = `badge ${isRanked ? "badge-amber" : "badge-emerald"}`;
+      chemProfBadge.textContent = chemBadgeLabel;
+      chemProfBadge.className = `badge ${isRanked ? "badge-amber" : isChallenge ? "badge-violet" : "badge-emerald"}`;
     }
+    const seqBadgeLabel =
+      seqEffProf === "ranked"
+        ? state.customSeed
+          ? `🎓 Classroom Seed (${state.customSeed})`
+          : "🏆 Ranked Profile"
+        : "🎓 Learn Profile (Chemle in Challenge)";
     if (seqProfBadge) {
-      seqProfBadge.textContent = badgeLabel;
-      seqProfBadge.className = `badge ${isRanked ? "badge-amber" : "badge-emerald"}`;
+      seqProfBadge.textContent = isChallenge ? "🎓 Learn Profile (Seqle)" : seqBadgeLabel;
+      seqProfBadge.className = `badge ${seqEffProf === "ranked" ? "badge-amber" : "badge-emerald"}`;
     }
 
     populateCategoryFilterDropdown();
@@ -1228,14 +1364,19 @@
   function populateCategoryFilterDropdown() {
     const sel = $("chemle-cat-filter");
     if (!sel) return;
-    if (state.profile === "ranked") {
-      const rankedAns = getAnswerPool(DATA, "chemle", "ranked", "ALL");
-      const rankedGuesses = getGuessPool(DATA, "chemle", "ranked");
-      sel.innerHTML = `<option value="ALL">All Categories (Ranked Daily Pool: ${rankedAns.length})</option>`;
+    if (state.profile === "ranked" || state.profile === "challenge") {
+      const poolAns = getAnswerPool(DATA, "chemle", state.profile, "ALL");
+      const poolGuesses = getGuessPool(DATA, "chemle", state.profile);
+      sel.innerHTML =
+        state.profile === "ranked"
+          ? `<option value="ALL">All Categories (Ranked Daily Pool: ${poolAns.length})</option>`
+          : `<option value="ALL">Full Challenge Pool (${poolAns.length} Mols)</option>`;
       sel.value = "ALL";
       sel.disabled = true;
       sel.title =
-        `Category pack filtering is disabled in Ranked Daily so the daily answer is never excluded. All ${rankedGuesses.length} Ranked molecules remain searchable.`;
+        state.profile === "ranked"
+          ? `Category pack filtering is disabled in Ranked Daily so the daily answer is never excluded. All ${poolGuesses.length} Ranked molecules remain searchable.`
+          : `Category pack filtering is disabled in Challenge Practice so all ${poolAns.length} molecules remain in play.`;
       return;
     }
 
@@ -1357,25 +1498,26 @@
   }
 
   function ensureSessionInitialized(game, profile, forceNewRandom) {
-    const sess = state.sessions[profile][game];
+    const effProfile = effectiveProfileForGame(game, profile);
+    const sess = state.sessions[effProfile][game];
     if (sess.initialized && !forceNewRandom) {
       return;
     }
 
-    let ansPool = getAnswerPool(DATA, game, profile, state.learnCategoryFilter);
-    if (profile === "learn" && game === "chemle" && ansPool.length === 0) {
+    let ansPool = getAnswerPool(DATA, game, effProfile, state.learnCategoryFilter);
+    if (effProfile === "learn" && game === "chemle" && ansPool.length === 0) {
       state.learnCategoryFilter = "ALL";
-      ansPool = getAnswerPool(DATA, game, profile, "ALL");
+      ansPool = getAnswerPool(DATA, game, effProfile, "ALL");
       syncHeaderAndProfileControls();
     }
-    const guessPool = getGuessPool(DATA, game, profile);
+    const guessPool = getGuessPool(DATA, game, effProfile);
     const utcDate = getUtcDateString();
     const gameSchedHash = getScheduleHashForGame(game);
 
-    if (profile === "ranked") {
+    if (effProfile === "ranked") {
       const idx = selectDailyIndex(
         game,
-        profile,
+        effProfile,
         utcDate,
         gameSchedHash,
         ansPool.length,
@@ -1416,6 +1558,61 @@
         };
       }
       sess.initialized = true;
+    } else if (effProfile === "challenge" && game === "chemle") {
+      const pickTargetForChallengeSeed = (seedStr) => {
+        const idx = selectDailyIndex("chemle", "challenge", "", CHEMLE_CHALLENGE_ROSTER_HASH, ansPool.length, seedStr);
+        return ansPool[idx];
+      };
+      const wantedSeed = !forceNewRandom && state.customSeed ? state.customSeed : null;
+      const restored = !forceNewRandom
+        ? loadPersistedChallengeGame(
+            CHEMLE_CHALLENGE_ROSTER_HASH,
+            CHEMLE_RULES_HASH,
+            wantedSeed,
+            pickTargetForChallengeSeed
+          )
+        : null;
+      const chalSpec = (FEEDBACK_SPEC && FEEDBACK_SPEC.profiles && FEEDBACK_SPEC.profiles.challenge) || {};
+      const chalMaxGuesses = Number(chalSpec.max_guesses || 8);
+
+      if (restored && restored.payload && CHEM_BY_ID[restored.payload.targetId]) {
+        const saved = restored.payload;
+        sess.target = CHEM_BY_ID[saved.targetId];
+        sess.guesses = saved.guesses.slice();
+        sess.feedbackSnapshots = Array.isArray(saved.feedbackSnapshots) ? saved.feedbackSnapshots.slice() : [];
+        sess.challengeSeed = saved.seed;
+        sess.sessionId = saved.sessionId;
+        sess.maxGuesses = chalMaxGuesses;
+        sess.hintLevelUnlocked = 0;
+        sess.won = Boolean(saved.won);
+        sess.revealed = Boolean(saved.gameOver);
+        sess.utcDate = null;
+        sess.archivedLegacy = null;
+        sess.conflictNotice = null;
+        sess.initialized = true;
+        return;
+      }
+
+      const challengeSeed = wantedSeed || rollChallengeSeedString();
+      const target = pickTargetForChallengeSeed(challengeSeed);
+      const inGuessPool = guessPool.some((x) => x.id === target.id);
+      if (!inGuessPool) {
+        throw new Error(`[P0-3 Invariant Violation] Challenge target ${target.id} missing from guessPool!`);
+      }
+      sess.target = target;
+      sess.guesses = [];
+      sess.feedbackSnapshots = [];
+      sess.challengeSeed = challengeSeed;
+      sess.sessionId = createChallengeSessionId();
+      sess.maxGuesses = chalMaxGuesses;
+      sess.hintLevelUnlocked = 0;
+      sess.revealed = false;
+      sess.won = false;
+      sess.utcDate = null;
+      sess.archivedLegacy = null;
+      sess.conflictNotice = null;
+      sess.initialized = true;
+      savePersistedChallengeGame(sess);
     } else {
       // Learn Mode: support deterministic test target hook or random pick from Learn answer pool
       let target = null;
@@ -1503,11 +1700,11 @@
   function renderChemleView() {
     const ch = activeChemle();
     const t = ch.target;
-    const profSpec = activeProfileSpec();
+    const profSpec = activeProfileSpec("chemle");
     const ansPool = getAnswerPool(DATA, "chemle", state.profile, state.learnCategoryFilter);
     const maxLvl = getUnlockedClueLevel(ch, state.profile);
     const ladder = (t.clue_ladder && t.clue_ladder[state.profile]) || [];
-    const scafThreshold = Number((profSpec && profSpec.scaffold_unlock_after_guesses) || 3);
+    const scafThreshold = Number((profSpec && profSpec.scaffold_unlock_after_guesses) || (state.profile === "challenge" ? 5 : 3));
     const clueConstraint = {
       profileId: state.profile,
       level0Text: ladder[0] ? ladder[0].text : null,
@@ -1517,9 +1714,22 @@
       superClass: maxLvl >= 1 ? t.super_class : null,
       scaffoldUnlocked:
         (state.profile === "learn" && maxLvl >= 1) ||
-        (state.profile === "ranked" && ch.guesses.length >= scafThreshold),
+        ((state.profile === "ranked" || state.profile === "challenge") && ch.guesses.length >= scafThreshold),
       targetScaffoldSmiles: t.scaffold_smiles || "",
     };
+
+    const chalBar = $("chemle-challenge-bar");
+    if (chalBar) {
+      if (state.profile === "challenge") {
+        chalBar.style.display = "block";
+        const seedPill = $("chemle-challenge-seed-pill");
+        if (seedPill) {
+          seedPill.innerHTML = `Seed: <strong>${escapeHtml(ch.challengeSeed || "—")}</strong>`;
+        }
+      } else {
+        chalBar.style.display = "none";
+      }
+    }
 
     syncHintButtonUI();
     $("chemle-try-counter").textContent = `Guesses: ${ch.guesses.length} / ${ch.maxGuesses}`;
@@ -1536,13 +1746,14 @@
 
     // Banner state
     const banner = $("chemle-banner");
+    const showNextPracticeBtn = state.profile === "learn" || state.profile === "challenge";
     if (ch.won) {
       banner.className = "toast-banner show win";
       banner.innerHTML = `
         <div>🎉 <strong>Solved in ${ch.guesses.length}/${ch.maxGuesses}!</strong> The target molecule is <strong>${escapeHtml(t.name)}</strong> (${formatFormula(t.Formula)}).</div>
         <div style="display:flex;gap:6px;">
           <button class="btn" onclick="window.__bwCopyShare()">📋 Share</button>
-          ${state.profile === "learn" ? `<button class="btn btn-primary" onclick="window.__bwNewPuzzle()">Next Molecule →</button>` : ""}
+          ${showNextPracticeBtn ? `<button class="btn btn-primary" onclick="window.__bwNewPuzzle()">Next Molecule →</button>` : ""}
         </div>
       `;
     } else if (ch.revealed) {
@@ -1551,7 +1762,7 @@
         <div>🔬 <strong>Target Revealed:</strong> <strong>${escapeHtml(t.name)}</strong> (${formatFormula(t.Formula)}) — ${escapeHtml(t.Category)}.</div>
         <div style="display:flex;gap:6px;">
           <button class="btn" onclick="window.__bwCopyShare()">📋 Share</button>
-          ${state.profile === "learn" ? `<button class="btn btn-primary" onclick="window.__bwNewPuzzle()">Try Another →</button>` : ""}
+          ${showNextPracticeBtn ? `<button class="btn btn-primary" onclick="window.__bwNewPuzzle()">Try Another →</button>` : ""}
         </div>
       `;
     } else {
@@ -1576,6 +1787,9 @@
     if (prof === "ranked") {
       return Math.min(3, autoLevel);
     }
+    if (prof === "challenge") {
+      return Math.min(1, autoLevel);
+    }
     return Math.min(3, Math.max(autoLevel, sess.hintLevelUnlocked || 0));
   }
 
@@ -1589,12 +1803,12 @@
 
     const maxLvl = getUnlockedClueLevel(ch, state.profile);
     const ladder = (t.clue_ladder && t.clue_ladder[state.profile]) || [];
-    const profSpec = activeProfileSpec();
-    const scafThreshold = Number((profSpec && profSpec.scaffold_unlock_after_guesses) || 3);
+    const profSpec = activeProfileSpec("chemle");
+    const scafThreshold = Number((profSpec && profSpec.scaffold_unlock_after_guesses) || (state.profile === "challenge" ? 5 : 3));
     const scafUnlocked =
       !ch.revealed &&
       ((state.profile === "learn" && maxLvl >= 1) ||
-        (state.profile === "ranked" && ch.guesses.length >= scafThreshold));
+        ((state.profile === "ranked" || state.profile === "challenge") && ch.guesses.length >= scafThreshold));
 
     // 2D SVG well (Silhouette -> Scaffold -> Full Revealed)
     const showScaffold = t.has_scaffold && scafUnlocked;
@@ -1609,6 +1823,8 @@
       const scLabel =
         t.scaffold_mode === "bemis_murcko"
           ? "Bemis–Murcko Ring Scaffold"
+          : t.scaffold_mode === "ring_core"
+          ? "Anonymized Ring Core Scaffold"
           : "Anonymized Carbon Skeleton";
       well.innerHTML = t.svg_scaffold + `<span class="well-overlay-tag">${scLabel}</span>`;
       stageBadge.textContent = `Level ${maxLvl} · Scaffold`;
@@ -1637,13 +1853,25 @@
       const nextClue = ladder.find((c) => c.level === maxLvl + 1);
       if (nextClue) {
         const unlockMsg =
-          state.profile === "ranked"
+          state.profile === "ranked" || state.profile === "challenge"
             ? `Auto-unlocks after Guess ${nextClue.after_guesses}`
             : `Click 💡 Hint to unlock ${nextClue.title}`;
         html += `
           <div class="hint-item" style="opacity:0.75;border-style:dashed;">
             <strong>Locked · ${escapeHtml(nextClue.title)}</strong>
             ${escapeHtml(unlockMsg)}
+          </div>`;
+      } else if (state.profile === "challenge" && !scafUnlocked && t.has_scaffold) {
+        html += `
+          <div class="hint-item" style="opacity:0.75;border-style:dashed;">
+            <strong>Locked · Structural Scaffold Preview</strong>
+            Auto-unlocks after Guess ${scafThreshold} (narrative role/origin hints omitted in Challenge)
+          </div>`;
+      } else if (state.profile === "challenge") {
+        html += `
+          <div class="hint-item" style="opacity:0.75;border-style:dashed;">
+            <strong>Challenge Clue Policy</strong>
+            Target-specific narrative role and pathway hints stay hidden until reveal.
           </div>`;
       }
     }
@@ -1836,10 +2064,24 @@
       .reverse()
       .map((gId, revIdx) => {
         const guessNum = ch.guesses.length - revIdx;
+        const guessIdx = guessNum - 1;
         const g = CHEM_BY_ID[gId];
         const isWin = g.inchikey === t.inchikey;
+        const snap =
+          state.profile === "challenge" &&
+          Array.isArray(ch.feedbackSnapshots) &&
+          ch.feedbackSnapshots[guessIdx] &&
+          ch.feedbackSnapshots[guessIdx].guessId === gId
+            ? ch.feedbackSnapshots[guessIdx]
+            : null;
         const sim = DATA.chemle_similarity[g.id][t.id];
-        const fb = evaluateChemleFeedbackFromSpec(g, t, sim, profSpec);
+        const fb = snap
+          ? {
+              sim_label: snap.simLabel,
+              sim_badge_cls: snap.simBadgeCls,
+              cells: snap.cells,
+            }
+          : evaluateChemleFeedbackFromSpec(g, t, sim, profSpec);
 
         const simText = profSpec.show_exact_tanimoto
           ? `${sim}% (${fb.sim_label})`
@@ -1946,41 +2188,68 @@
 
     ch.guesses.push(molId);
     const g = CHEM_BY_ID[molId];
+    if (state.profile === "challenge") {
+      const chalSpec = activeProfileSpec("chemle");
+      const simVal = DATA.chemle_similarity[g.id][ch.target.id];
+      const fbSnap = evaluateChemleFeedbackFromSpec(g, ch.target, simVal, chalSpec);
+      ch.feedbackSnapshots = Array.isArray(ch.feedbackSnapshots) ? ch.feedbackSnapshots : [];
+      ch.feedbackSnapshots.push({
+        guessId: g.id,
+        signature: fbSnap.signature,
+        simLabel: fbSnap.sim_label,
+        simBadgeCls: fbSnap.sim_badge_cls,
+        simCode: fbSnap.sim_code,
+        cells: fbSnap.cells,
+      });
+    }
     if (g.inchikey === ch.target.inchikey) {
       ch.won = true;
       ch.revealed = true;
-      const utcDate = ch.utcDate || getUtcDateString();
-      const isDaily = state.profile === "ranked" && !state.customSeed;
-      const creditId = isDaily
-        ? `daily:chemle:${utcDate}`
-        : state.customSeed
-        ? `seed:chemle:${state.customSeed}:${ch.target.id}:${Date.now()}:${Math.random().toString(36).slice(2, 7)}`
-        : `learn:chemle:${ch.target.id}:${Date.now()}:${Math.random().toString(36).slice(2, 7)}`;
-      const dailyKey = state.profile === "ranked" ? getDailyStorageKey("chemle", utcDate, state.customSeed) : null;
-      const sessionPayload = state.profile === "ranked" ? {
-        targetId: ch.target.id,
-        guesses: ch.guesses.slice(),
-        won: true,
-        gameOver: true,
-        hintLevelUnlocked: 0,
-        utcDate,
-        scheduleHash: getScheduleHashForGame("chemle"),
-        datasetHash: DATASET_HASH,
-        rulesHash: CHEMLE_RULES_HASH,
-      } : null;
-      _commitGameWinAndPersist("chemle", ch, {
-        creditId,
-        game: "chemle",
-        isDaily,
-        utcDate,
-        sessionKey: dailyKey,
-        sessionPayload,
-      });
+      if (state.profile === "challenge") {
+        // Challenge Practice is strictly isolated from Ranked stats, pending wins, and daily streaks.
+        savePersistedChallengeGame(ch);
+      } else {
+        const utcDate = ch.utcDate || getUtcDateString();
+        const isDaily = state.profile === "ranked" && !state.customSeed;
+        const creditId = isDaily
+          ? `daily:chemle:${utcDate}`
+          : state.customSeed
+          ? `seed:chemle:${state.customSeed}:${ch.target.id}:${Date.now()}:${Math.random().toString(36).slice(2, 7)}`
+          : `learn:chemle:${ch.target.id}:${Date.now()}:${Math.random().toString(36).slice(2, 7)}`;
+        const dailyKey = state.profile === "ranked" ? getDailyStorageKey("chemle", utcDate, state.customSeed) : null;
+        const sessionPayload = state.profile === "ranked" ? {
+          targetId: ch.target.id,
+          guesses: ch.guesses.slice(),
+          won: true,
+          gameOver: true,
+          hintLevelUnlocked: 0,
+          utcDate,
+          scheduleHash: getScheduleHashForGame("chemle"),
+          datasetHash: DATASET_HASH,
+          rulesHash: CHEMLE_RULES_HASH,
+        } : null;
+        _commitGameWinAndPersist("chemle", ch, {
+          creditId,
+          game: "chemle",
+          isDaily,
+          utcDate,
+          sessionKey: dailyKey,
+          sessionPayload,
+        });
+      }
     } else if (ch.guesses.length >= ch.maxGuesses) {
       ch.revealed = true;
-      persistCurrentRankedState("chemle");
+      if (state.profile === "challenge") {
+        savePersistedChallengeGame(ch);
+      } else {
+        persistCurrentRankedState("chemle");
+      }
     } else {
-      persistCurrentRankedState("chemle");
+      if (state.profile === "challenge") {
+        savePersistedChallengeGame(ch);
+      } else {
+        persistCurrentRankedState("chemle");
+      }
     }
 
     $("chemle-search-input").value = "";
@@ -2122,12 +2391,13 @@
   function renderSeqleView() {
     const sq = activeSeqle();
     const t = sq.target;
-    const profSpec = activeProfileSpec();
-    const ansPool = getAnswerPool(DATA, "seqle", state.profile, state.learnCategoryFilter);
-    const maxLvl = getUnlockedClueLevel(sq, state.profile);
-    const ladder = (t.clue_ladder && t.clue_ladder[state.profile]) || [];
+    const seqProf = effectiveProfileForGame("seqle");
+    const profSpec = activeProfileSpec("seqle");
+    const ansPool = getAnswerPool(DATA, "seqle", seqProf, state.learnCategoryFilter);
+    const maxLvl = getUnlockedClueLevel(sq, seqProf);
+    const ladder = (t.clue_ladder && t.clue_ladder[seqProf]) || [];
     const clueConstraint = {
-      profileId: state.profile,
+      profileId: seqProf,
       level0Text: ladder[0] ? ladder[0].text : null,
       level1Text: maxLvl >= 1 && ladder[1] ? ladder[1].text : null,
       level2Text: maxLvl >= 2 && ladder[2] ? ladder[2].text : null,
@@ -2181,7 +2451,7 @@
   function renderSeqleBoard() {
     const sq = activeSeqle();
     const t = sq.target;
-    const profSpec = activeProfileSpec();
+    const profSpec = activeProfileSpec("seqle");
     const board = $("seqle-board");
     const rowsHtml = [];
 
@@ -2330,13 +2600,14 @@
   function renderSeqleInspector() {
     const sq = activeSeqle();
     const t = sq.target;
+    const seqProf = effectiveProfileForGame("seqle");
     const well = $("seqle-structure-well");
     const stageBadge = $("seqle-clue-stage");
     const hintsList = $("seqle-hints-list");
     const fullProps = $("seqle-full-props");
 
-    const maxLvl = getUnlockedClueLevel(sq, state.profile);
-    const ladder = (t.clue_ladder && t.clue_ladder[state.profile]) || [];
+    const maxLvl = getUnlockedClueLevel(sq, seqProf);
+    const ladder = (t.clue_ladder && t.clue_ladder[seqProf]) || [];
 
     if (sq.revealed) {
       well.className = "chem-svg-well";
@@ -2510,7 +2781,7 @@
     if (sq.currentInput.length !== 5) return;
 
     const guessSeq = sq.currentInput;
-    const profSpec = activeProfileSpec();
+    const profSpec = activeProfileSpec("seqle");
     const knownMotif = SEQ_BY_CODE[guessSeq] || null;
     const biochem = knownMotif
       ? {
@@ -2594,16 +2865,20 @@
   // ---------------------------------------------------------------------------
   function buildShareCard() {
     const utcDate = getUtcDateString();
-    const profTag = state.customSeed
-      ? `Seed:${state.customSeed}`
-      : state.profile === "ranked"
-      ? `Ranked UTC ${utcDate}`
-      : `Learn Mode`;
+    const chSess = state.profile === "challenge" ? activeChemle() : null;
+    const profTag =
+      state.profile === "challenge" && state.mode === "chemle"
+        ? `Challenge Practice · Seed:${(chSess && chSess.challengeSeed) || "—"}`
+        : state.customSeed
+        ? `Seed:${state.customSeed}`
+        : effectiveProfileForGame(state.mode) === "ranked"
+        ? `Ranked UTC ${utcDate}`
+        : `Learn Mode`;
 
     if (state.mode === "chemle") {
       const ch = activeChemle();
       const t = ch.target;
-      const profSpec = activeProfileSpec();
+      const profSpec = activeProfileSpec("chemle");
       const score = ch.won ? `${ch.guesses.length}/${ch.maxGuesses}` : `X/${ch.maxGuesses}`;
       const rows = ch.guesses.map((gId, idx) => {
         const g = CHEM_BY_ID[gId];
@@ -2622,7 +2897,7 @@
     } else {
       const sq = activeSeqle();
       const t = sq.target;
-      const profSpec = activeProfileSpec();
+      const profSpec = activeProfileSpec("seqle");
       const score = sq.won ? `${sq.guesses.length}/${sq.maxGuesses}` : `X/${sq.maxGuesses}`;
       const tileEmoji = {
         exact: "🟩✓",
@@ -2730,6 +3005,9 @@
     ensureSessionInitialized("seqle", "ranked", false);
     ensureSessionInitialized("chemle", "learn", false);
     ensureSessionInitialized("seqle", "learn", false);
+    if (state.profile === "challenge") {
+      ensureSessionInitialized("chemle", "challenge", false);
+    }
 
     renderChemleView();
     renderSeqleView();
@@ -2741,6 +3019,33 @@
       const nextProf = state.profile === "ranked" ? "learn" : "ranked";
       switchProfile(nextProf);
     });
+
+    if ($("btn-challenge-practice")) {
+      $("btn-challenge-practice").addEventListener("click", () => {
+        if (state.profile === "challenge") {
+          switchProfile("ranked");
+        } else {
+          state.mode = "chemle";
+          $("tab-chemle").classList.add("active");
+          $("tab-chemle").setAttribute("aria-selected", "true");
+          $("tab-seqle").classList.remove("active");
+          $("tab-seqle").setAttribute("aria-selected", "false");
+          $("view-chemle").style.display = "grid";
+          $("view-seqle").style.display = "none";
+          switchProfile("challenge");
+        }
+      });
+    }
+
+    if ($("btn-new-challenge")) {
+      $("btn-new-challenge").addEventListener("click", () => {
+        if (state.profile !== "challenge") {
+          switchProfile("challenge");
+        }
+        ensureSessionInitialized("chemle", "challenge", true);
+        renderChemleView();
+      });
+    }
 
     $("btn-new-puzzle").addEventListener("click", () => {
       if (state.profile === "ranked" && !state.customSeed) {
@@ -2754,6 +3059,9 @@
     $("btn-hint").addEventListener("click", () => {
       if (state.profile === "ranked") {
         checkAndHandleUtcRollover();
+        return;
+      }
+      if (state.profile === "challenge" && state.mode === "chemle") {
         return;
       }
       if (state.mode === "chemle") {
@@ -2787,7 +3095,11 @@
         }
         if (ch.revealed || ch.won) return;
         ch.revealed = true;
-        persistCurrentRankedState("chemle");
+        if (state.profile === "challenge") {
+          savePersistedChallengeGame(ch);
+        } else {
+          persistCurrentRankedState("chemle");
+        }
         renderChemleView();
       } else {
         const sq = activeSeqle();

@@ -2828,9 +2828,9 @@
         "microbial_natural_product",
         "secondary_metabolism"
       ],
-      "input_isomeric_smiles": "CCCCCC1=C/C(=C\\C2=C(C=C(N2)C3=CC=CN3)OC)/N=C1C",
-      "expected_standardized_smiles": "CCCCCC1=C/C(=C\\c2[nH]c(-c3ccc[nH]3)cc2OC)N=C1C",
-      "expected_inchikey": "SZXDNGVQRDTJSD-FOWTUZBSSA-N",
+      "input_isomeric_smiles": "CCCCCC1=C/C(=C/C2=C(C=C(N2)C3=CC=CN3)OC)/N=C1C",
+      "expected_standardized_smiles": "CCCCCC1=C/C(=C/c2[nH]c(-c3ccc[nH]3)cc2OC)N=C1C",
+      "expected_inchikey": "SZXDNGVQRDTJSD-VBKFSLOCSA-N",
       "expected_formula": "C20H25N3O",
       "stereo_status": "defined_stereo",
       "protonation_policy": "neutral_canonical",
@@ -2843,9 +2843,11 @@
         "ranked"
       ],
       "structure_refs": {
-        "pubchem_cid": 172897611,
+        "pubchem_cid": 153274519,
         "chebi_id": "CHEBI:82758",
-        "pubchem_matched_inchikey": true
+        "kegg_id": "C21565",
+        "pubchem_matched_inchikey": true,
+        "resolved_notes": "Aligned to (5Z) ChEBI:82758 / PubChem CID 153274519 / KEGG C21565 (intramolecular H-bonded tripyrrole pocket); free base exhibits solution (Z)/(E)/rotameric equilibrium."
       },
       "evidence_refs": [
         {
@@ -3828,11 +3830,11 @@
         "microbial_natural_product",
         "secondary_metabolism"
       ],
-      "input_isomeric_smiles": "C1=CC2=C(C(=O)N=C2C=C1)C3=C(NC(=C3)C4=CNC5=C4C=C(C=C5)O)O",
-      "expected_standardized_smiles": "O=C1N=c2ccccc2=C1c1cc(-c2c[nH]c3ccc(O)cc23)[nH]c1O",
-      "expected_inchikey": "SHLJIZCPRXXHHZ-UHFFFAOYSA-N",
+      "input_isomeric_smiles": "O=C1NC(c2c[nH]c3ccc(O)cc23)=C/C1=C1\\C(=O)Nc2ccccc21",
+      "expected_standardized_smiles": "O=C1NC(c2c[nH]c3ccc(O)cc23)=C/C1=C1\\C(=O)Nc2ccccc21",
+      "expected_inchikey": "XAPNKXIRQFHCHN-QGOAFFKASA-N",
       "expected_formula": "C20H13N3O3",
-      "stereo_status": "achiral",
+      "stereo_status": "defined_stereo",
       "protonation_policy": "neutral_canonical",
       "game_eligibility": [
         "learn",
@@ -3843,9 +3845,11 @@
         "ranked"
       ],
       "structure_refs": {
-        "pubchem_cid": 11053,
+        "pubchem_cid": 9928039,
         "chebi_id": "CHEBI:131914",
-        "pubchem_matched_inchikey": true
+        "kegg_id": "C21136",
+        "pubchem_matched_inchikey": true,
+        "resolved_notes": "Aligned to (3E) dilactam canonical tautomer matching ChEBI:131914, KEGG C21136, and PubChem CID 9928039 (CID 11053 used acyl-imine/2-hydroxypyrrole tautomer missing Amide / Lactam and (3E) bond geometry)."
       },
       "evidence_refs": [
         {

@@ -777,4 +777,32 @@ body {
   background: var(--accent);
 }
 
+.badge-violet {
+  background: rgba(139, 92, 246, 0.16);
+  color: #8b5cf6;
+}
+
+.challenge-bar {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px dashed rgba(139, 92, 246, 0.45);
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.challenge-bar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.challenge-caveat {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
 

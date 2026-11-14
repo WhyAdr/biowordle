@@ -58,15 +58,16 @@ def run_all_gates(
     report: Dict[str, Any] = {"chemle": {}, "seqle": {}, "seqle_legal_probe": {}}
 
     for profile_name, profile_spec in spec["profiles"].items():
+        pool_profile = "learn" if profile_spec.get("chemle_only") else profile_name
         ans_ids = [
             r["id"]
             for r in chemle
-            if profile_name in r.get("game_eligibility", ["learn", "ranked"])
+            if pool_profile in r.get("game_eligibility", ["learn", "ranked"])
         ]
         probe_ids = [
             r["id"]
             for r in chemle
-            if profile_name in r.get("guess_eligibility", r.get("game_eligibility", ["learn", "ranked"]))
+            if pool_profile in r.get("guess_eligibility", r.get("game_eligibility", ["learn", "ranked"]))
         ]
         stats = run_chemle_greedy_solver(
             chemle,
@@ -79,9 +80,11 @@ def run_all_gates(
         )
         assert_solver_gate(stats, profile_spec["solver_gate"], profile_name)
         report["chemle"][profile_name] = stats
+        max_sing = (stats.get("opening_probe_audit") or {}).get("max_singleton_fraction")
+        sing_note = f"  opening_max_singleton={max_sing:.4f}" if max_sing is not None else ""
         print(
-            _format_solver_summary(f"Solver-Bot · Chemle · {profile_name.upper():6s}", stats)
-            + f"  whole_pool_min_exp_rem={stats['min_opening_expected_remaining']:.2f}"
+            _format_solver_summary(f"Solver-Bot · Chemle · {profile_name.upper():9s}", stats)
+            + f"  whole_pool_min_exp_rem={stats['min_opening_expected_remaining']:.2f}{sing_note}"
         )
 
     catalog_seqs = [r["seq"] for r in seqle]
@@ -92,6 +95,8 @@ def run_all_gates(
     )
 
     for profile_name, profile_spec in spec["profiles"].items():
+        if profile_spec.get("chemle_only"):
+            continue
         seq_stats = run_seqle_greedy_solver(
             seqle, aa_props, profile_spec, profile_id=profile_name, condition_on_clues=True
         )

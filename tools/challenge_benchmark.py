@@ -99,7 +99,46 @@ def run(data, original, name, pool, strategy, progression, mw, logp, edges):
             probes.append({'clue':clue,'k':len(cs),'probe':g,'singleton_nonwin':singleton,'singleton_nonwin_fraction':round(singleton/len(cs),4),'expected_survivors':round(sum(x*x for x in counts.values())/len(cs),3)})
     over=sorted(probes,key=lambda x:(-x['singleton_nonwin_fraction'],-x['singleton_nonwin'],x['probe']))[:10]
     vals=[v['guesses'] for v in outcomes.values() if v['guesses'] is not None]
-    return {'name':name,'pool':pool,'targets':n,'strategy':strategy,'rules':{'mw_exact_tol':mw,'logp_exact_tol':logp,'tanimoto_edges':edges,'superclass_after':progression[0],'scaffold_after':progression[1]},'opening_groups':dict(sorted(groups.items())),'opening_k_min':min(groups.values()),'opening_k_distribution':dict(sorted(collections.Counter(groups[opening(t)] for t in ids).items())),'distribution':dict(sorted(dist.items())),'success_le6':sum(v<=6 for v in vals)/n,'success_le8':len(vals)/n,'mean_solved':sum(vals)/len(vals) if vals else None,'overinformative_probes':over,'per_target':outcomes}
+    # Nonuniform / novice prior sensitivity over the active target pool
+    novice_weights = {}
+    heavy_weights = {}
+    for tid in ids:
+        r = records[tid]
+        # Novice prior upweights ranked/familiar clinical/core metabolites (3x) vs specialized natural products (1x).
+        novice_weights[tid] = 3.0 if 'ranked' in r.get('game_eligibility', []) else 1.0
+        # Heavy/lipophilic prior upweights larger scaffolds (HeavyAtoms >= 18 -> 3x).
+        heavy_weights[tid] = 3.0 if int(r.get('HeavyAtoms', 0)) >= 18 else 1.0
+    def _weighted_summary(wmap):
+        tot = sum(wmap[t] for t in ids)
+        w_le6 = sum(wmap[t] for t, v in outcomes.items() if v['guesses'] is not None and v['guesses'] <= 6) / tot
+        w_le8 = sum(wmap[t] for t, v in outcomes.items() if v['guesses'] is not None) / tot
+        w_mean = sum(wmap[t] * v['guesses'] for t, v in outcomes.items() if v['guesses'] is not None) / sum(wmap[t] for t, v in outcomes.items() if v['guesses'] is not None)
+        return {'weighted_mean': round(w_mean, 4), 'weighted_le6': round(w_le6, 4), 'weighted_le8': round(w_le8, 4)}
+    scaffold_mismatches = [
+        t for t in ids
+        if records[t].get('has_scaffold') and not (records[t].get('scaffold_smiles') and records[t].get('svg_scaffold'))
+    ]
+    return {
+        'name': name,
+        'pool': pool,
+        'targets': n,
+        'strategy': strategy,
+        'rules': {'mw_exact_tol': mw, 'logp_exact_tol': logp, 'tanimoto_edges': edges, 'superclass_after': progression[0], 'scaffold_after': progression[1]},
+        'opening_groups': dict(sorted(groups.items())),
+        'opening_k_min': min(groups.values()),
+        'opening_k_distribution': dict(sorted(collections.Counter(groups[opening(t)] for t in ids).items())),
+        'distribution': dict(sorted(dist.items())),
+        'success_le6': sum(v <= 6 for v in vals) / n,
+        'success_le8': len(vals) / n,
+        'mean_solved': sum(vals) / len(vals) if vals else None,
+        'prior_sensitivity': {
+            'novice_familiarity_3x': _weighted_summary(novice_weights),
+            'heavy_scaffold_ge18_3x': _weighted_summary(heavy_weights),
+        },
+        'scaffold_svg_smiles_mismatches': len(scaffold_mismatches),
+        'overinformative_probes': over,
+        'per_target': outcomes,
+    }
 
 
 def main():
@@ -117,5 +156,6 @@ def main():
             result=run(data,spec['profiles']['ranked'],name,pool,strategy,progress,mw,logp,edges); results.append(result)
             print(name,strategy,result['distribution'],'<=6',round(result['success_le6']*100,1),'<=8',round(result['success_le8']*100,1),'kmin',result['opening_k_min'],flush=True)
     out={'input_revision':args.base or 'working tree','puzzles_sha256':dh,'spec_sha256':sh,'engine_sha256':hashlib.sha256(engine_raw).hexdigest(),'uniform_target_prior':True,'results':results}
-    Path(args.output).write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+    with open(args.output, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(json.dumps(out, indent=2, ensure_ascii=False) + '\n')
 if __name__=='__main__': main()

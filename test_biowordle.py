@@ -389,15 +389,15 @@ class TestBioWordleAudit(unittest.TestCase):
         )
 
     def test_corrected_baseline_reference_identities(self) -> None:
-        # Fixed PubChem reference keys, independently of manifest expectations.
+        # Fixed curated PubChem/ChEBI/KEGG reference keys, independently of manifest expectations.
         expected = {
             "artemisinin": ("C15H22O5", "BLUAFEHZUWYNDE-NNWCWBAJSA-N"),
             "cholesterol": ("C27H46O", "HVYWMOMLDIMFJA-DPAQBDIFSA-N"),
             "geosmin": ("C12H22O", "JLPUXFOGCDVKGO-TUAOUCFPSA-N"),
-            "prodigiosin": ("C20H25N3O", "SZXDNGVQRDTJSD-FOWTUZBSSA-N"),
+            "prodigiosin": ("C20H25N3O", "SZXDNGVQRDTJSD-VBKFSLOCSA-N"),
             "pyocyanin": ("C13H10N2O", "YNCMLFHHXWETLD-UHFFFAOYSA-N"),
             "quinine": ("C20H24N2O2", "LOUPRKONTZGTKE-WZBLMQSHSA-N"),
-            "violacein": ("C20H13N3O3", "SHLJIZCPRXXHHZ-UHFFFAOYSA-N"),
+            "violacein": ("C20H13N3O3", "XAPNKXIRQFHCHN-QGOAFFKASA-N"),
         }
         manifest = json.loads((Path(__file__).parent / "data" / "chemle_compounds.json").read_text(encoding="utf-8"))["compounds"]
         for item in manifest:
@@ -406,6 +406,10 @@ class TestBioWordleAudit(unittest.TestCase):
             with self.subTest(item=item["id"]):
                 mol = Chem.MolFromSmiles(item["input_isomeric_smiles"])
                 self.assertEqual((rdMolDescriptors.CalcMolFormula(mol), Chem.MolToInchiKey(mol)), expected[item["id"]])
+
+        by_id = {c["id"]: c for c in self.data["chemle"]}
+        self.assertIn("Amide / Lactam", by_id["violacein"]["functional_groups"])
+        self.assertEqual(by_id["prodigiosin"]["inchikey"], "SZXDNGVQRDTJSD-VBKFSLOCSA-N")
 
     def test_chemle_rules_hash_is_stable_and_science_sensitive(self) -> None:
         chem = self.data["chemle"]
@@ -501,7 +505,7 @@ class TestBioWordleAudit(unittest.TestCase):
             0,
             f"Node golden/DOM suite failed:\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}",
         )
-        self.assertIn("12168 Chemle vectors + 1800 Seqle vectors", proc.stdout)
+        self.assertIn("18252 Chemle vectors + 1800 Seqle vectors", proc.stdout)
 
 
     def test_12_p0_5_provenance_registry_and_offline_fixtures(self):
@@ -955,6 +959,43 @@ class TestBioWordleAudit(unittest.TestCase):
         self.assertEqual(density_78["count"], 78)
         self.assertEqual(density_78["ranked_feedback_indistinguishable_pairs"], [])
         self.assertEqual(density_78["learn_feedback_indistinguishable_pairs"], [])
+
+    def test_18_challenge_practice_gates_and_clue_ladder(self) -> None:
+        """Verify calibrated Challenge Practice profile, <=25% opening probe singleton gate, and non-narrative ladder."""
+        meta = self.data["metadata"]
+        self.assertEqual(meta["chemle_schedule_hash"], "9257bd168fa6")
+        self.assertEqual(meta["chemle_challenge_count"], 78)
+        self.assertEqual(meta["chemle_challenge_guess_count"], 78)
+        self.assertTrue(meta.get("chemle_challenge_roster_hash"))
+
+        c_spec = self.feedback_spec["profiles"]["challenge"]
+        self.assertTrue(c_spec.get("chemle_only"))
+        self.assertEqual(c_spec["max_guesses"], 8)
+        self.assertEqual(c_spec["super_class_unlock_after_guesses"], 4)
+        self.assertEqual(c_spec["scaffold_unlock_after_guesses"], 5)
+        self.assertFalse(c_spec["show_exact_tanimoto"])
+        self.assertFalse(c_spec["show_functional_groups_live"])
+
+        c_gate = meta["solver_gate_audit"]["challenge"]
+        self.assertEqual(c_gate["eligible_count"], 78)
+        self.assertEqual(c_gate["pct_solved_by_cap"], 100.0)
+        c_sing = c_gate["opening_probe_audit"]["max_singleton_fraction"]
+        self.assertLessEqual(c_sing, 0.25)
+
+        self.assertGreaterEqual(meta["k_anonymity_audit"]["chemle_challenge"]["k_min"], 4)
+        for rec in self.data["chemle"]:
+            if "learn" not in rec.get("game_eligibility", []):
+                continue
+            ladder = rec["clue_ladder"]["challenge"]
+            self.assertEqual([c["level"] for c in ladder], [0, 1], f"{rec['id']} challenge ladder must only have levels 0 and 1")
+            self.assertEqual(ladder[0]["after_guesses"], 0)
+            self.assertEqual(ladder[1]["after_guesses"], 4)
+            combined = " ".join(c["text"] for c in ladder)
+            self.assertNotIn(rec["hint_role"], combined)
+            self.assertNotIn(rec["hint_origin"], combined)
+            if rec.get("has_scaffold"):
+                self.assertTrue(rec.get("scaffold_smiles"))
+                self.assertTrue(rec.get("svg_scaffold"))
 
 
 if __name__ == "__main__":

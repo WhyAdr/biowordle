@@ -73,6 +73,7 @@ for (const m of puzzlesData.seqle) {
 let seqRankedClassTiles = 0;
 let seqLearnClassTiles = 0;
 for (const [profId, profSpec] of Object.entries(puzzlesData.feedback_spec.profiles)) {
+  if (profSpec.chemle_only) continue;
   for (const g of puzzlesData.seqle) {
     for (const t of puzzlesData.seqle) {
       const key = `${g.seq}->${t.seq}`;
@@ -105,9 +106,11 @@ assert.ok(seqLearnClassTiles > 0, "Learn Seqle must preserve positional 'class' 
 
 // 3. P0-3 Category-Lockout Regression Test: target in guessPool for ALL mode x profile x pack
 const categories = ["ALL", ...new Set(puzzlesData.chemle.map((m) => m.Category))];
-for (const profile of ["ranked", "learn"]) {
+for (const profile of ["ranked", "learn", "challenge"]) {
   const expectedGuessCount = profile === "ranked"
     ? puzzlesData.metadata.chemle_ranked_guess_count
+    : profile === "challenge"
+    ? puzzlesData.metadata.chemle_challenge_guess_count
     : puzzlesData.metadata.chemle_learn_guess_count;
   for (const pack of categories) {
     const guessPool = Engine.getGuessPool(puzzlesData, "chemle", profile);
@@ -117,6 +120,9 @@ for (const profile of ["ranked", "learn"]) {
       `Chemle ${profile} guessPool must contain all ${expectedGuessCount} compounds`
     );
     const answerPool = Engine.getAnswerPool(puzzlesData, "chemle", profile, pack);
+    if (profile === "challenge") {
+      assert.equal(answerPool.length, expectedGuessCount, "Challenge answerPool must ignore pack filter and keep all 78 molecules");
+    }
     for (const target of answerPool) {
       assert.ok(
         guessPool.some((x) => x.id === target.id),
@@ -137,7 +143,7 @@ assert.ok(
 
 // 4. Candidate Counter Exact Signature Filtering
 const chemById = Object.fromEntries(puzzlesData.chemle.map((m) => [m.id, m]));
-for (const profile of ["ranked", "learn"]) {
+for (const profile of ["ranked", "learn", "challenge"]) {
   const profSpec = puzzlesData.feedback_spec.profiles[profile];
   const ansPool = Engine.getAnswerPool(puzzlesData, "chemle", profile, "ALL");
   const target = chemById["aspirin"];

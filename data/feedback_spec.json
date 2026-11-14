@@ -180,6 +180,59 @@
         "min_expected_remaining": 1.0,
         "max_single_probe_distinct_targets": 30
       }
+    },
+    "challenge": {
+      "id": "challenge",
+      "label": "Challenge Practice (Experimental)",
+      "chemle_only": true,
+      "max_guesses": 8,
+      "min_k_level0": 4,
+      "super_class_unlock_after_guesses": 4,
+      "scaffold_unlock_after_guesses": 5,
+      "show_exact_tanimoto": false,
+      "show_functional_groups_live": false,
+      "show_category_match_live": false,
+      "show_positional_class_match": false,
+      "allow_narrative_clues": false,
+      "tanimoto_bucket": {
+        "shown": true,
+        "edges": [60, 80],
+        "codes": ["LO", "MD", "HI"],
+        "labels": ["Low (<60%)", "Moderate (60-79%)", "High (≥80%)"]
+      },
+      "chemle_fields": [
+        {
+          "name": "MW",
+          "label": "MW (Da)",
+          "decimals": 1,
+          "kind": "delta",
+          "exact_tol": 140.0,
+          "close_tol": 999.0,
+          "close_directional": false,
+          "far_directional": true,
+          "shown": true
+        },
+        {
+          "name": "cLogP",
+          "label": "cLogP",
+          "decimals": 2,
+          "kind": "delta",
+          "exact_tol": 3.5,
+          "close_tol": 9.0,
+          "close_directional": false,
+          "far_directional": false,
+          "shown": true
+        }
+      ],
+      "solver_gate": {
+        "mean_min": 3.0,
+        "mean_max": 4.2,
+        "max_le2_pct": 25.0,
+        "min_le6_pct": 98.0,
+        "min_solved_by_cap_pct": 100.0,
+        "min_expected_remaining": 15.0,
+        "max_opening_singleton_fraction": 0.25
+      }
     }
   }
 }

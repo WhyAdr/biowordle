@@ -587,6 +587,67 @@ def _summarize_guess_counts(
     }
 
 
+def compute_opening_probe_singleton_audit(
+    records: Sequence[Dict[str, Any]],
+    profile_spec: Dict[str, Any],
+    sig_table: Dict[Tuple[str, str], str],
+    resolved_answers: Sequence[str],
+    resolved_probes: Sequence[str],
+    profile_id: str = "ranked",
+    condition_on_clues: bool = True,
+) -> Dict[str, Any]:
+    """Audits non-winning opening-group singleton differentiation across all legal probes."""
+    by_id = {r["id"]: r for r in records}
+    groups: Dict[str, List[str]] = {}
+    if condition_on_clues:
+        for tid in resolved_answers:
+            ladder = (by_id[tid].get("clue_ladder") or {}).get(profile_id, [])
+            lvl0 = next((c["text"] for c in ladder if c.get("level") == 0), "__all__")
+            groups.setdefault(lvl0, []).append(tid)
+    else:
+        groups["__all__"] = list(resolved_answers)
+
+    worst_case: Optional[Dict[str, Any]] = None
+    group_summaries: List[Dict[str, Any]] = []
+    max_frac = 0.0
+    for grp_label, grp_targets in sorted(groups.items()):
+        g_size = len(grp_targets)
+        best_grp_probe: Optional[Dict[str, Any]] = None
+        for pid in resolved_probes:
+            cnts = Counter(sig_table[(pid, tid)] for tid in grp_targets)
+            self_sig = sig_table.get((pid, pid))
+            nonwin_singletons = sum(
+                1 for sig, c in cnts.items() if c == 1 and not (pid in grp_targets and sig == self_sig)
+            )
+            frac = round(nonwin_singletons / g_size, 4) if g_size else 0.0
+            cand = {
+                "group": grp_label,
+                "group_size": g_size,
+                "probe_id": pid,
+                "nonwinning_singletons": nonwin_singletons,
+                "singleton_fraction": frac,
+            }
+            if best_grp_probe is None or (cand["singleton_fraction"], cand["nonwinning_singletons"]) > (
+                best_grp_probe["singleton_fraction"],
+                best_grp_probe["nonwinning_singletons"],
+            ):
+                best_grp_probe = cand
+            if worst_case is None or (cand["singleton_fraction"], cand["nonwinning_singletons"]) > (
+                worst_case["singleton_fraction"],
+                worst_case["nonwinning_singletons"],
+            ):
+                worst_case = cand
+            max_frac = max(max_frac, frac)
+        if best_grp_probe is not None:
+            group_summaries.append(best_grp_probe)
+
+    return {
+        "max_singleton_fraction": max_frac,
+        "worst_case": worst_case,
+        "groups": group_summaries,
+    }
+
+
 def run_chemle_greedy_solver(
     records: Sequence[Dict[str, Any]],
     sim_matrix: Dict[str, Dict[str, int]],
@@ -599,13 +660,14 @@ def run_chemle_greedy_solver(
 ) -> Dict[str, Any]:
     """Runs the greedy max-entropy solver over `answer_ids` and `probe_ids` under `profile_spec`."""
     by_id = {r["id"]: r for r in records}
+    pool_prof = "learn" if profile_spec.get("chemle_only") else profile_id
     resolved_answers = (
         list(answer_ids)
         if answer_ids is not None
         else [
             r["id"]
             for r in records
-            if profile_id in r.get("game_eligibility", ["learn", "ranked"])
+            if pool_prof in r.get("game_eligibility", ["learn", "ranked"])
         ]
     )
     resolved_probes = (
@@ -614,7 +676,7 @@ def run_chemle_greedy_solver(
         else [
             r["id"]
             for r in records
-            if profile_id in r.get("guess_eligibility", r.get("game_eligibility", ["learn", "ranked"]))
+            if pool_prof in r.get("guess_eligibility", r.get("game_eligibility", ["learn", "ranked"]))
         ]
     )
     if not resolved_answers:
@@ -649,6 +711,15 @@ def run_chemle_greedy_solver(
             "expected_remaining_candidates": exp_rem,
         }
 
+    opening_audit = compute_opening_probe_singleton_audit(
+        records,
+        profile_spec,
+        sig_table,
+        resolved_answers,
+        resolved_probes,
+        profile_id=profile_id,
+        condition_on_clues=condition_on_clues,
+    )
     guess_results = _solve_chemle_pool(
         resolved_answers, resolved_probes, by_id, sig_table, profile_spec, profile_id, condition_on_clues, max_steps=step_cap
     )
@@ -658,6 +729,7 @@ def run_chemle_greedy_solver(
         "eligible_count": n_ans,
         "probe_count": len(resolved_probes),
         "min_opening_expected_remaining": round(min_exp_rem, 2),
+        "opening_probe_audit": opening_audit,
         "probe_metrics": probe_metrics,
         "per_target_guesses": {k: (v[0] if v[1] else None) for k, v in guess_results.items()},
         "per_target_results": guess_results,
@@ -701,6 +773,14 @@ def assert_solver_gate(solver_stats: Dict[str, Any], gate: Dict[str, Any], profi
             f"[{profile_id}] Min opening expected remaining {solver_stats['min_opening_expected_remaining']} "
             f"below min {gate['min_expected_remaining']}"
         )
+    max_singleton_gate = gate.get("max_opening_singleton_fraction")
+    if max_singleton_gate is not None:
+        observed = (solver_stats.get("opening_probe_audit") or {}).get("max_singleton_fraction")
+        if observed is None or observed > float(max_singleton_gate):
+            worst = (solver_stats.get("opening_probe_audit") or {}).get("worst_case")
+            raise AssertionError(
+                f"[{profile_id}] Opening-group max singleton fraction {observed} exceeds gate {max_singleton_gate} (worst={worst})"
+            )
 
 
 def assert_seqle_solver_gate(solver_stats: Dict[str, Any], gate: Dict[str, Any], profile_id: str) -> None:

@@ -730,6 +730,18 @@ def compute_chemle_schedule_hash(chemle_records: Sequence[Dict[str, Any]]) -> st
     return hashlib.sha256(blob).hexdigest()[:12]
 
 
+def compute_chemle_challenge_roster_hash(chemle_records: Sequence[Dict[str, Any]]) -> str:
+    """Computes stable 12-hex hash of the Challenge Practice Chemle roster (never mixed into Ranked schedule)."""
+    challenge_ids = sorted(
+        r["id"]
+        for r in chemle_records
+        if "learn" in r.get("game_eligibility", ["learn", "ranked"])
+    )
+    payload = {"game": "chemle", "profile": "challenge", "challenge_ids": challenge_ids}
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()[:12]
+
+
 def compute_seqle_schedule_hash(seqle_records: Sequence[Dict[str, Any]]) -> str:
     """Computes per-game daily schedule hash strictly from Ranked-eligible Seqle answer sequences."""
     ranked_seqs = sorted(
@@ -865,7 +877,11 @@ def build_all(
         }
         for prof in ("ranked", "learn")
     }
-    for prof in ("ranked", "learn"):
+    chem_pools["challenge"] = {
+        "answers": list(chem_pools["learn"]["answers"]),
+        "guesses": list(chem_pools["learn"]["guesses"]),
+    }
+    for prof in ("ranked", "learn", "challenge"):
         ans_ids = {r["id"] for r in chem_pools[prof]["answers"]}
         guess_ids = {r["id"] for r in chem_pools[prof]["guesses"]}
         if not ans_ids or not ans_ids.issubset(guess_ids):
@@ -873,9 +889,11 @@ def build_all(
 
     r_min_k = int(feedback_spec["profiles"]["ranked"]["min_k_level0"])
     l_min_k = int(feedback_spec["profiles"]["learn"]["min_k_level0"])
+    c_min_k = int(feedback_spec["profiles"]["challenge"]["min_k_level0"])
 
     r_chem_answers = chem_pools["ranked"]["answers"]
     l_chem_answers = chem_pools["learn"]["answers"]
+    c_chem_answers = chem_pools["challenge"]["answers"]
 
     r_chem_extractors = _build_chemle_candidate_extractors(r_chem_answers)
     r_chem_feats, r_chem_lvl0, r_chem_kmin, r_chem_groups = select_k_anonymous_level0_features(
@@ -885,8 +903,13 @@ def build_all(
     l_chem_feats, l_chem_lvl0, l_chem_kmin, l_chem_groups = select_k_anonymous_level0_features(
         l_chem_answers, l_chem_extractors, min_k=l_min_k, max_features=2
     )
+    c_chem_extractors = _build_chemle_candidate_extractors(c_chem_answers)
+    c_chem_feats, c_chem_lvl0, c_chem_kmin, c_chem_groups = select_k_anonymous_level0_features(
+        c_chem_answers, c_chem_extractors, min_k=c_min_k, max_features=2
+    )
     r_lvl0_by_id = {rec["id"]: r_chem_lvl0[idx] for idx, rec in enumerate(r_chem_answers)}
     l_lvl0_by_id = {rec["id"]: l_chem_lvl0[idx] for idx, rec in enumerate(l_chem_answers)}
+    c_lvl0_by_id = {rec["id"]: c_chem_lvl0[idx] for idx, rec in enumerate(c_chem_answers)}
 
     learn_pack_audit: Dict[str, Any] = {}
     for cat in sorted({r["Category"] for r in l_chem_answers}):
@@ -906,11 +929,13 @@ def build_all(
 
     print(
         f"[P0-1 Chemle k-Anonymity] Ranked Level-0 ({r_chem_feats}, N={len(r_chem_answers)}): k_min={r_chem_kmin}, groups={r_chem_groups} | "
-        f"Learn Level-0 ({l_chem_feats}, N={len(l_chem_answers)}): k_min={l_chem_kmin}, groups={l_chem_groups}"
+        f"Learn Level-0 ({l_chem_feats}, N={len(l_chem_answers)}): k_min={l_chem_kmin}, groups={l_chem_groups} | "
+        f"Challenge Level-0 ({c_chem_feats}, N={len(c_chem_answers)}): k_min={c_chem_kmin}, groups={c_chem_groups}"
     )
 
     ranked_super_unlock = int(feedback_spec["profiles"]["ranked"].get("super_class_unlock_after_guesses", 4))
     learn_super_unlock = int(feedback_spec["profiles"]["learn"].get("super_class_unlock_after_guesses", 1))
+    challenge_super_unlock = int(feedback_spec["profiles"]["challenge"].get("super_class_unlock_after_guesses", 4))
     for rec in chemle_records:
         cid = rec["id"]
         ladders: Dict[str, List[Dict[str, Any]]] = {}
@@ -927,6 +952,12 @@ def build_all(
                 {"level": 1, "after_guesses": learn_super_unlock, "title": "Clue 2 · Chemical Super-Class", "text": f"Broad Super-Class: {rec['super_class']}"},
                 {"level": 2, "after_guesses": 2, "title": "Clue 3 · Biochemical Role & Mechanism", "text": rec["hint_role"]},
                 {"level": 3, "after_guesses": 3, "title": "Clue 4 · Biosynthesis & Pathway Origin", "text": rec["hint_origin"]},
+            ]
+        if cid in c_lvl0_by_id:
+            # Challenge Practice intentionally omits target-specific narrative clues (hint_role / hint_origin).
+            ladders["challenge"] = [
+                {"level": 0, "after_guesses": 0, "title": "Clue 1 · Chemical Space Band (k-Anonymous)", "text": c_lvl0_by_id[cid]},
+                {"level": 1, "after_guesses": challenge_super_unlock, "title": "Clue 2 · Chemical Super-Class", "text": f"Broad Super-Class: {rec['super_class']}"},
             ]
         rec["clue_ladder"] = ladders
 
@@ -1091,6 +1122,8 @@ def build_all(
 
     seqle_solver_reports: Dict[str, Any] = {}
     for prof_id, prof_spec in feedback_spec["profiles"].items():
+        if prof_spec.get("chemle_only"):
+            continue
         seq_stats = run_seqle_greedy_solver(
             seqle_records,
             AA_PROPERTIES,
@@ -1107,14 +1140,16 @@ def build_all(
 
     dataset_hash = compute_canonical_dataset_hash(chemle_records, seqle_records, feedback_spec)
     chemle_schedule_hash = compute_chemle_schedule_hash(chemle_records)
+    chemle_challenge_roster_hash = compute_chemle_challenge_roster_hash(chemle_records)
     seqle_schedule_hash = compute_seqle_schedule_hash(seqle_records)
     schedule_hash = compute_schedule_version_hash(chemle_records, seqle_records)
 
     return {
         "metadata": {
             "schema_version": SCHEMA_VERSION,
-            "release_version": "0.3.1",
+            "release_version": "0.3.2-dev",
             "chemle_rules_hash": compute_chemle_rules_hash(chemle_records, similarity_matrix, feedback_spec),
+            "chemle_challenge_roster_hash": chemle_challenge_roster_hash,
             "generator": "BioWordle Independent RDKit Build Compiler (chem_engine.py)",
             "rdkit_version": Chem.rdBase.rdkitVersion,
             "dataset_version_hash": dataset_hash,
@@ -1131,6 +1166,8 @@ def build_all(
             "chemle_ranked_guess_count": len(chem_pools["ranked"]["guesses"]),
             "chemle_learn_count": len(chem_pools["learn"]["answers"]),
             "chemle_learn_guess_count": len(chem_pools["learn"]["guesses"]),
+            "chemle_challenge_count": len(chem_pools["challenge"]["answers"]),
+            "chemle_challenge_guess_count": len(chem_pools["challenge"]["guesses"]),
             "seqle_count": len(seqle_records),
             "seqle_ranked_count": len(ranked_seq_pool),
             "fingerprint_spec": FINGERPRINT_SPEC,
@@ -1139,6 +1176,7 @@ def build_all(
             "k_anonymity_audit": {
                 "chemle_ranked": {"features": r_chem_feats, "k_min": r_chem_kmin, "group_sizes": r_chem_groups},
                 "chemle_learn": {"features": l_chem_feats, "k_min": l_chem_kmin, "group_sizes": l_chem_groups},
+                "chemle_challenge": {"features": c_chem_feats, "k_min": c_chem_kmin, "group_sizes": c_chem_groups},
                 "chemle_learn_packs": learn_pack_audit,
                 "seqle_ranked": {"features": r_seq_feats, "k_min": r_seq_kmin, "group_sizes": r_seq_groups},
                 "seqle_learn": {"features": l_seq_feats, "k_min": l_seq_kmin, "group_sizes": l_seq_groups},
@@ -1165,7 +1203,7 @@ def write_golden_feedback_vectors(payload: Dict[str, Any], base_dir: str) -> str
     aa_props = payload["aa_properties"]
     f_spec = payload["feedback_spec"]
 
-    chemle_vectors: Dict[str, Dict[str, str]] = {"ranked": {}, "learn": {}}
+    chemle_vectors: Dict[str, Dict[str, str]] = {prof_id: {} for prof_id in f_spec["profiles"]}
     for prof_id, prof_spec in f_spec["profiles"].items():
         for g in chemle:
             for t in chemle:
@@ -1175,8 +1213,12 @@ def write_golden_feedback_vectors(payload: Dict[str, Any], base_dir: str) -> str
                 )
                 chemle_vectors[prof_id][key] = res["signature"]
 
-    seqle_vectors: Dict[str, Dict[str, str]] = {"ranked": {}, "learn": {}}
+    seqle_vectors: Dict[str, Dict[str, str]] = {
+        prof_id: {} for prof_id, prof_spec in f_spec["profiles"].items() if not prof_spec.get("chemle_only")
+    }
     for prof_id, prof_spec in f_spec["profiles"].items():
+        if prof_spec.get("chemle_only"):
+            continue
         for g in seqle:
             for t in seqle:
                 key = f"{g['seq']}->{t['seq']}"
