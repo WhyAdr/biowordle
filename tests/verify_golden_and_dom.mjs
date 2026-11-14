@@ -303,6 +303,51 @@ assert.ok(indexHtml.includes('role="listbox"'), "index.html must include role=li
 assert.ok(indexHtml.includes('id="utc-rollover-banner"'), "index.html must include utc-rollover-banner");
 assert.ok(!indexHtml.includes("IG bits shown"), "index.html search placeholder must not expose pre-guess IG bits");
 
+// 7. Phase 4 Stats Ledger, Merge, Display Streak, & Duplicate/Off-Catalog Seqle Checks
+const legV1 = BioWordleEngine.migrateV1Stats({ chemWins: 7, seqWins: 4 });
+assert.equal(legV1.chemWins, 7);
+assert.equal(legV1.seqWins, 4);
+assert.equal(legV1.baseline.chemWins, 7);
+assert.equal(legV1.baseline.seqWins, 4);
+
+const afterChemD1 = BioWordleEngine.evaluateDailyWinStreak(legV1, "chemle", "2026-11-10");
+assert.equal(afterChemD1.chemWins, 8);
+assert.equal(afterChemD1.streak, 1);
+const afterSeqD1 = BioWordleEngine.evaluateDailyWinStreak(afterChemD1, "seqle", "2026-11-10");
+assert.equal(afterSeqD1.seqWins, 5);
+assert.equal(afterSeqD1.streak, 1, "Same UTC day second game daily win must not double-increment streak");
+const afterChemD2 = BioWordleEngine.evaluateDailyWinStreak(afterSeqD1, "chemle", "2026-11-11");
+assert.equal(afterChemD2.streak, 2);
+
+const tabA = BioWordleEngine.evaluateDailyWinStreak(afterChemD2, "chemle", "2026-11-12");
+const tabB = BioWordleEngine.evaluateDailyWinStreak(afterChemD2, "seqle", "2026-11-12");
+const mergedD3 = BioWordleEngine.mergeStatsV2(tabA, tabB);
+assert.equal(mergedD3.chemWins, 10);
+assert.equal(mergedD3.seqWins, 6);
+assert.equal(mergedD3.streak, 3);
+
+const withNonDaily = BioWordleEngine.recordNonDailyWin(mergedD3, "seqle", "learn:2026-11-12:round1");
+assert.equal(withNonDaily.seqWins, 7);
+assert.equal(withNonDaily.streak, 3);
+assert.equal(BioWordleEngine.getDisplayStreak(withNonDaily, "2026-11-12"), 3);
+assert.equal(BioWordleEngine.getDisplayStreak(withNonDaily, "2026-11-13"), 3);
+assert.equal(BioWordleEngine.getDisplayStreak(withNonDaily, "2026-11-14"), 0, "Missed UTC day must drop display streak to 0");
+
+const dupTiles = BioWordleEngine.evaluateSeqleTiles("EEEEE", "DEVDG", puzzlesData.aa_properties);
+assert.deepEqual(dupTiles, ["class", "exact", "absent", "class", "absent"]);
+const dupCapTiles = BioWordleEngine.evaluateSeqleTiles("AAAAA", "CAACH", puzzlesData.aa_properties);
+assert.deepEqual(dupCapTiles, ["absent", "exact", "exact", "absent", "absent"]);
+const specJson = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "feedback_spec.json"), "utf8"));
+const caachRec = puzzlesData.seqle.find((r) => r.seq === "CAACH");
+const offCatalogFB = BioWordleEngine.evaluateSeqleFeedbackFromSpec(
+  "AAAAA",
+  "CAACH",
+  puzzlesData.aa_properties,
+  specJson.profiles.ranked
+);
+assert.equal(offCatalogFB.tiles[1], "exact");
+assert.equal(puzzlesData.metadata.chemle_schedule_hash, "9257bd168fa6", "Chemle schedule hash must remain pinned to 9257bd168fa6");
+
 console.log(
-  `[Golden & DOM Verification PASS] ${chemChecked} Chemle vectors + ${seqChecked} Seqle vectors + P0-1/P0-3/P1-2/P2-2 runtime invariants verified.`
+  `[Golden & DOM Verification PASS] ${chemChecked} Chemle vectors + ${seqChecked} Seqle vectors + P0-1/P0-3/P1-2/P2-2/P4 invariants verified.`
 );

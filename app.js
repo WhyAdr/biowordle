@@ -335,6 +335,18 @@
           const targetScaf = clueConstraint.targetScaffoldSmiles || "";
           if (candScaf !== targetScaf) return false;
         }
+        if (clueConstraint.level1Text) {
+          const c1 = cand.clue_ladder && cand.clue_ladder[profId] && cand.clue_ladder[profId][1] && cand.clue_ladder[profId][1].text;
+          if (c1 !== clueConstraint.level1Text) return false;
+        }
+        if (clueConstraint.level2Text) {
+          const c2 = cand.clue_ladder && cand.clue_ladder[profId] && cand.clue_ladder[profId][2] && cand.clue_ladder[profId][2].text;
+          if (c2 !== clueConstraint.level2Text) return false;
+        }
+        if (clueConstraint.level3Text) {
+          const c3 = cand.clue_ladder && cand.clue_ladder[profId] && cand.clue_ladder[profId][3] && cand.clue_ladder[profId][3].text;
+          if (c3 !== clueConstraint.level3Text) return false;
+        }
       }
       for (let i = 0; i < gList.length; i++) {
         const gId = gList[i];
@@ -388,6 +400,22 @@
             cand.clue_ladder[profId][1].text;
           if (candLvl1 !== clueConstraint.level1Text) return false;
         }
+        if (clueConstraint.level2Text) {
+          const candLvl2 =
+            cand.clue_ladder &&
+            cand.clue_ladder[profId] &&
+            cand.clue_ladder[profId][2] &&
+            cand.clue_ladder[profId][2].text;
+          if (candLvl2 !== clueConstraint.level2Text) return false;
+        }
+        if (clueConstraint.level3Text) {
+          const candLvl3 =
+            cand.clue_ladder &&
+            cand.clue_ladder[profId] &&
+            cand.clue_ladder[profId][3] &&
+            cand.clue_ladder[profId][3].text;
+          if (candLvl3 !== clueConstraint.level3Text) return false;
+        }
       }
       for (let i = 0; i < gList.length; i++) {
         const gSeq = gList[i].seq;
@@ -414,45 +442,215 @@
     }).length;
   }
 
-  function evaluateDailyWinStreak(statsObj, game, utcDateStr) {
-    const next = JSON.parse(JSON.stringify(statsObj));
-    if (!next.lastDailyWinUtcByGame) {
-      next.lastDailyWinUtcByGame = { chemle: null, seqle: null };
-    }
-    const alreadyWonThisGameToday = next.lastDailyWinUtcByGame[game] === utcDateStr;
-    if (!alreadyWonThisGameToday) {
-      if (game === "chemle") next.chemWins = (next.chemWins || 0) + 1;
-      if (game === "seqle") next.seqWins = (next.seqWins || 0) + 1;
-      next.lastDailyWinUtcByGame[game] = utcDateStr;
+  function _uniqueSortedStrings(arr) {
+    const out = Array.from(new Set((Array.isArray(arr) ? arr : []).filter((x) => typeof x === "string" && x.length > 0)));
+    out.sort();
+    return out;
+  }
+
+  function normalizeStatsV2(raw) {
+    const src = raw && typeof raw === "object" ? raw : {};
+    const hasLedger =
+      src.rankedDailyWins &&
+      typeof src.rankedDailyWins === "object" &&
+      src.baseline &&
+      typeof src.baseline === "object";
+
+    const rawChemWins = Math.max(0, Number(src.chemWins) || 0);
+    const rawSeqWins = Math.max(0, Number(src.seqWins) || 0);
+    const rawLastByGame = {
+      chemle: (src.lastDailyWinUtcByGame && src.lastDailyWinUtcByGame.chemle) || null,
+      seqle: (src.lastDailyWinUtcByGame && src.lastDailyWinUtcByGame.seqle) || null,
+    };
+
+    if (hasLedger) {
+      const st = {
+        schema: 2,
+        chemWins: rawChemWins,
+        seqWins: rawSeqWins,
+        streak: Math.max(0, Number(src.streak) || 0),
+        maxStreak: Math.max(0, Number(src.maxStreak) || 0),
+        lastDailyWinUtcByGame: rawLastByGame,
+        lastStreakIncrementUtc: src.lastStreakIncrementUtc || null,
+        rankedDailyWins: {
+          chemle: _uniqueSortedStrings(src.rankedDailyWins.chemle),
+          seqle: _uniqueSortedStrings(src.rankedDailyWins.seqle),
+        },
+        nonDailyWinIds: _uniqueSortedStrings(src.nonDailyWinIds),
+        baseline: {
+          chemWins: Math.max(0, Number(src.baseline.chemWins) || 0),
+          seqWins: Math.max(0, Number(src.baseline.seqWins) || 0),
+        },
+        streakAnchor: {
+          date: (src.streakAnchor && src.streakAnchor.date) || null,
+          streak: Math.max(0, Number(src.streakAnchor && src.streakAnchor.streak) || 0),
+          maxStreak: Math.max(0, Number(src.streakAnchor && src.streakAnchor.maxStreak) || 0),
+        },
+      };
+      return recomputeDerivedStats(st);
     }
 
-    if (next.lastStreakIncrementUtc === utcDateStr) {
-      // Already incremented streak today (e.g., won the other game earlier today or replayed)
-      return next;
+    // Backfill v0.2.0 / v0.2.1 v2 object idempotently into ledger format
+    let baseChem = rawChemWins;
+    let baseSeq = rawSeqWins;
+    const ledChem = [];
+    const ledSeq = [];
+    if (rawLastByGame.chemle && baseChem > 0) {
+      ledChem.push(rawLastByGame.chemle);
+      baseChem -= 1;
+    }
+    if (rawLastByGame.seqle && baseSeq > 0) {
+      ledSeq.push(rawLastByGame.seqle);
+      baseSeq -= 1;
+    }
+    const anchorDate = src.lastStreakIncrementUtc || null;
+    const anchorStreak = Math.max(0, Number(src.streak) || 0);
+    const anchorMax = Math.max(anchorStreak, Number(src.maxStreak) || 0);
+
+    return recomputeDerivedStats({
+      schema: 2,
+      chemWins: rawChemWins,
+      seqWins: rawSeqWins,
+      streak: anchorStreak,
+      maxStreak: anchorMax,
+      lastDailyWinUtcByGame: rawLastByGame,
+      lastStreakIncrementUtc: anchorDate,
+      rankedDailyWins: { chemle: ledChem, seqle: ledSeq },
+      nonDailyWinIds: [],
+      baseline: { chemWins: baseChem, seqWins: baseSeq },
+      streakAnchor: { date: anchorDate, streak: anchorStreak, maxStreak: anchorMax },
+    });
+  }
+
+  function recomputeDerivedStats(st) {
+    const next = JSON.parse(JSON.stringify(st));
+    next.schema = 2;
+    next.rankedDailyWins = {
+      chemle: _uniqueSortedStrings(next.rankedDailyWins && next.rankedDailyWins.chemle),
+      seqle: _uniqueSortedStrings(next.rankedDailyWins && next.rankedDailyWins.seqle),
+    };
+    next.nonDailyWinIds = _uniqueSortedStrings(next.nonDailyWinIds);
+    const nonDailyChem = next.nonDailyWinIds.filter((id) => id.startsWith("chemle:")).length;
+    const nonDailySeq = next.nonDailyWinIds.filter((id) => id.startsWith("seqle:")).length;
+
+    next.chemWins = Math.max(0, Number(next.baseline && next.baseline.chemWins) || 0) + next.rankedDailyWins.chemle.length + nonDailyChem;
+    next.seqWins = Math.max(0, Number(next.baseline && next.baseline.seqWins) || 0) + next.rankedDailyWins.seqle.length + nonDailySeq;
+
+    const latestChem = next.rankedDailyWins.chemle.length ? next.rankedDailyWins.chemle[next.rankedDailyWins.chemle.length - 1] : null;
+    const latestSeq = next.rankedDailyWins.seqle.length ? next.rankedDailyWins.seqle[next.rankedDailyWins.seqle.length - 1] : null;
+    const curLast = next.lastDailyWinUtcByGame || { chemle: null, seqle: null };
+    next.lastDailyWinUtcByGame = {
+      chemle: latestChem && (!curLast.chemle || latestChem > curLast.chemle) ? latestChem : curLast.chemle || latestChem,
+      seqle: latestSeq && (!curLast.seqle || latestSeq > curLast.seqle) ? latestSeq : curLast.seqle || latestSeq,
+    };
+
+    const anchor = next.streakAnchor || { date: null, streak: 0, maxStreak: 0 };
+    let streak = anchor.streak || 0;
+    let maxStreak = Math.max(streak, anchor.maxStreak || 0);
+    let lastDate = anchor.date || null;
+
+    const allDates = _uniqueSortedStrings([].concat(next.rankedDailyWins.chemle, next.rankedDailyWins.seqle));
+    for (let i = 0; i < allDates.length; i++) {
+      const d = allDates[i];
+      if (lastDate && d <= lastDate) continue;
+      if (lastDate && getPreviousUtcDateString(d) === lastDate) {
+        streak += 1;
+      } else {
+        streak = 1;
+      }
+      maxStreak = Math.max(maxStreak, streak);
+      lastDate = d;
     }
 
-    const prevUtc = getPreviousUtcDateString(utcDateStr);
-    if (next.lastStreakIncrementUtc === prevUtc) {
-      next.streak = (next.streak || 0) + 1;
-    } else {
-      next.streak = 1;
-    }
-    next.maxStreak = Math.max(next.maxStreak || 0, next.streak);
-    next.lastStreakIncrementUtc = utcDateStr;
+    next.streak = streak;
+    next.maxStreak = Math.max(next.maxStreak || 0, maxStreak);
+    next.lastStreakIncrementUtc = lastDate;
     return next;
+  }
+
+  function mergeStatsV2(aRaw, bRaw) {
+    const a = normalizeStatsV2(aRaw);
+    const b = normalizeStatsV2(bRaw);
+    const aAnchorDate = (a.streakAnchor && a.streakAnchor.date) || "";
+    const bAnchorDate = (b.streakAnchor && b.streakAnchor.date) || "";
+    let streakAnchor = a.streakAnchor;
+    if (bAnchorDate > aAnchorDate || (bAnchorDate === aAnchorDate && (b.streakAnchor.maxStreak || 0) > (a.streakAnchor.maxStreak || 0))) {
+      streakAnchor = b.streakAnchor;
+    }
+    return recomputeDerivedStats({
+      schema: 2,
+      chemWins: 0,
+      seqWins: 0,
+      streak: 0,
+      maxStreak: Math.max(a.maxStreak || 0, b.maxStreak || 0),
+      lastDailyWinUtcByGame: {
+        chemle: a.lastDailyWinUtcByGame.chemle && (!b.lastDailyWinUtcByGame.chemle || a.lastDailyWinUtcByGame.chemle > b.lastDailyWinUtcByGame.chemle)
+          ? a.lastDailyWinUtcByGame.chemle
+          : b.lastDailyWinUtcByGame.chemle,
+        seqle: a.lastDailyWinUtcByGame.seqle && (!b.lastDailyWinUtcByGame.seqle || a.lastDailyWinUtcByGame.seqle > b.lastDailyWinUtcByGame.seqle)
+          ? a.lastDailyWinUtcByGame.seqle
+          : b.lastDailyWinUtcByGame.seqle,
+      },
+      lastStreakIncrementUtc: null,
+      rankedDailyWins: {
+        chemle: _uniqueSortedStrings([].concat(a.rankedDailyWins.chemle, b.rankedDailyWins.chemle)),
+        seqle: _uniqueSortedStrings([].concat(a.rankedDailyWins.seqle, b.rankedDailyWins.seqle)),
+      },
+      nonDailyWinIds: _uniqueSortedStrings([].concat(a.nonDailyWinIds, b.nonDailyWinIds)),
+      baseline: {
+        chemWins: Math.max(a.baseline.chemWins || 0, b.baseline.chemWins || 0),
+        seqWins: Math.max(a.baseline.seqWins || 0, b.baseline.seqWins || 0),
+      },
+      streakAnchor,
+    });
+  }
+
+  function getDisplayStreak(statsObj, utcDateStr) {
+    const st = statsObj || {};
+    const s = Math.max(0, Number(st.streak) || 0);
+    const last = st.lastStreakIncrementUtc;
+    if (!s || !last) return 0;
+    const prev = getPreviousUtcDateString(utcDateStr);
+    if (last === utcDateStr || last === prev) return s;
+    return 0;
+  }
+
+  function evaluateDailyWinStreak(statsObj, game, utcDateStr) {
+    const next = normalizeStatsV2(statsObj);
+    if (game === "chemle" || game === "seqle") {
+      if (!next.rankedDailyWins[game].includes(utcDateStr)) {
+        next.rankedDailyWins[game].push(utcDateStr);
+      }
+    }
+    return recomputeDerivedStats(next);
+  }
+
+  function recordNonDailyWin(statsObj, game, winCreditId) {
+    const next = normalizeStatsV2(statsObj);
+    const tagged = `${game}:${winCreditId}`;
+    if (!next.nonDailyWinIds.includes(tagged)) {
+      next.nonDailyWinIds.push(tagged);
+    }
+    return recomputeDerivedStats(next);
   }
 
   function migrateV1Stats(v1) {
     const src = v1 && typeof v1 === "object" ? v1 : {};
-    return {
+    const c = Math.max(0, Number(src.chemWins) || 0);
+    const s = Math.max(0, Number(src.seqWins) || 0);
+    return normalizeStatsV2({
       schema: 2,
-      chemWins: Math.max(0, Number(src.chemWins) || 0),
-      seqWins: Math.max(0, Number(src.seqWins) || 0),
+      chemWins: c,
+      seqWins: s,
       streak: 0,
       maxStreak: 0,
       lastDailyWinUtcByGame: { chemle: null, seqle: null },
       lastStreakIncrementUtc: null,
-    };
+      rankedDailyWins: { chemle: [], seqle: [] },
+      nonDailyWinIds: [],
+      baseline: { chemWins: c, seqWins: s },
+      streakAnchor: { date: null, streak: 0, maxStreak: 0 },
+    });
   }
 
   const BioWordleEngine = {
@@ -469,7 +667,12 @@
     getAnswerPool,
     countCompatibleChemleCandidates,
     countCompatibleSeqleCandidates,
+    normalizeStatsV2,
+    recomputeDerivedStats,
+    mergeStatsV2,
+    getDisplayStreak,
     evaluateDailyWinStreak,
+    recordNonDailyWin,
     migrateV1Stats,
   };
 
@@ -489,7 +692,28 @@
   const DATA = globalScope.BIOWORDLE_DATA;
   const FEEDBACK_SPEC = DATA.feedback_spec;
   const DATASET_HASH = (DATA.metadata && DATA.metadata.dataset_version_hash) || "v02";
-  const SCHEDULE_HASH = (DATA.metadata && DATA.metadata.schedule_version_hash) || DATASET_HASH;
+  const CHEMLE_SCHEDULE_HASH =
+    (DATA.metadata && DATA.metadata.chemle_schedule_hash) ||
+    (DATA.metadata && DATA.metadata.schedule_version_hash) ||
+    DATASET_HASH;
+  const SEQLE_SCHEDULE_HASH =
+    (DATA.metadata && DATA.metadata.seqle_schedule_hash) ||
+    (DATA.metadata && DATA.metadata.schedule_version_hash) ||
+    DATASET_HASH;
+  const SCHEDULE_HASH = (DATA.metadata && DATA.metadata.schedule_version_hash) || SEQLE_SCHEDULE_HASH;
+  const LEGACY_SCHEDULE_HASHES = Array.from(
+    new Set(
+      (
+        (DATA.metadata && Array.isArray(DATA.metadata.legacy_schedule_hashes)
+          ? DATA.metadata.legacy_schedule_hashes
+          : ["9257bd168fa6", "8bb96ac156cc", "919ad8afb190"])
+      ).concat([DATASET_HASH, "919ad8afb190", "8bb96ac156cc", "9257bd168fa6"])
+    )
+  );
+
+  function getScheduleHashForGame(game) {
+    return game === "chemle" ? CHEMLE_SCHEDULE_HASH : SEQLE_SCHEDULE_HASH;
+  }
 
   const CHEM_BY_ID = {};
   DATA.chemle.forEach((m) => {
@@ -503,23 +727,28 @@
 
   const STATS_KEY_V2 = "biowordle_stats_v2";
   const STATS_KEY_V1 = "biowordle_stats_v1";
+  const PENDING_WINS_KEY_V2 = "biowordle_pending_wins_v2";
+  const ARCHIVE_KEY_V2 = "biowordle_legacy_archive_v2";
+  const STORAGE_LOCK_NAME = "biowordle_storage_lock_v2";
 
   function loadStatsV2() {
     try {
       const rawV2 = localStorage.getItem(STATS_KEY_V2);
       if (rawV2) {
         const parsed = JSON.parse(rawV2);
-        if (parsed && parsed.schema === 2) return parsed;
+        if (parsed && parsed.schema === 2) return normalizeStatsV2(parsed);
       }
       const rawV1 = localStorage.getItem(STATS_KEY_V1);
       if (rawV1) {
         const v1 = JSON.parse(rawV1);
         const migrated = migrateV1Stats(v1);
-        localStorage.setItem(STATS_KEY_V2, JSON.stringify(migrated));
+        try {
+          localStorage.setItem(STATS_KEY_V2, JSON.stringify(migrated));
+        } catch (_) {}
         return migrated;
       }
     } catch (_) {}
-    return {
+    return normalizeStatsV2({
       schema: 2,
       chemWins: 0,
       seqWins: 0,
@@ -527,47 +756,199 @@
       maxStreak: 0,
       lastDailyWinUtcByGame: { chemle: null, seqle: null },
       lastStreakIncrementUtc: null,
-    };
+    });
   }
 
   function saveStatsV2(statsObj) {
     try {
-      localStorage.setItem(STATS_KEY_V2, JSON.stringify(statsObj));
+      localStorage.setItem(STATS_KEY_V2, JSON.stringify(normalizeStatsV2(statsObj)));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function loadPendingWinsV2() {
+    try {
+      const raw = localStorage.getItem(PENDING_WINS_KEY_V2);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function savePendingWinsV2(arr) {
+    try {
+      if (!arr || arr.length === 0) {
+        localStorage.removeItem(PENDING_WINS_KEY_V2);
+      } else {
+        localStorage.setItem(PENDING_WINS_KEY_V2, JSON.stringify(arr));
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function appendPendingWinIntent(intent) {
+    const cur = loadPendingWinsV2();
+    if (!cur.some((x) => x && x.creditId === intent.creditId)) {
+      cur.push(intent);
+      savePendingWinsV2(cur);
+    }
+  }
+
+  function runWithStorageLock(syncFn) {
+    const canUseWebLocks =
+      typeof navigator !== "undefined" &&
+      navigator.locks &&
+      typeof navigator.locks.request === "function" &&
+      typeof globalScope.location !== "undefined" &&
+      globalScope.location.protocol !== "file:";
+    if (canUseWebLocks) {
+      try {
+        return navigator.locks
+          .request(STORAGE_LOCK_NAME, () => syncFn())
+          .catch(() => syncFn());
+      } catch (_) {
+        return Promise.resolve(syncFn());
+      }
+    }
+    return Promise.resolve(syncFn());
+  }
+
+  function applyWinCreditToStatsObj(baseStats, credit) {
+    if (!credit) return normalizeStatsV2(baseStats);
+    if (credit.isDaily && credit.utcDate) {
+      return evaluateDailyWinStreak(baseStats, credit.game, credit.utcDate);
+    }
+    return recordNonDailyWin(baseStats, credit.game, credit.creditId);
+  }
+
+  function reconcilePendingWinsAndDailySessions(extraStats, extraCredit) {
+    let merged = loadStatsV2();
+    if (extraStats) merged = mergeStatsV2(merged, extraStats);
+    if (extraCredit) merged = applyWinCreditToStatsObj(merged, extraCredit);
+
+    // Reconcile any interrupted wins recorded in pending_wins_v2 or won daily session keys
+    const pending = loadPendingWinsV2();
+    for (let i = 0; i < pending.length; i++) {
+      const p = pending[i];
+      if (!p || !p.game) continue;
+      merged = applyWinCreditToStatsObj(merged, p);
+      if (p.sessionKey && p.sessionPayload && !localStorage.getItem(p.sessionKey)) {
+        try {
+          localStorage.setItem(p.sessionKey, JSON.stringify(p.sessionPayload));
+        } catch (_) {}
+      }
+    }
+
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k || !k.startsWith("biowordle_daily_v2:")) continue;
+        const parts = k.split(":");
+        const game = parts[1];
+        const utcDate = parts[2];
+        const hashSuffix = parts[3];
+        if ((game !== "chemle" && game !== "seqle") || !utcDate) continue;
+        if (hashSuffix !== getScheduleHashForGame(game)) continue;
+        const raw = localStorage.getItem(k);
+        if (!raw) continue;
+        const sess = JSON.parse(raw);
+        if (sess && sess.won === true && typeof sess.targetId === "string") {
+          merged = evaluateDailyWinStreak(merged, game, utcDate);
+        }
+      }
+    } catch (_) {}
+
+    const savedOk = saveStatsV2(merged);
+    if (savedOk && pending.length > 0) {
+      savePendingWinsV2([]);
+    }
+    state.stats = merged;
+    updateScoreboardUI();
+    return merged;
+  }
+
+  function getDailyStorageKey(game, utcDate, customSeed, hashOverride) {
+    const h = hashOverride || getScheduleHashForGame(game);
+    if (customSeed) {
+      return `biowordle_seed_v2:${game}:${customSeed}:${h}`;
+    }
+    return `biowordle_daily_v2:${game}:${utcDate}:${h}`;
+  }
+
+  function isValidPersistedPayload(game, parsed) {
+    if (!parsed || typeof parsed !== "object") return false;
+    if (typeof parsed.targetId !== "string" || !Array.isArray(parsed.guesses)) return false;
+    if (game === "chemle") {
+      if (!CHEM_BY_ID[parsed.targetId]) return false;
+      return parsed.guesses.every((g) => typeof g === "string" && Boolean(CHEM_BY_ID[g]));
+    }
+    return parsed.guesses.every((g) => {
+      const s = typeof g === "string" ? g : g && g.seq;
+      return typeof s === "string" && /^[A-Z]{5}$/.test(s);
+    });
+  }
+
+  function recordLegacyArchive(archiveEntry) {
+    try {
+      const raw = localStorage.getItem(ARCHIVE_KEY_V2);
+      const list = raw ? JSON.parse(raw) : [];
+      const arr = Array.isArray(list) ? list : [];
+      if (!arr.some((x) => x && x.sourceKey === archiveEntry.sourceKey)) {
+        arr.push(archiveEntry);
+        localStorage.setItem(ARCHIVE_KEY_V2, JSON.stringify(arr));
+      }
     } catch (_) {}
   }
 
-  function getDailyStorageKey(game, utcDate, customSeed) {
-    if (customSeed) {
-      return `biowordle_seed_v2:${game}:${customSeed}:${SCHEDULE_HASH}`;
-    }
-    return `biowordle_daily_v2:${game}:${utcDate}:${SCHEDULE_HASH}`;
-  }
-
-  function getLegacyDailyStorageKey(game, utcDate, customSeed) {
-    if (customSeed) {
-      return `biowordle_seed_v2:${game}:${customSeed}:${DATASET_HASH}`;
-    }
-    return `biowordle_daily_v2:${game}:${utcDate}:${DATASET_HASH}`;
-  }
-
-  function loadPersistedDailyGame(game, utcDate, customSeed) {
+  function loadPersistedDailyGame(game, utcDate, customSeed, expectedTargetId) {
     try {
-      const raw = localStorage.getItem(getDailyStorageKey(game, utcDate, customSeed));
-      if (raw) return JSON.parse(raw);
-      if (SCHEDULE_HASH !== DATASET_HASH) {
-        const legacyRaw = localStorage.getItem(getLegacyDailyStorageKey(game, utcDate, customSeed));
-        if (legacyRaw) return JSON.parse(legacyRaw);
+      const currentHash = getScheduleHashForGame(game);
+      const currentKey = getDailyStorageKey(game, utcDate, customSeed, currentHash);
+      const raw = localStorage.getItem(currentKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (!isValidPersistedPayload(game, parsed)) {
+          return { kind: "invalid", payload: null, sourceKey: currentKey, sourceHash: currentHash };
+        }
+        if (expectedTargetId && parsed.targetId !== expectedTargetId) {
+          recordLegacyArchive({ ...parsed, game, utcDate, customSeed, sourceKey: currentKey, sourceHash: currentHash, expectedTargetId });
+          return { kind: "incompatible", payload: parsed, sourceKey: currentKey, sourceHash: currentHash };
+        }
+        return { kind: "exact", payload: parsed, sourceKey: currentKey, sourceHash: currentHash };
       }
-      return null;
+
+      for (let i = 0; i < LEGACY_SCHEDULE_HASHES.length; i++) {
+        const legHash = LEGACY_SCHEDULE_HASHES[i];
+        if (!legHash || legHash === currentHash) continue;
+        const legKey = getDailyStorageKey(game, utcDate, customSeed, legHash);
+        const legRaw = localStorage.getItem(legKey);
+        if (!legRaw) continue;
+        const parsed = JSON.parse(legRaw);
+        if (!isValidPersistedPayload(game, parsed)) continue;
+        if (expectedTargetId && parsed.targetId !== expectedTargetId) {
+          recordLegacyArchive({ ...parsed, game, utcDate, customSeed, sourceKey: legKey, sourceHash: legHash, expectedTargetId });
+          return { kind: "incompatible", payload: parsed, sourceKey: legKey, sourceHash: legHash };
+        }
+        return { kind: "compatible_legacy", payload: parsed, sourceKey: legKey, sourceHash: legHash };
+      }
+      return { kind: "none", payload: null, sourceKey: null, sourceHash: null };
     } catch (_) {
-      return null;
+      return { kind: "none", payload: null, sourceKey: null, sourceHash: null };
     }
   }
 
   function savePersistedDailyGame(game, utcDate, customSeed, payload) {
     try {
       localStorage.setItem(getDailyStorageKey(game, utcDate, customSeed), JSON.stringify(payload));
-    } catch (_) {}
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   // Parse optional ?seed=<string> or ?profile=learn from URL (P3-1)
@@ -596,6 +977,8 @@
       activeDropdownIdx: -1,
       filteredOptions: [],
       utcDate: null,
+      archivedLegacy: null,
+      conflictNotice: null,
       initialized: false,
     };
   }
@@ -611,6 +994,8 @@
       won: false,
       keyStates: {},
       utcDate: null,
+      archivedLegacy: null,
+      conflictNotice: null,
       initialized: false,
     };
   }
@@ -665,17 +1050,23 @@
   function updateScoreboardUI() {
     $("stat-chem").textContent = state.stats.chemWins || 0;
     $("stat-seq").textContent = state.stats.seqWins || 0;
-    $("stat-streak").textContent = state.stats.streak || 0;
+    $("stat-streak").textContent = getDisplayStreak(state.stats, getUtcDateString());
   }
 
-  function showUtcRolloverNotice(prevUtc, nextUtc) {
+  function showBannerNotice(htmlMsg) {
     const el = $("utc-rollover-banner");
     if (!el) return;
     el.className = "toast-banner show";
     el.innerHTML = `
-      <div>🕒 <strong>UTC Midnight Rollover:</strong> Daily date advanced from <code>${escapeHtml(prevUtc)}</code> to <code>${escapeHtml(nextUtc)}</code>. Fresh Ranked daily puzzles have been loaded.</div>
+      <div>${htmlMsg}</div>
       <button class="btn" onclick="this.closest('.toast-banner').classList.remove('show')">Dismiss</button>
     `;
+  }
+
+  function showUtcRolloverNotice(prevUtc, nextUtc) {
+    showBannerNotice(
+      `🕒 <strong>UTC Midnight Rollover:</strong> Daily date advanced from <code>${escapeHtml(prevUtc)}</code> to <code>${escapeHtml(nextUtc)}</code>. Fresh Ranked daily puzzles have been loaded.`
+    );
   }
 
   function checkAndHandleUtcRollover() {
@@ -790,13 +1181,13 @@
       sel.value = "ALL";
       sel.disabled = true;
       sel.title =
-        "Category pack filtering is disabled in Ranked Daily so the daily answer is never excluded. All 36 molecules remain searchable.";
+        `Category pack filtering is disabled in Ranked Daily so the daily answer is never excluded. All ${DATA.chemle.length} molecules remain searchable.`;
       return;
     }
 
     sel.disabled = false;
     sel.title =
-      "In Learn Mode, selecting a pack restricts the target answer pool while keeping all 36 molecules available as probing guesses.";
+      `In Learn Mode, selecting a pack restricts the target answer pool while keeping all ${DATA.chemle.length} molecules available as probing guesses.`;
     const counts = {};
     DATA.chemle.forEach((m) => {
       counts[m.Category] = (counts[m.Category] || 0) + 1;
@@ -829,6 +1220,83 @@
   // ---------------------------------------------------------------------------
   // 4. Session Initialization & Restore (P0-3, P1-2, P1-3)
   // ---------------------------------------------------------------------------
+  function hydrateRankedSessionFromSaved(game, sess, saved, target) {
+    const targetKey = game === "chemle" ? target.id : target.seq;
+    if (!saved || saved.targetId !== targetKey || !Array.isArray(saved.guesses)) return false;
+    if (game === "chemle") {
+      sess.guesses = saved.guesses.filter((gId) => Boolean(CHEM_BY_ID[gId]));
+    } else {
+      sess.keyStates = {};
+      sess.guesses = saved.guesses.map((gSeq) => {
+        const code = typeof gSeq === "string" ? gSeq : gSeq.seq;
+        const known = SEQ_BY_CODE[code];
+        const biochem = known ? known : computePeptideBiochem(code, DATA.aa_properties);
+        const evalRes = evaluateSeqleFeedbackFromSpec(
+          code,
+          target.seq,
+          DATA.aa_properties,
+          FEEDBACK_SPEC.profiles.ranked,
+          biochem,
+          target
+        );
+        const prio = { exact: 4, present: 3, class: 2, absent: 1 };
+        for (let i = 0; i < 5; i++) {
+          const aa = code[i];
+          const st = evalRes.tiles[i];
+          const cur = sess.keyStates[aa];
+          if (!cur || prio[st] > prio[cur]) sess.keyStates[aa] = st;
+        }
+        return {
+          seq: code,
+          states: evalRes.tiles,
+          biochem,
+          knownMotif: known || null,
+        };
+      });
+    }
+    sess.won = Boolean(saved.won);
+    sess.revealed = Boolean(saved.gameOver);
+    sess.hintLevelUnlocked = 0;
+    return true;
+  }
+
+  function _arraysEqualPrefix(savedGuesses, localGuessStrings) {
+    if (savedGuesses.length > localGuessStrings.length) return false;
+    for (let i = 0; i < savedGuesses.length; i++) {
+      const s = typeof savedGuesses[i] === "string" ? savedGuesses[i] : savedGuesses[i] && savedGuesses[i].seq;
+      if (s !== localGuessStrings[i]) return false;
+    }
+    return true;
+  }
+
+  function checkAndResolveSessionConflict(game, sess) {
+    if (state.profile !== "ranked" || !sess || !sess.target) return false;
+    const utcDate = sess.utcDate || getUtcDateString();
+    const targetKey = game === "chemle" ? sess.target.id : sess.target.seq;
+    const loaded = loadPersistedDailyGame(game, utcDate, state.customSeed, targetKey);
+    if (!loaded || (loaded.kind !== "exact" && loaded.kind !== "compatible_legacy")) return false;
+    const saved = loaded.payload;
+    if (!saved) return false;
+
+    const localStrings = game === "chemle" ? sess.guesses : sess.guesses.map((g) => g.seq);
+    const savedStrings = saved.guesses.map((g) => (typeof g === "string" ? g : g.seq));
+
+    if (saved.gameOver) {
+      hydrateRankedSessionFromSaved(game, sess, saved, sess.target);
+      sess.conflictNotice = "Session already completed in another tab — loaded completed result.";
+      showBannerNotice(`🔒 <strong>Session Locked:</strong> ${escapeHtml(sess.conflictNotice)}`);
+      return true;
+    }
+
+    if (savedStrings.length > localStrings.length || !_arraysEqualPrefix(savedStrings, localStrings)) {
+      hydrateRankedSessionFromSaved(game, sess, saved, sess.target);
+      sess.conflictNotice = "Synced newer moves from another tab before applying your input.";
+      showBannerNotice(`🔄 <strong>Concurrent Tab Sync:</strong> ${escapeHtml(sess.conflictNotice)}`);
+      return true;
+    }
+    return false;
+  }
+
   function ensureSessionInitialized(game, profile, forceNewRandom) {
     const sess = state.sessions[profile][game];
     if (sess.initialized && !forceNewRandom) {
@@ -838,13 +1306,14 @@
     const ansPool = getAnswerPool(DATA, game, profile, state.learnCategoryFilter);
     const guessPool = getGuessPool(DATA, game);
     const utcDate = getUtcDateString();
+    const gameSchedHash = getScheduleHashForGame(game);
 
     if (profile === "ranked") {
       const idx = selectDailyIndex(
         game,
         profile,
         utcDate,
-        SCHEDULE_HASH,
+        gameSchedHash,
         ansPool.length,
         state.customSeed
       );
@@ -858,60 +1327,45 @@
 
       sess.target = target;
       sess.guesses = [];
+      sess.maxGuesses = Number((FEEDBACK_SPEC && FEEDBACK_SPEC.profiles && FEEDBACK_SPEC.profiles.ranked && FEEDBACK_SPEC.profiles.ranked.max_guesses) || 6);
       sess.hintLevelUnlocked = 0;
       sess.revealed = false;
       sess.won = false;
       sess.utcDate = utcDate;
+      sess.archivedLegacy = null;
+      sess.conflictNotice = null;
       if (game === "seqle") {
         sess.currentInput = "";
         sess.keyStates = {};
       }
 
-      // Restore persisted daily progress if present (P1-2)
-      const saved = loadPersistedDailyGame(game, utcDate, state.customSeed);
+      // Restore persisted daily progress if target validates (P1-2 & F6)
       const targetKey = game === "chemle" ? target.id : target.seq;
-      if (saved && saved.targetId === targetKey && Array.isArray(saved.guesses)) {
-        if (game === "chemle") {
-          sess.guesses = saved.guesses.filter((gId) => Boolean(CHEM_BY_ID[gId]));
-        } else {
-          sess.guesses = saved.guesses.map((gSeq) => {
-            const code = typeof gSeq === "string" ? gSeq : gSeq.seq;
-            const known = SEQ_BY_CODE[code];
-            const biochem = known ? known : computePeptideBiochem(code, DATA.aa_properties);
-            const evalRes = evaluateSeqleFeedbackFromSpec(
-              code,
-              target.seq,
-              DATA.aa_properties,
-              FEEDBACK_SPEC.profiles.ranked,
-              biochem,
-              target
-            );
-            const prio = { exact: 4, present: 3, class: 2, absent: 1 };
-            for (let i = 0; i < 5; i++) {
-              const aa = code[i];
-              const st = evalRes.tiles[i];
-              const cur = sess.keyStates[aa];
-              if (!cur || prio[st] > prio[cur]) sess.keyStates[aa] = st;
-            }
-            return {
-              seq: code,
-              states: evalRes.tiles,
-              biochem,
-              knownMotif: known || null,
-            };
-          });
-        }
-        sess.won = Boolean(saved.won);
-        sess.revealed = Boolean(saved.gameOver);
-        sess.hintLevelUnlocked = 0;
+      const loaded = loadPersistedDailyGame(game, utcDate, state.customSeed, targetKey);
+      if (loaded.kind === "exact" || loaded.kind === "compatible_legacy") {
+        hydrateRankedSessionFromSaved(game, sess, loaded.payload, target);
+      } else if (loaded.kind === "incompatible" && loaded.payload) {
+        sess.archivedLegacy = {
+          ...loaded.payload,
+          sourceHash: loaded.sourceHash,
+          expectedTargetId: targetKey,
+        };
       }
       sess.initialized = true;
     } else {
-      // Learn Mode: pick a random puzzle from the active Learn answer pool
-      const prevKey = sess.target ? sess.target.id || sess.target.seq : null;
-      let candidates = ansPool.filter((m) => (m.id || m.seq) !== prevKey);
-      if (candidates.length === 0) candidates = ansPool;
-      const target = candidates[Math.floor(Math.random() * candidates.length)];
+      // Learn Mode: support deterministic test target hook or random pick from Learn answer pool
+      let target = null;
+      const hookMap = globalScope.__BIOWORDLE_TEST_LEARN_TARGETS__;
+      if (hookMap && typeof hookMap[game] === "string") {
+        const want = hookMap[game];
+        target = ansPool.find((m) => (m.id || m.seq) === want) || null;
+      }
+      if (!target) {
+        const prevKey = sess.target ? sess.target.id || sess.target.seq : null;
+        let candidates = ansPool.filter((m) => (m.id || m.seq) !== prevKey);
+        if (candidates.length === 0) candidates = ansPool;
+        target = candidates[Math.floor(Math.random() * candidates.length)];
+      }
 
       const inGuessPool = guessPool.some((x) => (x.id || x.seq) === (target.id || target.seq));
       if (!inGuessPool) {
@@ -920,10 +1374,13 @@
 
       sess.target = target;
       sess.guesses = [];
+      sess.maxGuesses = Number((FEEDBACK_SPEC && FEEDBACK_SPEC.profiles && FEEDBACK_SPEC.profiles.learn && FEEDBACK_SPEC.profiles.learn.max_guesses) || 8);
       sess.hintLevelUnlocked = 0;
       sess.revealed = false;
       sess.won = false;
       sess.utcDate = null;
+      sess.archivedLegacy = null;
+      sess.conflictNotice = null;
       if (game === "seqle") {
         sess.currentInput = "";
         sess.keyStates = {};
@@ -938,6 +1395,7 @@
     if (!sess || !sess.target) return;
     const utcDate = sess.utcDate || getUtcDateString();
     const targetId = game === "chemle" ? sess.target.id : sess.target.seq;
+    const gameSchedHash = getScheduleHashForGame(game);
     const serializedGuesses =
       game === "chemle" ? sess.guesses.slice() : sess.guesses.map((g) => g.seq);
     savePersistedDailyGame(game, utcDate, state.customSeed, {
@@ -947,7 +1405,7 @@
       gameOver: sess.revealed,
       hintLevelUnlocked: 0,
       utcDate,
-      scheduleHash: SCHEDULE_HASH,
+      scheduleHash: gameSchedHash,
       datasetHash: DATASET_HASH,
     });
   }
@@ -955,6 +1413,28 @@
   // ---------------------------------------------------------------------------
   // 5. CHEMLE Rendering & Gameplay (P0-1, P0-3, P1-1, P3-3)
   // ---------------------------------------------------------------------------
+  const STATIC_CHEMLE_PLACEHOLDER_SVG = `
+<svg viewBox="0 0 320 220" width="320" height="220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" data-placeholder="chemle-preunlock">
+  <g fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" opacity="0.72">
+    <polygon points="160,46 218,80 218,144 160,178 102,144 102,80"/>
+    <circle cx="160" cy="112" r="32"/>
+    <line x1="72" y1="62" x2="102" y2="80"/>
+    <line x1="218" y1="144" x2="248" y2="162"/>
+  </g>
+</svg>`.trim();
+
+  const STATIC_SEQLE_PLACEHOLDER_SVG = `
+<svg viewBox="0 0 380 210" width="380" height="210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" data-placeholder="seqle-preunlock">
+  <g fill="none" stroke="#94a3b8" stroke-width="2" opacity="0.75">
+    <line x1="36" y1="105" x2="344" y2="105" stroke-dasharray="6 4"/>
+    <rect x="44" y="83" width="44" height="44" rx="10" fill="rgba(148,163,184,0.12)"/>
+    <rect x="106" y="83" width="44" height="44" rx="10" fill="rgba(148,163,184,0.12)"/>
+    <rect x="168" y="83" width="44" height="44" rx="10" fill="rgba(148,163,184,0.12)"/>
+    <rect x="230" y="83" width="44" height="44" rx="10" fill="rgba(148,163,184,0.12)"/>
+    <rect x="292" y="83" width="44" height="44" rx="10" fill="rgba(148,163,184,0.12)"/>
+  </g>
+</svg>`.trim();
+
   function renderChemleView() {
     const ch = activeChemle();
     const t = ch.target;
@@ -966,6 +1446,9 @@
     const clueConstraint = {
       profileId: state.profile,
       level0Text: ladder[0] ? ladder[0].text : null,
+      level1Text: maxLvl >= 1 && ladder[1] ? ladder[1].text : null,
+      level2Text: maxLvl >= 2 && ladder[2] ? ladder[2].text : null,
+      level3Text: maxLvl >= 3 && ladder[3] ? ladder[3].text : null,
       superClass: maxLvl >= 1 ? t.super_class : null,
       scaffoldUnlocked:
         (state.profile === "learn" && maxLvl >= 1) ||
@@ -1068,7 +1551,7 @@
     } else {
       well.className = "chem-svg-well silhouette";
       well.innerHTML =
-        t.svg_scaffold + `<span class="well-overlay-tag">2D Silhouette (Hidden)</span>`;
+        STATIC_CHEMLE_PLACEHOLDER_SVG + `<span class="well-overlay-tag">Structure Locked Until Milestone</span>`;
       stageBadge.textContent = `Level ${maxLvl} · ${maxLvl === 0 ? "k-Anonymous" : "Clues Active"}`;
       stageBadge.className = "badge badge-indigo";
     }
@@ -1105,6 +1588,15 @@
         <div class="hint-item">
           <strong>Topology Note</strong>
           This molecule is acyclic (Rings = 0), so no cyclic Bemis–Murcko scaffold preview applies.
+        </div>`;
+    }
+
+    if (ch.archivedLegacy) {
+      const a = ch.archivedLegacy;
+      html += `
+        <div class="hint-item" data-testid="chemle-legacy-archive" style="border-color:var(--amber);">
+          <strong>Archived Legacy Result (${escapeHtml(a.sourceHash || "legacy")})</strong>
+          Prior daily record for <code>${escapeHtml(a.targetId)}</code> (${Array.isArray(a.guesses) ? a.guesses.length : 0} guesses, ${a.won ? "Solved" : a.gameOver ? "Revealed" : "In Progress"}) was archived cleanly because the current schedule selects <code>${escapeHtml(a.expectedTargetId)}</code>.
         </div>`;
     }
 
@@ -1300,6 +1792,26 @@
     container.innerHTML = cardsHtml;
   }
 
+  function _commitGameWinAndPersist(game, sess, winCredit) {
+    const isDaily = winCredit && winCredit.isDaily;
+    if (isDaily) {
+      state.stats = evaluateDailyWinStreak(state.stats, game, winCredit.utcDate);
+    } else if (winCredit) {
+      state.stats = recordNonDailyWin(state.stats, game, winCredit.creditId);
+    }
+    updateScoreboardUI();
+
+    if (winCredit) {
+      appendPendingWinIntent(winCredit);
+    }
+    if (state.profile === "ranked") {
+      persistCurrentRankedState(game);
+    }
+    state.__lastWritePromise = runWithStorageLock(() =>
+      reconcilePendingWinsAndDailySessions(state.stats, winCredit)
+    );
+  }
+
   function submitChemleGuess(molId) {
     if (state.profile === "ranked" && checkAndHandleUtcRollover()) {
       $("chemle-search-input").value = "";
@@ -1307,6 +1819,12 @@
       return;
     }
     const ch = activeChemle();
+    if (state.profile === "ranked" && checkAndResolveSessionConflict("chemle", ch)) {
+      $("chemle-search-input").value = "";
+      closeChemleDropdown();
+      renderChemleView();
+      return;
+    }
     if (ch.revealed || ch.won) return;
     if (!CHEM_BY_ID[molId]) return;
     if (ch.guesses.includes(molId)) return;
@@ -1316,18 +1834,39 @@
     if (g.inchikey === ch.target.inchikey) {
       ch.won = true;
       ch.revealed = true;
-      if (state.profile === "ranked" && !state.customSeed) {
-        state.stats = evaluateDailyWinStreak(state.stats, "chemle", ch.utcDate || getUtcDateString());
-      } else {
-        state.stats.chemWins = (state.stats.chemWins || 0) + 1;
-      }
-      saveStatsV2(state.stats);
-      updateScoreboardUI();
+      const utcDate = ch.utcDate || getUtcDateString();
+      const isDaily = state.profile === "ranked" && !state.customSeed;
+      const creditId = isDaily
+        ? `daily:chemle:${utcDate}`
+        : state.customSeed
+        ? `seed:chemle:${state.customSeed}:${ch.target.id}:${Date.now()}:${Math.random().toString(36).slice(2, 7)}`
+        : `learn:chemle:${ch.target.id}:${Date.now()}:${Math.random().toString(36).slice(2, 7)}`;
+      const dailyKey = state.profile === "ranked" ? getDailyStorageKey("chemle", utcDate, state.customSeed) : null;
+      const sessionPayload = state.profile === "ranked" ? {
+        targetId: ch.target.id,
+        guesses: ch.guesses.slice(),
+        won: true,
+        gameOver: true,
+        hintLevelUnlocked: 0,
+        utcDate,
+        scheduleHash: getScheduleHashForGame("chemle"),
+        datasetHash: DATASET_HASH,
+      } : null;
+      _commitGameWinAndPersist("chemle", ch, {
+        creditId,
+        game: "chemle",
+        isDaily,
+        utcDate,
+        sessionKey: dailyKey,
+        sessionPayload,
+      });
     } else if (ch.guesses.length >= ch.maxGuesses) {
       ch.revealed = true;
+      persistCurrentRankedState("chemle");
+    } else {
+      persistCurrentRankedState("chemle");
     }
 
-    persistCurrentRankedState("chemle");
     $("chemle-search-input").value = "";
     closeChemleDropdown();
     renderChemleView();
@@ -1465,6 +2004,8 @@
       profileId: state.profile,
       level0Text: ladder[0] ? ladder[0].text : null,
       level1Text: maxLvl >= 1 && ladder[1] ? ladder[1].text : null,
+      level2Text: maxLvl >= 2 && ladder[2] ? ladder[2].text : null,
+      level3Text: maxLvl >= 3 && ladder[3] ? ladder[3].text : null,
     };
 
     syncHintButtonUI();
@@ -1681,8 +2222,8 @@
     } else {
       well.className = "chem-svg-well silhouette";
       well.innerHTML =
-        t.svg_full +
-        `<span class="well-overlay-tag">Pentapeptide 2D Backbone (Hidden)</span>`;
+        STATIC_SEQLE_PLACEHOLDER_SVG +
+        `<span class="well-overlay-tag">Pentapeptide Structure Locked</span>`;
       stageBadge.textContent = `Level ${maxLvl} · ${maxLvl === 0 ? "k-Anonymous" : "Clues Active"}`;
       stageBadge.className = "badge badge-indigo";
     }
@@ -1713,16 +2254,34 @@
       }
     }
 
+    if (sq.archivedLegacy) {
+      const a = sq.archivedLegacy;
+      html += `
+        <div class="hint-item" data-testid="seqle-legacy-archive" style="border-color:var(--amber);">
+          <strong>Archived Legacy Result (${escapeHtml(a.sourceHash || "legacy")})</strong>
+          Prior daily record for <code>${escapeHtml(a.targetId)}</code> (${Array.isArray(a.guesses) ? a.guesses.length : 0} guesses, ${a.won ? "Solved" : a.gameOver ? "Revealed" : "In Progress"}) was archived cleanly because the current schedule selects <code>${escapeHtml(a.expectedTargetId)}</code>.
+        </div>`;
+    }
+
     hintsList.innerHTML = html;
 
     if (sq.revealed) {
       fullProps.style.display = "block";
+      const prov = t.reference_provenance || {};
+      const provStatus = t.provenance_status || prov.status || "verified_uniprot";
       const kindBadge =
         t.kind === "exact"
           ? `<span class="badge badge-emerald">Exact 5-Mer Motif</span>`
           : t.kind === "fragment"
           ? `<span class="badge badge-cyan">5-Mer Window of Longer Motif</span>`
           : `<span class="badge badge-amber">Pedagogical Abstraction (Learn-Only)</span>`;
+
+      const statusBadge =
+        provStatus === "consensus_exemplar"
+          ? `<span class="badge badge-amber">Consensus exemplar</span><span class="badge badge-indigo">Teaching Sequence</span>`
+          : provStatus === "abstraction"
+          ? `<span class="badge badge-amber">Teaching Abstraction (Learn-Only)</span>`
+          : `<span class="badge badge-emerald">Verified UniProt Instance</span>`;
 
       const termLabel =
         t.terminal === "C"
@@ -1731,16 +2290,50 @@
           ? "Extreme N-terminus (free α-NH3+ required)"
           : "Internal / Non-terminal";
 
+      const sequenceLineHtml =
+        provStatus === "verified_uniprot"
+          ? `<b>Parent Sequence Window:</b> <code>${escapeHtml(t.parent_sequence)}</code> (offset ${t.window_offset}, ${termLabel})`
+          : provStatus === "consensus_exemplar"
+          ? `<b>Teaching Sequence:</b> <code>${escapeHtml(t.seq)}</code> (${termLabel}; synthetic consensus example, not a native protein flank)`
+          : `<b>Teaching Sequence:</b> <code>${escapeHtml(t.seq)}</code> (compressed Learn-only abstraction)`;
+
+      const citationsList = Array.isArray(t.citations)
+        ? t.citations
+        : Array.isArray(prov.citations)
+        ? prov.citations
+        : [];
+      const citationLines = citationsList.map((cit) => {
+        if (cit.role === "native_sequence") {
+          const mr = cit.motif_residue_range || [];
+          return `Native sequence: <code>UniProt:${escapeHtml(cit.id)}</code> (res ${mr[0]}–${mr[1]})`;
+        }
+        if (cit.role === "exact_structure") {
+          const rr = cit.residue_range || [];
+          const chStr = Array.isArray(cit.chains) ? cit.chains.join(",") : "";
+          return `Exact structure: <code>PDB:${escapeHtml(cit.id)}</code> entity ${escapeHtml(cit.entity_id)} (chains ${escapeHtml(chStr)}, entity res ${rr[0]}–${rr[1]})`;
+        }
+        if (cit.role === "motif_family_context") {
+          const varStr = cit.variant_sequence ? ` · natural variant <code>${escapeHtml(cit.variant_sequence)}</code>` : "";
+          const entStr = cit.entity_id ? ` entity ${escapeHtml(cit.entity_id)}` : "";
+          return `Context-only evidence: <code>${escapeHtml(cit.source)}:${escapeHtml(cit.id)}</code>${entStr}${varStr}`;
+        }
+        return `Motif definition: <code>${escapeHtml(cit.source)}:${escapeHtml(cit.id)}</code>`;
+      });
+
+      const functionalRule = t.functional_rule || prov.functional_rule || t.consensus;
+
       fullProps.innerHTML = `
         <div class="hint-item" style="margin-top:8px;">
-          <strong>Motif Representation &amp; Structural Context (P0-4)</strong>
+          <strong>Motif Representation &amp; Provenance Evidence</strong>
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0;">
+            ${statusBadge}
             ${kindBadge}
-            <span class="badge badge-indigo">Consensus: ${escapeHtml(t.consensus)}</span>
+            <span class="badge badge-indigo">Functional Rule: ${escapeHtml(functionalRule)}</span>
           </div>
           <div>${escapeHtml(t.context_requirement)}</div>
           <div style="margin-top:4px;font-size:11px;color:var(--muted-foreground);">
-            <b>Parent Sequence Window:</b> <code>${escapeHtml(t.parent_sequence)}</code> (offset ${t.window_offset}, ${termLabel})<br/>
+            ${sequenceLineHtml}<br/>
+            <b>Typed Citations:</b> ${citationLines.length ? citationLines.join(" · ") : escapeHtml(t.exemplar_source)}<br/>
             <b>Exemplar Reference:</b> ${escapeHtml(t.exemplar_source)}
           </div>
         </div>
@@ -1783,6 +2376,10 @@
   function submitSeqleGuess() {
     if (state.profile === "ranked" && checkAndHandleUtcRollover()) return;
     const sq = activeSeqle();
+    if (state.profile === "ranked" && checkAndResolveSessionConflict("seqle", sq)) {
+      renderSeqleView();
+      return;
+    }
     if (sq.revealed || sq.won) return;
     if (sq.currentInput.length !== 5) return;
 
@@ -1830,18 +2427,39 @@
     if (guessSeq === sq.target.seq) {
       sq.won = true;
       sq.revealed = true;
-      if (state.profile === "ranked" && !state.customSeed) {
-        state.stats = evaluateDailyWinStreak(state.stats, "seqle", sq.utcDate || getUtcDateString());
-      } else {
-        state.stats.seqWins = (state.stats.seqWins || 0) + 1;
-      }
-      saveStatsV2(state.stats);
-      updateScoreboardUI();
+      const utcDate = sq.utcDate || getUtcDateString();
+      const isDaily = state.profile === "ranked" && !state.customSeed;
+      const creditId = isDaily
+        ? `daily:seqle:${utcDate}`
+        : state.customSeed
+        ? `seed:seqle:${state.customSeed}:${sq.target.seq}:${Date.now()}:${Math.random().toString(36).slice(2, 7)}`
+        : `learn:seqle:${sq.target.seq}:${Date.now()}:${Math.random().toString(36).slice(2, 7)}`;
+      const dailyKey = state.profile === "ranked" ? getDailyStorageKey("seqle", utcDate, state.customSeed) : null;
+      const sessionPayload = state.profile === "ranked" ? {
+        targetId: sq.target.seq,
+        guesses: sq.guesses.map((g) => g.seq),
+        won: true,
+        gameOver: true,
+        hintLevelUnlocked: 0,
+        utcDate,
+        scheduleHash: getScheduleHashForGame("seqle"),
+        datasetHash: DATASET_HASH,
+      } : null;
+      _commitGameWinAndPersist("seqle", sq, {
+        creditId,
+        game: "seqle",
+        isDaily,
+        utcDate,
+        sessionKey: dailyKey,
+        sessionPayload,
+      });
     } else if (sq.guesses.length >= sq.maxGuesses) {
       sq.revealed = true;
+      persistCurrentRankedState("seqle");
+    } else {
+      persistCurrentRankedState("seqle");
     }
 
-    persistCurrentRankedState("seqle");
     renderSeqleView();
   }
 
@@ -1946,9 +2564,32 @@
   }
 
   function boot() {
-    updateScoreboardUI();
+    state.__lastWritePromise = runWithStorageLock(() => reconcilePendingWinsAndDailySessions());
     updateUtcCountdownUI();
     setInterval(updateUtcCountdownUI, 1000);
+
+    globalScope.addEventListener("storage", (e) => {
+      if (!e || !e.key || e.key === STATS_KEY_V2 || e.key === PENDING_WINS_KEY_V2) {
+        state.stats = mergeStatsV2(state.stats, loadStatsV2());
+        updateScoreboardUI();
+      }
+      if (!e || !e.key || e.key.startsWith("biowordle_daily_v2:") || e.key.startsWith("biowordle_seed_v2:")) {
+        ["chemle", "seqle"].forEach((g) => {
+          const rSess = state.sessions.ranked[g];
+          if (!rSess || !rSess.target) return;
+          const utcDate = rSess.utcDate || getUtcDateString();
+          const tKey = g === "chemle" ? rSess.target.id : rSess.target.seq;
+          const loaded = loadPersistedDailyGame(g, utcDate, state.customSeed, tKey);
+          if (loaded && (loaded.kind === "exact" || loaded.kind === "compatible_legacy") && loaded.payload) {
+            if (loaded.payload.gameOver && !rSess.revealed) {
+              hydrateRankedSessionFromSaved(g, rSess, loaded.payload, rSess.target);
+            }
+          }
+        });
+        if (state.mode === "chemle") renderChemleView();
+        else renderSeqleView();
+      }
+    });
 
     if (DATA.metadata && $("app-meta-subtitle")) {
       $("app-meta-subtitle").textContent = `RDKit ${DATA.metadata.rdkit_version} · v${DATA.metadata.schema_version} · DB #${DATA.metadata.dataset_version_hash.slice(0, 8)} · ${DATA.metadata.chemle_count} Mols · ${DATA.metadata.seqle_ranked_count} Ranked / ${DATA.metadata.seqle_count} Learn Motifs`;
@@ -2010,11 +2651,21 @@
       if (state.profile === "ranked" && checkAndHandleUtcRollover()) return;
       if (state.mode === "chemle") {
         const ch = activeChemle();
+        if (state.profile === "ranked" && checkAndResolveSessionConflict("chemle", ch)) {
+          renderChemleView();
+          return;
+        }
+        if (ch.revealed || ch.won) return;
         ch.revealed = true;
         persistCurrentRankedState("chemle");
         renderChemleView();
       } else {
         const sq = activeSeqle();
+        if (state.profile === "ranked" && checkAndResolveSessionConflict("seqle", sq)) {
+          renderSeqleView();
+          return;
+        }
+        if (sq.revealed || sq.won) return;
         sq.revealed = true;
         persistCurrentRankedState("seqle");
         renderSeqleView();

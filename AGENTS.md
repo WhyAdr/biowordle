@@ -1,11 +1,12 @@
-# BioWordle UI & Browser Testing
+# BioWordle
 
-## Subagent Delegation
-Delegate browser UI, click-flow, persistence, and E2E checks to `invoke_subagent` (`TypeName: "self"`, `Role: "UI Test Runner"`), which drives headless Microsoft Edge via Antigravity's bundled `playwright-core` without requiring the `chrome-devtools` plugin.
-- **Done criteria**: run the script, verify assertions pass, save any screenshots under `tests/screenshots/` (gitignored), and return a concise pass/fail summary.
+Interactive chemical (`Chemle`) and peptide motif (`Seqle`) deduction workspace with reproducible RDKit/UniProt compiler, cross-language parity tests, and Playwright Chromium E2E checks.
 
-## Headless Edge + `playwright-core`
-- **Module**: `createRequire(import.meta.url)(path.join(process.env.LOCALAPPDATA, 'Programs/Antigravity IDE/resources/app/node_modules/playwright-core'))` (no `npm i playwright` needed).
-- **Launch**: `chromium.launch({ channel: 'msedge', headless: true, args: ['--no-sandbox', '--disable-gpu'] })` inside `try / finally { await browser.close(); }`.
-- **Sandbox**: `run_command` launching `msedge.exe` requires `BypassSandbox: true` (Windows `--remote-debugging-pipe` cannot attach across the terminal sandbox).
-- **Template**: run `node tests/test_playwright_e2e.mjs` (`BypassSandbox: true`).
+## Verification Commands
+- **Python compiler & deterministic data generation**: `.\biowordle\.venv\Scripts\python.exe .\biowordle\build_puzzles.py` (normalizes tracked outputs to `LF`)
+- **Python audit & unit tests**: `.\biowordle\.venv\Scripts\python.exe -B -m unittest discover -v -s biowordle -p "test_*.py"`
+- **Solver difficulty calibration**: `.\biowordle\.venv\Scripts\python.exe .\biowordle\tools\solver_bot.py`
+- **Online UniProt / PDB provenance check**: `.\biowordle\.venv\Scripts\python.exe .\biowordle\tools\verify_provenance_online.py` (`BypassSandbox: true`)
+- **Phase 3 Seqle prototype benchmark**: `.\biowordle\.venv\Scripts\python.exe .\biowordle\tools\seqle_prototype.py`
+- **Node golden vectors & stats ledger parity**: `node biowordle/tests/verify_golden_and_dom.mjs`
+- **Portable Playwright Chromium E2E (`127.0.0.1` HTTP + `file://` standalone)**: `Push-Location biowordle; npm.cmd run test:e2e; Pop-Location` (`BypassSandbox: true` on Windows due to loopback/Chromium isolation)

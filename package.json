@@ -1,0 +1,15 @@
+{
+  "name": "biowordle",
+  "version": "0.2.2",
+  "private": true,
+  "description": "BioWordle Chemle & Seqle deduction suite",
+  "scripts": {
+    "pw:install": "playwright install chromium",
+    "pw:install:ci": "playwright install --with-deps chromium",
+    "test:e2e": "playwright test",
+    "test:golden": "node tests/verify_golden_and_dom.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.57.0"
+  }
+}

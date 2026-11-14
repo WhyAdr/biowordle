@@ -22,12 +22,30 @@ if str(ROOT_DIR) not in sys.path:
 from chem_engine import (  # noqa: E402
     assert_seqle_solver_gate,
     assert_solver_gate,
+    generate_legal_seqle_probes,
     run_chemle_greedy_solver,
     run_seqle_greedy_solver,
 )
 
 
-def run_all_gates(puzzles_path: Path, spec_path: Path) -> Dict[str, Any]:
+def _format_solver_summary(label: str, stats: Dict[str, Any]) -> str:
+    mean_s = f"{stats['mean']:.2f}" if stats.get("mean") is not None else "n/a"
+    med_s = f"{stats['median']:.1f}" if stats.get("median") is not None else "n/a"
+    return (
+        f"[{label}] "
+        f"targets={stats['target_count']} solved={stats['solved_count']} unsolved={stats['unsolved_count']} "
+        f"cap={stats['mode_cap']} ({stats['pct_solved_by_cap']:.1f}% solved) "
+        f"mean={mean_s} median={med_s} p95={stats['p95']} max={stats['max']} "
+        f"<=2-guess={stats['pct_solved_le2']:.2f}% <=6-guess={stats['pct_solved_le6']:.1f}% "
+        f"<=8-guess={stats['pct_solved_le8']:.1f}% dist={stats['distribution']}"
+    )
+
+
+def run_all_gates(
+    puzzles_path: Path,
+    spec_path: Path,
+    include_legal_probe_sample: bool = True,
+) -> Dict[str, Any]:
     data = json.loads(puzzles_path.read_text(encoding="utf-8"))
     spec = json.loads(spec_path.read_text(encoding="utf-8"))
 
@@ -36,7 +54,7 @@ def run_all_gates(puzzles_path: Path, spec_path: Path) -> Dict[str, Any]:
     seqle = data["seqle"]
     aa_props = data["aa_properties"]
 
-    report: Dict[str, Any] = {"chemle": {}, "seqle": {}}
+    report: Dict[str, Any] = {"chemle": {}, "seqle": {}, "seqle_legal_probe": {}}
 
     for profile_name, profile_spec in spec["profiles"].items():
         stats = run_chemle_greedy_solver(
@@ -45,14 +63,16 @@ def run_all_gates(puzzles_path: Path, spec_path: Path) -> Dict[str, Any]:
         assert_solver_gate(stats, profile_spec["solver_gate"], profile_name)
         report["chemle"][profile_name] = stats
         print(
-            f"[Solver-Bot · Chemle · {profile_name.upper():6s}] "
-            f"mean={stats['mean']:.2f}  median={stats['median']:.1f}  "
-            f"p95={stats['p95']}  max={stats['max']}  "
-            f"<=2-guess={stats['pct_solved_le2']:.2f}%  "
-            f"<=6-guess={stats['pct_solved_le6']:.1f}%  "
-            f"min_opening_exp_rem={stats['min_opening_expected_remaining']:.2f}  "
-            f"dist={stats['distribution']}"
+            _format_solver_summary(f"Solver-Bot · Chemle · {profile_name.upper():6s}", stats)
+            + f"  whole_pool_min_exp_rem={stats['min_opening_expected_remaining']:.2f}"
         )
+
+    catalog_seqs = [r["seq"] for r in seqle]
+    legal_probes = (
+        sorted(set(catalog_seqs) | set(generate_legal_seqle_probes(aa_props, seed=20261114, count=10000)))
+        if include_legal_probe_sample
+        else catalog_seqs
+    )
 
     for profile_name, profile_spec in spec["profiles"].items():
         seq_stats = run_seqle_greedy_solver(
@@ -61,15 +81,56 @@ def run_all_gates(puzzles_path: Path, spec_path: Path) -> Dict[str, Any]:
         assert_seqle_solver_gate(seq_stats, profile_spec["seqle_solver_gate"], profile_name)
         report["seqle"][profile_name] = seq_stats
         print(
-            f"[Solver-Bot · Seqle  · {profile_name.upper():6s}] "
-            f"eligible={seq_stats['eligible_count']}  "
-            f"mean={seq_stats['mean']:.2f}  median={seq_stats['median']:.1f}  max={seq_stats['max']}  "
-            f"<=2-guess={seq_stats['pct_solved_le2']:.2f}%  "
-            f"yigsr_distinct={seq_stats['yigsr_distinct_signatures']}  "
-            f"max_probe_distinct={seq_stats['max_single_probe_distinct_targets']}  "
-            f"min_opening_exp_rem={seq_stats['min_opening_expected_remaining']:.2f}  "
-            f"dist={seq_stats['distribution']}"
+            _format_solver_summary(
+                f"Solver-Bot · Seqle · {profile_name.upper():6s} · {seq_stats['search_method']}",
+                seq_stats,
+            )
+            + f"  yigsr_distinct={seq_stats['yigsr_distinct_signatures']}"
+            + f"  max_probe_distinct={seq_stats['max_single_probe_distinct_targets']}"
+            + f"  whole_pool_min_exp_rem={seq_stats['min_opening_expected_remaining']:.2f}"
         )
+        for og in seq_stats["opening_group_metrics"]:
+            print(
+                f"    OpeningGroup[{og['group_size']} targets | {og['probe_count']} probes | {og['group_label']}] -> "
+                f"best_probe={og['best_probe']} exp_surv={og['best_expected_survivors']:.3f} "
+                f"singletons={og['singleton_count']}/{og['group_size']} ({og['singleton_coverage_pct']:.1f}%) "
+                f"2-step_P={og['two_step_success_prob']:.3f}"
+            )
+
+        if include_legal_probe_sample:
+            lp_stats = run_seqle_greedy_solver(
+                seqle,
+                aa_props,
+                profile_spec,
+                profile_id=profile_name,
+                condition_on_clues=True,
+                probe_seqs=legal_probes,
+                strategy="greedy_entropy",
+                strategy_label="greedy_entropy_sampled_upper_bound_seed20261114",
+            )
+            lp_two_step = run_seqle_greedy_solver(
+                seqle,
+                aa_props,
+                profile_spec,
+                profile_id=profile_name,
+                condition_on_clues=True,
+                probe_seqs=legal_probes,
+                strategy="two_step",
+                strategy_label="two_step_sampled_upper_bound_seed20261114",
+            )
+            report["seqle_legal_probe"][profile_name] = {
+                "greedy_entropy": lp_stats,
+                "two_step": lp_two_step,
+            }
+            print(_format_solver_summary(f"LegalProbe · Seqle · {profile_name.upper():6s} · {lp_stats['search_method']}", lp_stats))
+            print(_format_solver_summary(f"LegalProbe · Seqle · {profile_name.upper():6s} · {lp_two_step['search_method']}", lp_two_step))
+            for og in lp_stats["opening_group_metrics"]:
+                print(
+                    f"    OpeningGroup-LegalProbe[{og['group_size']} targets | {og['probe_count']} probes | {og['group_label']}] -> "
+                    f"best_probe={og['best_probe']} exp_surv={og['best_expected_survivors']:.3f} "
+                    f"singletons={og['singleton_count']}/{og['group_size']} ({og['singleton_coverage_pct']:.1f}%) "
+                    f"2-step_P={og['two_step_success_prob']:.3f}"
+                )
 
     return report
 

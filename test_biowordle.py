@@ -52,7 +52,7 @@ class TestBioWordleAudit(unittest.TestCase):
                 src = f.read()
             self.assertNotIn(".gemini", src, f"{fname} must not reference external .gemini paths")
             self.assertNotIn("skill_paths", src, f"{fname} must not import external skill_paths")
-        self.assertEqual(self.data["metadata"]["schema_version"], "0.2.0")
+        self.assertEqual(self.data["metadata"]["schema_version"], "0.2.2")
 
     def test_02_molecular_identity_stereochem_and_acs1996_svg(self) -> None:
         """Verify unique IDs, InChIKeys, canonical SMILES, preserved stereocenters, and normalized SVG hashes."""
@@ -434,6 +434,218 @@ class TestBioWordleAudit(unittest.TestCase):
             f"Node golden/DOM suite failed:\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}",
         )
         self.assertIn("2592 Chemle vectors + 1800 Seqle vectors", proc.stdout)
+
+
+    def test_12_p0_5_provenance_registry_and_offline_fixtures(self):
+        """Verify 1:1 registry completeness, typed citation roles, COPI/N-glc validators, and offline negative fixtures."""
+        import copy
+        from chem_engine import (
+            SEQLE_REFERENCE_REGISTRY,
+            validate_copi_terminal_motif,
+            validate_nglycosylation_sequon,
+            validate_seqle_motif_record,
+            validate_seqle_registry_completeness,
+        )
+
+        seqle_records = self.data["seqle"]
+        validate_seqle_registry_completeness(seqle_records)
+
+        # Retired KKMPQ must not be in live pool; verified KEKSD, INFEK (260-264), DSGLD (9T9W), PPPVP (1GBR context-only) must exist
+        by_seq = {r["seq"]: r for r in seqle_records}
+        self.assertNotIn("KKMPQ", by_seq)
+        self.assertIn("KEKSD", by_seq)
+        self.assertEqual(by_seq["INFEK"]["window_offset"], 2)
+        self.assertEqual(by_seq["INFEK"]["citations"][0]["motif_residue_range"], [260, 264])
+        dsgld_cits = by_seq["DSGLD"]["citations"]
+        self.assertTrue(any(c.get("id") == "9T9W" and c.get("entity_id") == "2" for c in dsgld_cits))
+        self.assertFalse(any(c.get("id") == "1P22" for c in dsgld_cits))
+        pppvp_cits = by_seq["PPPVP"]["citations"]
+        self.assertTrue(any(c.get("id") == "1GBR" and c.get("role") == "motif_family_context" for c in pppvp_cits))
+
+        # 1. Missing registry key / stale extra registry key
+        with self.assertRaises(ValueError):
+            validate_seqle_registry_completeness(seqle_records[:-1])
+        bad_rec = copy.deepcopy(seqle_records[0])
+        bad_rec["seq"] = "ZZZZZ"
+        with self.assertRaises(ValueError):
+            validate_seqle_motif_record(bad_rec, self.data["aa_properties"], enforce_reference_registry=True)
+
+        extra_reg = dict(SEQLE_REFERENCE_REGISTRY)
+        extra_reg["ZZZZZ"] = copy.deepcopy(SEQLE_REFERENCE_REGISTRY["CAACH"])
+        with self.assertRaises(ValueError):
+            validate_seqle_registry_completeness(seqle_records, registry=extra_reg)
+
+        # 2. Unknown provenance status, wrong isoform, off-by-one residue coordinates, copied flanks
+        aa_props = self.data["aa_properties"]
+        for mutator in [
+            lambda r: r.__setitem__("provenance_status", "invented_status"),
+            lambda r: r["citations"][0].__setitem__("isoform", "Q99999-2"),
+            lambda r: r["citations"][0].__setitem__("motif_residue_range", [999, 1003]),
+            lambda r: r.__setitem__("parent_sequence", "AAAAAAAAAAAAA"),
+        ]:
+            mut = copy.deepcopy(by_seq["CAACH"])
+            mutator(mut)
+            with self.assertRaises(ValueError):
+                validate_seqle_motif_record(mut, aa_props, enforce_reference_registry=True)
+
+        # 3. 1GBR cannot masquerade as exact_structure on PPPVP, nor wrong UniProt on DSGLD
+        bad_dsgld = copy.deepcopy(by_seq["DSGLD"])
+        bad_dsgld["citations"][0]["id"] = "WRONG_UNIPROT"
+        with self.assertRaises(ValueError):
+            validate_seqle_motif_record(bad_dsgld, aa_props, enforce_reference_registry=True)
+
+        # 4. COPI C-terminal and N-glycosylation validators
+        validate_copi_terminal_motif("KEKSD", "C")
+        validate_copi_terminal_motif("AKKDA", "C")
+        for invalid_copi, term in [("KKMPQ", "C"), ("KEKSD", "none"), ("AALVS", "C")]:
+            with self.assertRaises(ValueError):
+                validate_copi_terminal_motif(invalid_copi, term)
+
+        validate_nglycosylation_sequon("NLTGY", "N-[^P]-[ST]")
+        with self.assertRaises(ValueError):
+            validate_nglycosylation_sequon("NPTGY", "N-[^P]-[ST]")
+        with self.assertRaises(ValueError):
+            validate_nglycosylation_sequon("NLAGY", "N-[^P]-[ST]")
+
+    def test_13_p3_solver_separation_clue_levels_and_unsolved_bucket(self):
+        """Verify legal-probe upper bound, opening groups, Level 2/3 clue conditioning, and explicit unsolved bucket."""
+        import copy
+        from chem_engine import (
+            compute_peptide_biochem,
+            generate_legal_seqle_probes,
+            run_seqle_greedy_solver,
+        )
+
+        import json
+        from pathlib import Path
+
+        aa_props = self.data["aa_properties"]
+        ranked_spec = json.loads((Path(__file__).resolve().parent / "data" / "feedback_spec.json").read_text(encoding="utf-8"))["profiles"]["ranked"]
+        seqle_records = self.data["seqle"]
+        ranked_targets = [r for r in seqle_records if "ranked" in r.get("game_eligibility", [])]
+
+        # Confirm exact Ranked solver distribution & legal-probe opening splits
+        cat_stats = run_seqle_greedy_solver(
+            seqle_records, aa_props, ranked_spec, profile_id="ranked", condition_on_clues=True
+        )
+        self.assertEqual(cat_stats["target_count"], 28)
+        self.assertEqual(cat_stats["unsolved_count"], 0)
+        self.assertIn("whole_pool_opening_metrics", cat_stats)
+        self.assertEqual(len(cat_stats["opening_group_metrics"]), 3)
+
+        probes = sorted(set(r["seq"] for r in seqle_records) | set(generate_legal_seqle_probes(aa_props, seed=20261114, count=10000)))
+        legal_greedy = run_seqle_greedy_solver(
+            seqle_records,
+            aa_props,
+            ranked_spec,
+            profile_id="ranked",
+            condition_on_clues=True,
+            answer_records=ranked_targets,
+            probe_seqs=probes,
+            strategy="greedy_entropy",
+            include_unconditioned=False,
+        )
+        self.assertEqual(legal_greedy["pct_solved_le2"], 100.0)
+        self.assertTrue(all(g["singleton_count"] == g["group_size"] for g in legal_greedy["opening_group_metrics"]))
+
+        # Synthetic Level 2 & Level 3 clue unlocking fixture (all 8 targets give identical tile feedback CCCCA to wrong probes)
+        def mk_target(seq, fam, ctx, rule):
+            rec = copy.deepcopy(ranked_targets[0])
+            rec["seq"] = seq
+            rec["game_eligibility"] = ["ranked", "learn"]
+            rec.update(compute_peptide_biochem(seq, aa_props))
+            rec["clue_ladder"] = {
+                "ranked": [
+                    {"level": 0, "after_guesses": 0, "text": "Charge Band (pH 7.4): Near-Neutral"},
+                    {"level": 1, "after_guesses": 2, "text": fam},
+                    {"level": 2, "after_guesses": 4, "text": ctx},
+                    {"level": 3, "after_guesses": 5, "text": rule},
+                ]
+            }
+            return rec
+
+        synth_spec = {
+            **ranked_spec,
+            "max_guesses": 6,
+            "show_biochem_deltas": False,
+            "show_positional_class_match": False,
+        }
+        synth = [
+            mk_target("AAAAC", "FamA", "Ctx1", "Rule1"),
+            mk_target("AAAAD", "FamA", "Ctx1", "Rule2"),
+            mk_target("AAAAE", "FamA", "Ctx2", "Rule1"),
+            mk_target("AAAAF", "FamA", "Ctx2", "Rule2"),
+            mk_target("AAAAG", "FamB", "Ctx1", "Rule1"),
+            mk_target("AAAAH", "FamB", "Ctx1", "Rule2"),
+            mk_target("AAAAI", "FamB", "Ctx2", "Rule1"),
+            mk_target("AAAAK", "FamB", "Ctx2", "Rule2"),
+        ]
+        # With max_steps=1, 7 targets fail to solve -> explicit unsolved bucket without omitting them from target_count!
+        capped = run_seqle_greedy_solver(
+            synth,
+            aa_props,
+            synth_spec,
+            profile_id="ranked",
+            condition_on_clues=True,
+            answer_records=synth,
+            probe_seqs=[r["seq"] for r in synth],
+            max_steps=1,
+            include_unconditioned=False,
+        )
+        self.assertEqual(capped["target_count"], 8)
+        self.assertEqual(capped["solved_count"], 1)
+        self.assertEqual(capped["unsolved_count"], 7)
+        self.assertEqual(capped["solved_count"] + capped["unsolved_count"], capped["target_count"])
+
+        # Confirm Level 2 (guess 4) & Level 3 (guess 5) clues solve all 8 within 6 guesses while unconditioned leaves unsolved=2
+        cond_res = run_seqle_greedy_solver(
+            synth,
+            aa_props,
+            synth_spec,
+            profile_id="ranked",
+            condition_on_clues=True,
+            answer_records=synth,
+            probe_seqs=[r["seq"] for r in synth],
+            max_steps=6,
+            include_unconditioned=True,
+        )
+        self.assertEqual(cond_res["unsolved_count"], 0)
+        self.assertEqual(cond_res["pct_solved_by_cap"], 100.0)
+        self.assertLess(cond_res["unconditioned_summary"]["pct_solved_by_cap"], 100.0)
+        self.assertGreater(cond_res["unconditioned_summary"]["max"], 6)
+
+    def test_14_p4_per_game_schedule_hash_isolation(self):
+        """Verify Chemle & Seqle daily schedules are isolated across provenance/Learn/opposite-game edits."""
+        import copy
+        from build_puzzles import (
+            compute_chemle_schedule_hash,
+            compute_schedule_version_hash,
+            compute_seqle_schedule_hash,
+        )
+
+        chemle = copy.deepcopy(self.data["chemle"])
+        seqle = copy.deepcopy(self.data["seqle"])
+        self.assertEqual(compute_chemle_schedule_hash(chemle), "9257bd168fa6")
+        base_seqle_h = compute_seqle_schedule_hash(seqle)
+
+        # Adding/changing Learn-only text or provenance on Chemle must NOT rotate Chemle Ranked schedule
+        chemle_learn_edit = copy.deepcopy(chemle)
+        chemle_learn_edit[0]["hint_summary"] = "Updated educational summary"
+        chemle_learn_edit[0]["clue_ladder"]["learn"][0]["text"] = "Edited learn text"
+        self.assertEqual(compute_chemle_schedule_hash(chemle_learn_edit), "9257bd168fa6")
+
+        # Rotating a Ranked Seqle target rotates seqle_schedule_hash & combined schedule_version_hash, NOT chemle
+        seqle_edit = copy.deepcopy(seqle)
+        for r in seqle_edit:
+            if "ranked" in r.get("game_eligibility", []):
+                r["seq"] = "KKKKK"
+                break
+        self.assertEqual(compute_chemle_schedule_hash(chemle), "9257bd168fa6")
+        self.assertNotEqual(compute_seqle_schedule_hash(seqle_edit), base_seqle_h)
+        self.assertNotEqual(
+            compute_schedule_version_hash(chemle, seqle_edit),
+            compute_schedule_version_hash(chemle, seqle),
+        )
 
 
 if __name__ == "__main__":

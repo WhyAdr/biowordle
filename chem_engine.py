@@ -10,6 +10,7 @@ import hashlib
 import itertools
 import math
 import os
+import random
 import re
 import statistics
 import sys
@@ -450,6 +451,14 @@ def evaluate_chemle_feedback_from_spec(
     }
 
 
+def _ladder_clue_text(record: Dict[str, Any], profile_id: str, level: int) -> Optional[str]:
+    ladder = (record.get("clue_ladder") or {}).get(profile_id) or []
+    for entry in ladder:
+        if entry.get("level") == level:
+            return entry.get("text")
+    return None
+
+
 def _solve_chemle_pool(
     ids: List[str],
     by_id: Dict[str, Dict[str, Any]],
@@ -457,10 +466,12 @@ def _solve_chemle_pool(
     profile_spec: Dict[str, Any],
     profile_id: str,
     condition_on_clues: bool,
-) -> Dict[str, int]:
-    """Runs greedy max-entropy search over Chemle IDs with optional clue conditioning."""
+    max_steps: Optional[int] = None,
+) -> Dict[str, Tuple[int, bool]]:
+    """Runs greedy max-entropy search over Chemle IDs with full clue-ladder conditioning."""
     sc_after = int(profile_spec.get("super_class_unlock_after_guesses", 4 if profile_id == "ranked" else 1))
     scaf_after = int(profile_spec.get("scaffold_unlock_after_guesses", 5 if profile_id == "ranked" else 3))
+    step_cap = int(max_steps if max_steps is not None else profile_spec.get("max_guesses", 12))
 
     def pick_probe(cands: List[str]) -> str:
         if len(cands) == 1:
@@ -476,25 +487,25 @@ def _solve_chemle_pool(
                 best_g, best_key = g_id, key
         return best_g
 
-    guess_counts: Dict[str, int] = {}
+    results: Dict[str, Tuple[int, bool]] = {}
     for t_id in ids:
         target = by_id[t_id]
-        ladder = (target.get("clue_ladder") or {}).get(profile_id) or []
-        if condition_on_clues and ladder:
-            lvl0_text = ladder[0].get("text")
-            cands = [
-                cid
-                for cid in ids
-                if (((by_id[cid].get("clue_ladder") or {}).get(profile_id) or [{}])[0].get("text") == lvl0_text)
-            ]
-        else:
-            cands = list(ids)
+        ladder = sorted((target.get("clue_ladder") or {}).get(profile_id) or [], key=lambda e: int(e.get("level", 0)))
+        cands = list(ids)
+        if condition_on_clues:
+            for clue in ladder:
+                if int(clue.get("after_guesses", 99)) <= 0:
+                    lvl = int(clue["level"])
+                    txt = clue.get("text")
+                    cands = [cid for cid in cands if _ladder_clue_text(by_id[cid], profile_id, lvl) == txt]
 
         steps = 0
-        while True:
+        solved = False
+        while steps < step_cap:
             g_id = pick_probe(cands)
             steps += 1
-            if g_id == t_id or steps >= 12:
+            if g_id == t_id:
+                solved = True
                 break
             obs_sig = sig_table[(g_id, t_id)]
             cands = [c for c in cands if sig_table[(g_id, c)] == obs_sig]
@@ -504,28 +515,73 @@ def _solve_chemle_pool(
                 if steps >= scaf_after:
                     t_scaf = target.get("scaffold_smiles") or ""
                     cands = [c for c in cands if (by_id[c].get("scaffold_smiles") or "") == t_scaf]
-        guess_counts[t_id] = steps
-    return guess_counts
+                for clue in ladder:
+                    if int(clue.get("after_guesses", 99)) <= steps:
+                        lvl = int(clue["level"])
+                        txt = clue.get("text")
+                        cands = [c for c in cands if _ladder_clue_text(by_id[c], profile_id, lvl) == txt]
+        results[t_id] = (steps, solved)
+    return results
 
 
-def _summarize_guess_counts(guess_counts: Dict[str, int]) -> Dict[str, Any]:
-    vals = sorted(guess_counts.values())
-    dist = dict(sorted(Counter(vals).items()))
-    mean_v = round(statistics.mean(vals), 2)
-    median_v = round(float(statistics.median(vals)), 2)
-    p95_idx = min(len(vals) - 1, int(math.ceil(0.95 * len(vals))) - 1)
-    p95_v = vals[p95_idx]
-    max_v = max(vals)
-    le2_pct = round(100.0 * sum(x <= 2 for x in vals) / len(vals), 2)
-    le6_pct = round(100.0 * sum(x <= 6 for x in vals) / len(vals), 2)
+def _summarize_guess_counts(
+    guess_results: Dict[str, Any],
+    mode_cap: int = 6,
+) -> Dict[str, Any]:
+    """Summarizes solve step counts while keeping misses in an explicit `unsolved` bucket."""
+    solved_vals: List[int] = []
+    unsolved_targets: List[str] = []
+    for key, val in guess_results.items():
+        if isinstance(val, tuple):
+            steps, is_solved = int(val[0]), bool(val[1])
+        elif val is None:
+            steps, is_solved = 0, False
+        else:
+            steps, is_solved = int(val), True
+        if is_solved:
+            solved_vals.append(steps)
+        else:
+            unsolved_targets.append(key)
+
+    solved_vals.sort()
+    total_count = len(guess_results)
+    solved_count = len(solved_vals)
+    unsolved_count = len(unsolved_targets)
+    dist: Dict[str, int] = {str(k): v for k, v in sorted(Counter(solved_vals).items())}
+    if unsolved_count > 0:
+        dist["unsolved"] = unsolved_count
+
+    if solved_vals:
+        mean_v: Optional[float] = round(statistics.mean(solved_vals), 2)
+        median_v: Optional[float] = round(float(statistics.median(solved_vals)), 2)
+        p95_idx = min(len(solved_vals) - 1, int(math.ceil(0.95 * len(solved_vals))) - 1)
+        p95_v: Optional[int] = solved_vals[p95_idx]
+        max_v: Optional[int] = max(solved_vals)
+    else:
+        mean_v = None
+        median_v = None
+        p95_v = None
+        max_v = None
+
+    le2_pct = round(100.0 * sum(x <= 2 for x in solved_vals) / total_count, 2) if total_count else 0.0
+    le6_pct = round(100.0 * sum(x <= 6 for x in solved_vals) / total_count, 2) if total_count else 0.0
+    le8_pct = round(100.0 * sum(x <= 8 for x in solved_vals) / total_count, 2) if total_count else 0.0
+    cap_pct = round(100.0 * sum(x <= mode_cap for x in solved_vals) / total_count, 2) if total_count else 0.0
     return {
-        "distribution": {str(k): v for k, v in dist.items()},
+        "distribution": dist,
+        "target_count": total_count,
+        "solved_count": solved_count,
+        "unsolved_count": unsolved_count,
+        "unsolved_targets": sorted(unsolved_targets),
+        "mode_cap": int(mode_cap),
         "mean": mean_v,
         "median": median_v,
         "p95": p95_v,
         "max": max_v,
         "pct_solved_le2": le2_pct,
         "pct_solved_le6": le6_pct,
+        "pct_solved_le8": le8_pct,
+        "pct_solved_by_cap": cap_pct,
     }
 
 
@@ -535,11 +591,14 @@ def run_chemle_greedy_solver(
     profile_spec: Dict[str, Any],
     profile_id: str = "ranked",
     condition_on_clues: bool = True,
+    max_steps: Optional[int] = None,
 ) -> Dict[str, Any]:
     """Runs the greedy max-entropy solver against `profile_spec` (with optional clue conditioning) and returns gate statistics."""
     ids = [r["id"] for r in records]
     by_id = {r["id"]: r for r in records}
     n_total = len(ids)
+    mode_cap = int(profile_spec.get("max_guesses", 6 if profile_id == "ranked" else 8))
+    step_cap = int(max_steps if max_steps is not None else mode_cap)
 
     sig_table: Dict[Tuple[str, str], str] = {}
     for g_id in ids:
@@ -548,7 +607,7 @@ def run_chemle_greedy_solver(
                 by_id[g_id], by_id[t_id], sim_matrix[g_id][t_id], profile_spec
             )["signature"]
 
-    # Opening-probe information metrics for this profile
+    # Opening-probe information metrics over the whole pool (diagnostic)
     h_prior = math.log2(n_total) if n_total > 1 else 0.0
     probe_metrics: Dict[str, Dict[str, float]] = {}
     min_exp_rem = float("inf")
@@ -563,27 +622,30 @@ def run_chemle_greedy_solver(
             "expected_remaining_candidates": exp_rem,
         }
 
-    guess_counts = _solve_chemle_pool(
-        ids, by_id, sig_table, profile_spec, profile_id, condition_on_clues
+    guess_results = _solve_chemle_pool(
+        ids, by_id, sig_table, profile_spec, profile_id, condition_on_clues, max_steps=step_cap
     )
-    summary = _summarize_guess_counts(guess_counts)
+    summary = _summarize_guess_counts(guess_results, mode_cap=mode_cap)
     out: Dict[str, Any] = {
         **summary,
         "min_opening_expected_remaining": round(min_exp_rem, 2),
         "probe_metrics": probe_metrics,
-        "per_target_guesses": guess_counts,
+        "per_target_guesses": {k: (v[0] if v[1] else None) for k, v in guess_results.items()},
+        "per_target_results": guess_results,
         "conditioned_on_clues": condition_on_clues,
     }
     if condition_on_clues:
-        raw_counts = _solve_chemle_pool(
-            ids, by_id, sig_table, profile_spec, profile_id, condition_on_clues=False
+        raw_results = _solve_chemle_pool(
+            ids, by_id, sig_table, profile_spec, profile_id, condition_on_clues=False, max_steps=12
         )
-        out["unconditioned_summary"] = _summarize_guess_counts(raw_counts)
+        out["unconditioned_summary"] = _summarize_guess_counts(raw_results, mode_cap=mode_cap)
     return out
 
 
 def assert_solver_gate(solver_stats: Dict[str, Any], gate: Dict[str, Any], profile_id: str) -> None:
     """Asserts that `solver_stats` passes all thresholds in `gate` (P0-2)."""
+    if solver_stats.get("mean") is None:
+        raise AssertionError(f"[{profile_id}] Zero solved targets!")
     if not (gate["mean_min"] <= solver_stats["mean"] <= gate["mean_max"]):
         raise AssertionError(
             f"[{profile_id}] Solver mean {solver_stats['mean']} outside gate "
@@ -598,6 +660,12 @@ def assert_solver_gate(solver_stats: Dict[str, Any], gate: Dict[str, Any], profi
         raise AssertionError(
             f"[{profile_id}] Solver <=6-guess rate {solver_stats['pct_solved_le6']}% "
             f"below min {gate['min_le6_pct']}%"
+        )
+    min_cap_pct = gate.get("min_solved_by_cap_pct")
+    if min_cap_pct is not None and solver_stats["pct_solved_by_cap"] < min_cap_pct:
+        raise AssertionError(
+            f"[{profile_id}] Solver <={solver_stats['mode_cap']}-guess rate {solver_stats['pct_solved_by_cap']}% "
+            f"below min {min_cap_pct}%"
         )
     if solver_stats["min_opening_expected_remaining"] < gate["min_expected_remaining"]:
         raise AssertionError(
@@ -693,106 +761,331 @@ def evaluate_seqle_feedback_from_spec(
     }
 
 
+def generate_legal_seqle_probes(
+    aa_props: Dict[str, Dict[str, Any]],
+    seed: int = 20261114,
+    count: int = 10000,
+) -> List[str]:
+    """Generates a deterministic sample of legal 5-AA non-catalog probe sequences."""
+    alphabet = sorted(aa_props.keys())
+    rng = random.Random(seed)
+    probes: set[str] = set()
+    while len(probes) < count:
+        probes.add("".join(rng.choices(alphabet, k=5)))
+    return sorted(probes)
+
+
+def evaluate_seqle_opening_groups(
+    records: Sequence[Dict[str, Any]],
+    aa_props: Dict[str, Dict[str, Any]],
+    profile_spec: Dict[str, Any],
+    profile_id: str = "ranked",
+    answer_records: Optional[Sequence[Dict[str, Any]]] = None,
+    probe_seqs: Optional[Sequence[str]] = None,
+    tile_only: bool = False,
+    precomputed_sigs: Optional[Dict[str, Dict[str, str]]] = None,
+) -> List[Dict[str, Any]]:
+    """Measures expected survivors, singleton coverage & two-step probability inside every opening group."""
+    by_seq = {r["seq"]: dict(r) for r in records}
+    answers = (
+        list(answer_records)
+        if answer_records is not None
+        else [r for r in records if profile_id in r.get("game_eligibility", ["learn"])]
+    )
+    probes = list(dict.fromkeys(probe_seqs if probe_seqs is not None else [r["seq"] for r in records]))
+
+    probe_bio: Dict[str, Dict[str, Any]] = {}
+    if precomputed_sigs is None or tile_only:
+        for g_seq in probes:
+            if g_seq in by_seq:
+                probe_bio[g_seq] = by_seq[g_seq]
+            else:
+                probe_bio[g_seq] = compute_peptide_biochem(g_seq, aa_props)
+        for t in answers:
+            probe_bio[t["seq"]] = t
+
+    use_class = bool(profile_spec.get("show_positional_class_match", True))
+
+    def feedback_sig(g_seq: str, t_seq: str) -> str:
+        if tile_only:
+            tiles = evaluate_seqle_guess(g_seq, t_seq, aa_props)
+            if not use_class:
+                tiles = ["absent" if t == "class" else t for t in tiles]
+            return "".join(t[0].upper() for t in tiles)
+        if precomputed_sigs is not None:
+            row = precomputed_sigs.get(g_seq)
+            if row is not None and t_seq in row:
+                return row[t_seq]
+        return evaluate_seqle_feedback_from_spec(
+            probe_bio[g_seq], probe_bio[t_seq], g_seq, t_seq, aa_props, profile_spec
+        )["signature"]
+
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for t in answers:
+        lvl0 = _ladder_clue_text(t, profile_id, 0) or "<UNGROUPED>"
+        groups.setdefault(lvl0, []).append(t)
+
+    reports: List[Dict[str, Any]] = []
+    for label in sorted(groups.keys()):
+        grp = groups[label]
+        n_g = len(grp)
+        grp_seqs = [t["seq"] for t in grp]
+        grp_seq_set = set(grp_seqs)
+        best_probe = grp_seqs[0]
+        best_key: Optional[Tuple[float, int, str]] = None
+        best_buckets: Counter[str] = Counter()
+
+        for g_seq in probes:
+            buckets = Counter(feedback_sig(g_seq, t_seq) for t_seq in grp_seqs)
+            sum_sq = sum(c * c for c in buckets.values())
+            # Exact audit ranking key: minimize (sum(n*n), -len(buckets), g_seq)
+            key = (sum_sq, -len(buckets), g_seq)
+            if best_key is None or key < best_key:
+                best_key = key
+                best_probe = g_seq
+                best_buckets = buckets
+
+        exp_surv = round(best_key[0] / n_g, 4) if n_g else 0.0
+        singletons = sum(1 for c in best_buckets.values() if c == 1)
+        singleton_pct = round(100.0 * singletons / n_g, 2) if n_g else 0.0
+
+        # Post-guess-1 bucket including any clue unlocking at after_guesses <= 1 (e.g. Learn level 1)
+        post1_buckets: Counter[Tuple[Any, ...]] = Counter()
+        best_in_grp = best_probe in grp_seq_set
+        for t in grp:
+            t_seq = t["seq"]
+            if t_seq == best_probe:
+                continue
+            ladder = sorted((t.get("clue_ladder") or {}).get(profile_id) or [], key=lambda e: int(e.get("level", 0)))
+            post_clues = tuple(
+                c.get("text") for c in ladder if 0 < int(c.get("after_guesses", 99)) <= 1
+            )
+            post1_buckets[(feedback_sig(best_probe, t_seq), post_clues)] += 1
+        two_step_wins = (1 if best_in_grp else 0) + len(post1_buckets)
+        two_step_prob = round(two_step_wins / n_g, 4) if n_g else 0.0
+
+        reports.append(
+            {
+                "group_label": label,
+                "group_size": n_g,
+                "probe_count": len(probes),
+                "best_probe": best_probe,
+                "best_expected_survivors": exp_surv,
+                "best_distinct_buckets": len(best_buckets),
+                "singleton_count": singletons,
+                "singleton_coverage_pct": singleton_pct,
+                "two_step_success_prob": two_step_prob,
+                "bucket_sizes": sorted(best_buckets.values(), reverse=True),
+            }
+        )
+    return reports
+
+
 def run_seqle_greedy_solver(
     records: Sequence[Dict[str, Any]],
     aa_props: Dict[str, Dict[str, Any]],
     profile_spec: Dict[str, Any],
     profile_id: str = "ranked",
     condition_on_clues: bool = True,
+    answer_records: Optional[Sequence[Dict[str, Any]]] = None,
+    probe_seqs: Optional[Sequence[str]] = None,
+    strategy: str = "greedy_entropy",
+    strategy_label: Optional[str] = None,
+    max_steps: Optional[int] = None,
+    include_unconditioned: bool = True,
 ) -> Dict[str, Any]:
-    """Runs full multi-step greedy max-entropy solver for Seqle using tile + strip + clue feedback."""
-    all_seqs = [r["seq"] for r in records]
+    """Runs multi-step Seqle solver separating answers & probes with full clue-ladder parity."""
     by_seq = {r["seq"]: r for r in records}
-    target_seqs = [
-        r["seq"] for r in records if profile_id in r.get("game_eligibility", ["learn"])
-    ]
+    ans_list = (
+        list(answer_records)
+        if answer_records is not None
+        else [r for r in records if profile_id in r.get("game_eligibility", ["learn"])]
+    )
+    target_seqs = [r["seq"] for r in ans_list]
+    for r in ans_list:
+        by_seq[r["seq"]] = r
+
+    probes = list(dict.fromkeys(probe_seqs if probe_seqs is not None else [r["seq"] for r in records]))
+    is_sampled = len(probes) > len(records)
+    search_method = strategy_label or (
+        f"{strategy}_sampled_upper_bound" if is_sampled else f"{strategy}_exact_catalog"
+    )
+    mode_cap = int(profile_spec.get("max_guesses", 6 if profile_id == "ranked" else 8))
+    step_cap = int(max_steps if max_steps is not None else mode_cap)
     n_t = len(target_seqs)
 
-    sig_table: Dict[Tuple[str, str], str] = {}
-    for g_seq in all_seqs:
-        g_rec = by_seq[g_seq]
-        for t_seq in all_seqs:
-            sig_table[(g_seq, t_seq)] = evaluate_seqle_feedback_from_spec(
-                g_rec, by_seq[t_seq], g_seq, t_seq, aa_props, profile_spec
-            )["signature"]
+    # Precompute biochem for any non-catalog probe
+    probe_bio: Dict[str, Dict[str, Any]] = {}
+    for g_seq in probes:
+        probe_bio[g_seq] = by_seq[g_seq] if g_seq in by_seq else compute_peptide_biochem(g_seq, aa_props)
+    for t_seq in target_seqs:
+        probe_bio[t_seq] = by_seq[t_seq]
 
+    sig_cache: Dict[str, Dict[str, str]] = {}
+
+    def get_sig(g_seq: str, t_seq: str) -> str:
+        row = sig_cache.get(g_seq)
+        if row is None:
+            g_b = probe_bio[g_seq]
+            row = {
+                ts: evaluate_seqle_feedback_from_spec(
+                    g_b, probe_bio[ts], g_seq, ts, aa_props, profile_spec
+                )["signature"]
+                for ts in target_seqs
+            }
+            sig_cache[g_seq] = row
+        return row[t_seq]
+
+    # Precompute target signatures against catalog & opening diagnostics (whole-pool diagnostic semantics)
     min_exp_rem = float("inf")
     max_distinct_targets = 0
     yigsr_distinct = 0
-    for g_seq in all_seqs:
-        cnts = Counter(sig_table[(g_seq, t_seq)] for t_seq in target_seqs)
+    for g_seq in [r["seq"] for r in records]:
+        if g_seq not in probe_bio:
+            probe_bio[g_seq] = by_seq[g_seq]
+        cnts = Counter(get_sig(g_seq, t_seq) for t_seq in target_seqs)
         n_dist = len(cnts)
         if n_dist > max_distinct_targets:
             max_distinct_targets = n_dist
         if g_seq == "YIGSR":
             yigsr_distinct = n_dist
-        exp_rem = round(sum((c * c) / n_t for c in cnts.values()), 2)
+        exp_rem = round(sum((c * c) / n_t for c in cnts.values()), 2) if n_t else 0.0
         if exp_rem < min_exp_rem:
             min_exp_rem = exp_rem
 
-    def solve_pool(cond: bool) -> Dict[str, int]:
-        def pick_probe(cands: List[str]) -> str:
+    def clue_key_at_step(t_seq: str, step_num: int) -> Tuple[Tuple[int, Optional[str]], ...]:
+        ladder = sorted((by_seq[t_seq].get("clue_ladder") or {}).get(profile_id) or [], key=lambda e: int(e.get("level", 0)))
+        return tuple(
+            (int(c["level"]), c.get("text"))
+            for c in ladder
+            if int(c.get("after_guesses", 99)) <= step_num
+        )
+
+    probe_choice_cache: Dict[Tuple[Tuple[str, ...], int, bool, str], str] = {}
+
+    def solve_pool(cond: bool, strat: str, solve_cap: int) -> Dict[str, Tuple[int, bool]]:
+        def pick_probe(cands: List[str], current_steps: int) -> str:
             if len(cands) == 1:
                 return cands[0]
-            best_g = cands[0]
-            best_key: Optional[Tuple[float, bool, str]] = None
+            cache_k = (tuple(cands), current_steps + 1 if strat == "two_step" and cond else 0, cond, strat)
+            cached = probe_choice_cache.get(cache_k)
+            if cached is not None:
+                return cached
+
             n_c = len(cands)
-            for g_seq in all_seqs:
-                parts = Counter(sig_table[(g_seq, t_seq)] for t_seq in cands)
-                h = -sum((c / n_c) * math.log2(c / n_c) for c in parts.values())
-                key = (round(h, 9), g_seq in cands, g_seq)
-                if best_key is None or key > best_key:
-                    best_g, best_key = g_seq, key
+            cands_set = set(cands)
+            best_g = cands[0]
+            best_key: Optional[Tuple[Any, ...]] = None
+
+            if strat == "two_step":
+                post_clues = (
+                    {ts: clue_key_at_step(ts, current_steps + 1) for ts in cands}
+                    if cond
+                    else {ts: () for ts in cands}
+                )
+                for g_seq in probes:
+                    sig_row = sig_cache.get(g_seq)
+                    if sig_row is None:
+                        g_b = probe_bio[g_seq]
+                        sig_row = {
+                            ts: evaluate_seqle_feedback_from_spec(
+                                g_b, probe_bio[ts], g_seq, ts, aa_props, profile_spec
+                            )["signature"]
+                            for ts in target_seqs
+                        }
+                        sig_cache[g_seq] = sig_row
+                    parts: Counter[str] = Counter()
+                    two_buckets: set[Tuple[str, Any]] = set()
+                    in_cands = g_seq in cands_set
+                    for t_seq in cands:
+                        s = sig_row[t_seq]
+                        parts[s] += 1
+                        if t_seq != g_seq:
+                            two_buckets.add((s, post_clues[t_seq]))
+                    two_step_wins = (1 if in_cands else 0) + len(two_buckets)
+                    sum_sq = sum(c * c for c in parts.values())
+                    h = -sum((c / n_c) * math.log2(c / n_c) for c in parts.values())
+                    key = (two_step_wins, -sum_sq, round(h, 9), in_cands, g_seq)
+                    if best_key is None or key > best_key:
+                        best_g, best_key = g_seq, key
+            else:
+                for g_seq in probes:
+                    sig_row = sig_cache.get(g_seq)
+                    if sig_row is None:
+                        g_b = probe_bio[g_seq]
+                        sig_row = {
+                            ts: evaluate_seqle_feedback_from_spec(
+                                g_b, probe_bio[ts], g_seq, ts, aa_props, profile_spec
+                            )["signature"]
+                            for ts in target_seqs
+                        }
+                        sig_cache[g_seq] = sig_row
+                    parts = Counter(sig_row[t_seq] for t_seq in cands)
+                    h = -sum((c / n_c) * math.log2(c / n_c) for c in parts.values())
+                    key = (round(h, 9), g_seq in cands_set, g_seq)
+                    if best_key is None or key > best_key:
+                        best_g, best_key = g_seq, key
+
+            probe_choice_cache[cache_k] = best_g
             return best_g
 
-        counts: Dict[str, int] = {}
+        results: Dict[str, Tuple[int, bool]] = {}
         for t_seq in target_seqs:
-            target = by_seq[t_seq]
-            ladder = (target.get("clue_ladder") or {}).get(profile_id) or []
-            if cond and ladder:
-                lvl0_text = ladder[0].get("text")
-                cands = [
-                    s
-                    for s in target_seqs
-                    if (((by_seq[s].get("clue_ladder") or {}).get(profile_id) or [{}])[0].get("text") == lvl0_text)
-                ]
-            else:
-                cands = list(target_seqs)
+            cands = list(target_seqs)
+            if cond:
+                t_key0 = clue_key_at_step(t_seq, 0)
+                cands = [s for s in cands if clue_key_at_step(s, 0) == t_key0]
 
             steps = 0
-            while True:
-                g_seq = pick_probe(cands)
+            solved = False
+            while steps < solve_cap:
+                g_seq = pick_probe(cands, steps)
                 steps += 1
-                if g_seq == t_seq or steps >= 12:
+                if g_seq == t_seq:
+                    solved = True
                     break
-                obs_sig = sig_table[(g_seq, t_seq)]
-                cands = [c for c in cands if sig_table[(g_seq, c)] == obs_sig]
-                if cond and len(ladder) > 1:
-                    lvl1 = ladder[1]
-                    if steps >= int(lvl1.get("after_guesses", 99)):
-                        lvl1_text = lvl1.get("text")
-                        cands = [
-                            c
-                            for c in cands
-                            if (((by_seq[c].get("clue_ladder") or {}).get(profile_id) or [{}, {}])[1].get("text") == lvl1_text)
-                        ]
-            counts[t_seq] = steps
-        return counts
+                obs_sig = get_sig(g_seq, t_seq)
+                cands = [c for c in cands if get_sig(g_seq, c) == obs_sig]
+                if cond:
+                    t_ck = clue_key_at_step(t_seq, steps)
+                    cands = [c for c in cands if clue_key_at_step(c, steps) == t_ck]
+            results[t_seq] = (steps, solved)
+        return results
 
-    guess_counts = solve_pool(condition_on_clues)
-    summary = _summarize_guess_counts(guess_counts)
+    guess_results = solve_pool(condition_on_clues, strategy, step_cap)
+    summary = _summarize_guess_counts(guess_results, mode_cap=mode_cap)
+    opening_groups = evaluate_seqle_opening_groups(
+        records,
+        aa_props,
+        profile_spec,
+        profile_id=profile_id,
+        answer_records=ans_list,
+        probe_seqs=probes,
+        tile_only=False,
+        precomputed_sigs=sig_cache,
+    )
     out: Dict[str, Any] = {
         **summary,
         "eligible_count": n_t,
+        "probe_count": len(probes),
+        "strategy": strategy,
+        "search_method": search_method,
         "yigsr_distinct_signatures": yigsr_distinct,
         "max_single_probe_distinct_targets": max_distinct_targets,
         "min_opening_expected_remaining": round(min_exp_rem, 2),
-        "per_target_guesses": guess_counts,
+        "whole_pool_opening_metrics": {
+            "yigsr_distinct_signatures": yigsr_distinct,
+            "max_single_probe_distinct_targets": max_distinct_targets,
+            "min_opening_expected_remaining": round(min_exp_rem, 2),
+        },
+        "opening_group_metrics": opening_groups,
+        "per_target_guesses": {k: (v[0] if v[1] else None) for k, v in guess_results.items()},
+        "per_target_results": guess_results,
         "conditioned_on_clues": condition_on_clues,
     }
-    if condition_on_clues:
-        raw_counts = solve_pool(False)
-        out["unconditioned_summary"] = _summarize_guess_counts(raw_counts)
+    if condition_on_clues and include_unconditioned:
+        raw_results = solve_pool(False, strategy, 12)
+        out["unconditioned_summary"] = _summarize_guess_counts(raw_results, mode_cap=mode_cap)
     return out
 
 
@@ -822,8 +1115,42 @@ def _consensus_tokens(consensus: str) -> List[str]:
     return tokens
 
 
+PROVENANCE_VERIFIED_DATE = "2026-11-14"
+UNIPROT_VERIFIED_RELEASE = "2026_04"
+VALID_PROVENANCE_STATUSES = ("verified_uniprot", "consensus_exemplar", "abstraction")
+VALID_CITATION_ROLES = ("native_sequence", "exact_structure", "motif_family_context", "motif_definition")
+
+
+def validate_copi_terminal_motif(seq: str, terminal: str) -> None:
+    """Validates canonical COPI dilysine C-terminal retrieval motifs (-K-K-X-X or -K-X-K-X-X)."""
+    s = (seq or "").strip().upper()
+    if len(s) != 5 or terminal != "C":
+        raise ValueError(f"[{s}] Canonical COPI dilysine motif requires a 5-mer at terminal='C'")
+    is_kkxx = s[1] == "K" and s[2] == "K"  # positions -4/-3 from C-terminus
+    is_kxkxx = s[0] == "K" and s[2] == "K"  # positions -5/-3 from C-terminus
+    if not (is_kkxx or is_kxkxx):
+        raise ValueError(
+            f"[{s}] Invalid COPI retrieval placement: canonical motifs require Lys at (-4,-3) or (-5,-3), not -KKxxx (-5,-4)."
+        )
+
+
+def validate_nglycosylation_sequon(seq: str, consensus: Optional[str] = None) -> None:
+    """Validates eukaryotic OST N-glycosylation sequon N-[^P]-[ST] without restricting downstream residues."""
+    s = (seq or "").strip().upper()
+    if len(s) < 3 or s[0] != "N" or s[1] == "P" or s[2] not in ("S", "T"):
+        raise ValueError(
+            f"[{s}] Invalid eukaryotic N-glycosylation sequon: requires N at +0, non-P at +1, and S/T at +2."
+        )
+    if consensus is not None:
+        tokens = _consensus_tokens(consensus)
+        if len(tokens) < 3 or tokens[0] != "N" or tokens[1] != "[^P]" or set(tokens[2].strip("[]")) != {"S", "T"}:
+            raise ValueError(
+                f"[{s}] Glycosylation consensus {consensus!r} must state N-[^P]-[ST] with explicit non-Pro exclusion."
+            )
+
+
 # Authoritative reference provenance registry verified against UniProtKB/Swiss-Prot
-# FASTA and RCSB PDB polymer entities (BioWordle v0.2.1).
+# FASTA (release 2026_04) and RCSB PDB polymer entities (BioWordle v0.2.2).
 SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
     "GHSMG": {
         "status": "verified_uniprot",
@@ -833,8 +1160,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [163, 167],
         "window_offset": 3,
         "verified_parent_sequence": "AVAGHSMGGGG",
+        "functional_rule": "G-X-S-X-G",
         "pdb_ids": ["4EB0"],
-        "notes": "Leaf-branch compost cutinase (LCC); previously mis-cited PETase A0A0K8P6T7 carries GWSMG.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "G9BY57", "isoform": "canonical", "parent_residue_range": [160, 170], "motif_residue_range": [163, 167]},
+            {"role": "exact_structure", "source": "PDB", "id": "4EB0", "entity_id": "1", "chains": ["A"], "residue_range": [128, 132], "deposited_sequence": "VAGHSMGGG", "mapped_uniprot": "G9BY57"},
+        ],
+        "notes": "Leaf-branch compost cutinase (LCC); PDB:4EB0 entity 1 contains mapped GHSMG at entity 128-132.",
     },
     "EKDEL": {
         "status": "verified_uniprot",
@@ -844,8 +1178,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [650, 654],
         "window_offset": 2,
         "verified_parent_sequence": "TAEKDEL",
+        "functional_rule": "[KRDEH]-[DENQ]-E-L",
         "pdb_ids": ["6I6H"],
-        "notes": "Human HSPA5/BiP extreme C-terminal ER retention signal.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P11021", "isoform": "canonical", "parent_residue_range": [648, 654], "motif_residue_range": [650, 654]},
+            {"role": "exact_structure", "source": "PDB", "id": "6I6H", "entity_id": "2", "chains": ["B"], "residue_range": [2, 6], "deposited_sequence": "AEKDEL", "mapped_uniprot": None},
+        ],
+        "notes": "Human HSPA5/BiP extreme C-terminal ER retention signal; PDB:6I6H entity 2 is synthetic bound AEKDEL peptide.",
     },
     "DEVDG": {
         "status": "verified_uniprot",
@@ -855,8 +1196,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [211, 215],
         "window_offset": 1,
         "verified_parent_sequence": "GDEVDGVDEV",
+        "functional_rule": "D-X-X-D-[GSAC]",
         "pdb_ids": [],
-        "notes": "Human PARP1 Caspase-3/7 cleavage site.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P09874", "isoform": "canonical", "parent_residue_range": [210, 219], "motif_residue_range": [211, 215]},
+            {"role": "motif_definition", "source": "ELM", "id": "CLV_Caspase3-7"},
+        ],
+        "notes": "Human PARP1 Caspase-3/7 cleavage site (cleaved after Asp214).",
     },
     "GRGDS": {
         "status": "verified_uniprot",
@@ -866,7 +1214,14 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [1614, 1618],
         "window_offset": 2,
         "verified_parent_sequence": "VTGRGDSPASS",
+        "functional_rule": "R-G-D-[ST]",
         "pdb_ids": ["1FNF"],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P02751", "isoform": "canonical", "parent_residue_range": [1612, 1622], "motif_residue_range": [1614, 1618]},
+            {"role": "exact_structure", "source": "PDB", "id": "1FNF", "entity_id": "1", "chains": ["A"], "residue_range": [351, 355], "deposited_sequence": "VTGRGDSPA", "mapped_uniprot": "P02751"},
+        ],
         "notes": "Human Fibronectin FN1 canonical coordinates 1614-1618 (older mature fragment numbering 1492-1496).",
     },
     "LPETG": {
@@ -877,8 +1232,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [482, 486],
         "window_offset": 2,
         "verified_parent_sequence": "QALPETGEEN",
+        "functional_rule": "L-P-X-T-G",
         "pdb_ids": ["1T2W"],
-        "notes": "Staphylococcus aureus Protein A Sortase-A cell-wall sorting signal.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P02976", "isoform": "canonical", "parent_residue_range": [480, 489], "motif_residue_range": [482, 486]},
+            {"role": "exact_structure", "source": "PDB", "id": "1T2W", "entity_id": "2", "chains": ["D"], "residue_range": [1, 5], "deposited_sequence": "LPETG", "mapped_uniprot": None},
+        ],
+        "notes": "Staphylococcus aureus Protein A Sortase-A cell-wall sorting signal; PDB:1T2W entity 2 is substrate LPETG peptide.",
     },
     "HEIGH": {
         "status": "verified_uniprot",
@@ -888,8 +1250,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [218, 222],
         "window_offset": 3,
         "verified_parent_sequence": "VAAHEIGHSLGL",
+        "functional_rule": "H-E-X-X-H",
         "pdb_ids": ["1B3D"],
-        "notes": "Human MMP3 Stromelysin-1 Zn-binding helix; previously mis-cited MMP1 P03956 carries HELGH.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P08254", "isoform": "canonical", "parent_residue_range": [215, 226], "motif_residue_range": [218, 222]},
+            {"role": "exact_structure", "source": "PDB", "id": "1B3D", "entity_id": "1", "chains": ["A", "B"], "residue_range": [119, 123], "deposited_sequence": "AAHEIGHSL", "mapped_uniprot": "P08254"},
+        ],
+        "notes": "Human MMP3 Stromelysin-1 Zn-binding helix.",
     },
     "CCHHC": {
         "status": "abstraction",
@@ -899,7 +1268,14 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": None,
         "window_offset": 0,
         "verified_parent_sequence": "CCHHC",
-        "pdb_ids": ["1MFS"],
+        "functional_rule": "C-X2-C-X4-H-X4-C",
+        "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": "N/A",
+        "citations": [
+            {"role": "motif_definition", "source": "PROSITE", "id": "PS50158"},
+            {"role": "motif_family_context", "source": "PDB", "id": "1MFS", "notes": "Retroviral gag zinc knuckle NMR structure (spaced C-X2-C-X4-H-X4-C ligands; not contiguous)."},
+        ],
         "notes": "Learn-only pedagogical compression of non-contiguous C-X2-C-X4-H-X4-C zinc knuckle.",
     },
     "YIGSR": {
@@ -910,7 +1286,13 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [950, 954],
         "window_offset": 4,
         "verified_parent_sequence": "CDPGYIGSRCD",
+        "functional_rule": "Y-I-G-S-R",
         "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P07942", "isoform": "canonical", "parent_residue_range": [946, 956], "motif_residue_range": [950, 954]},
+        ],
         "notes": "Human LAMB1 canonical coordinates 950-954 (mature chain omitting 21-aa signal peptide: 929-933).",
     },
     "NPVYK": {
@@ -921,8 +1303,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": None,
         "window_offset": 0,
         "verified_parent_sequence": "NPVYK",
-        "pdb_ids": ["3SO6"],
-        "notes": "NPXY[KR] consensus representative; native human LDLR P01130 (825-829) and PDB:3SO6 carry NPVYQ.",
+        "functional_rule": "F-X-N-P-X-Y",
+        "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "motif_definition", "source": "ELM", "id": "TRG_ENDOCYTIC_2"},
+            {"role": "motif_family_context", "source": "PDB", "id": "3SO6", "entity_id": "2", "chains": ["Q"], "mapped_uniprot": "P01130", "variant_sequence": "NPVYQ", "variant_residue_range": [825, 829], "notes": "Natural LDLR window carries NPVYQ (no universal Lys/Arg after Tyr established by LDLR/3SO6 evidence)."},
+        ],
+        "notes": "Synthetic teaching representative of F-X-N-P-X-Y core; native human LDLR P01130 (825-829) and PDB:3SO6 carry NPVYQ.",
     },
     "KCVIM": {
         "status": "verified_uniprot",
@@ -932,8 +1321,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [184, 188],
         "window_offset": 9,
         "verified_parent_sequence": "KKKKKKSKTKCVIM",
+        "functional_rule": "C-a-a-X (C-terminal)",
         "pdb_ids": ["1D8D"],
-        "notes": "Human KRAS Isoform 2B polybasic C-terminal CaaX farnesylation box.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P01116-2", "isoform": "2B", "parent_residue_range": [175, 188], "motif_residue_range": [184, 188]},
+            {"role": "exact_structure", "source": "PDB", "id": "1D8D", "entity_id": "3", "chains": ["P"], "residue_range": [7, 11], "deposited_sequence": "KTKCVIM", "mapped_uniprot": "P01116"},
+        ],
+        "notes": "Human KRAS Isoform 2B polybasic C-terminal CaaX farnesylation box; RCSB SIFTS maps 1D8D entity 3 to base P01116.",
     },
     "DEADE": {
         "status": "verified_uniprot",
@@ -943,7 +1339,14 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [182, 186],
         "window_offset": 2,
         "verified_parent_sequence": "VLDEADEMLSR",
+        "functional_rule": "D-E-A-D-[DE]",
         "pdb_ids": ["2ZU6"],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P60842", "isoform": "canonical", "parent_residue_range": [180, 190], "motif_residue_range": [182, 186]},
+            {"role": "exact_structure", "source": "PDB", "id": "2ZU6", "entity_id": "1", "chains": ["A", "C", "D", "F"], "residue_range": [164, 168], "deposited_sequence": "VLDEADEML", "mapped_uniprot": "P60842"},
+        ],
         "notes": "Human eIF4A1 / DDX2A Walker-B DEAD-box helicase motif.",
     },
     "GVGKS": {
@@ -954,7 +1357,14 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [13, 17],
         "window_offset": 3,
         "verified_parent_sequence": "GAGGVGKS",
+        "functional_rule": "G-X4-G-K-[TS]",
         "pdb_ids": ["4OBE"],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P01116", "isoform": "canonical", "parent_residue_range": [10, 17], "motif_residue_range": [13, 17]},
+            {"role": "exact_structure", "source": "PDB", "id": "4OBE", "entity_id": "1", "chains": ["A", "B"], "residue_range": [14, 18], "deposited_sequence": "AGGVGKSAL", "mapped_uniprot": "P01116"},
+        ],
         "notes": "Human KRAS GTPase Walker-A P-loop.",
     },
     "VDFGL": {
@@ -965,8 +1375,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [269, 273],
         "window_offset": 4,
         "verified_parent_sequence": "KAVLVDFGLSVQM",
+        "functional_rule": "[VI]-D-F-G-[LM]",
         "pdb_ids": ["4Y83"],
-        "notes": "Human MAP3K8/COT activation-loop DFG switch; previously mis-cited ABL1 P00519 carries KVADFGLSR.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P41279", "isoform": "canonical", "parent_residue_range": [265, 277], "motif_residue_range": [269, 273]},
+            {"role": "exact_structure", "source": "PDB", "id": "4Y83", "entity_id": "1", "chains": ["A", "B", "C"], "residue_range": [206, 210], "deposited_sequence": "VLVDFGLSV", "mapped_uniprot": "P41279"},
+        ],
+        "notes": "Human MAP3K8/COT activation-loop DFG switch.",
     },
     "HRDLA": {
         "status": "verified_uniprot",
@@ -976,8 +1393,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [790, 794],
         "window_offset": 1,
         "verified_parent_sequence": "IHRDLAARN",
+        "functional_rule": "H-R-D-L-A",
         "pdb_ids": ["1PKG"],
-        "notes": "Human KIT catalytic loop (also FGFR1 P11362 620-628); previously mis-cited SRC P12931 carries HRDLR.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P10721", "isoform": "canonical", "parent_residue_range": [789, 797], "motif_residue_range": [790, 794]},
+            {"role": "exact_structure", "source": "PDB", "id": "1PKG", "entity_id": "1", "chains": ["A", "B"], "residue_range": [184, 188], "deposited_sequence": "CIHRDLAAR", "mapped_uniprot": "P10721"},
+        ],
+        "notes": "Human KIT catalytic loop.",
     },
     "WSEWS": {
         "status": "verified_uniprot",
@@ -987,8 +1411,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [425, 429],
         "window_offset": 4,
         "verified_parent_sequence": "YNGIWSEWSEARS",
+        "functional_rule": "W-S-X-W-S",
         "pdb_ids": ["1EGJ"],
-        "notes": "Human CSF2RB cytokine receptor WSXWS box; canonical EPOR P19235 carries WSAWS (PDB:1EER has A235E variant).",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P32927", "isoform": "canonical", "parent_residue_range": [421, 433], "motif_residue_range": [425, 429]},
+            {"role": "exact_structure", "source": "PDB", "id": "1EGJ", "entity_id": "1", "chains": ["A"], "residue_range": [88, 92], "deposited_sequence": "GIWSEWSEA", "mapped_uniprot": "P32927"},
+        ],
+        "notes": "Human CSF2RB cytokine receptor WSXWS box.",
     },
     "PPPVP": {
         "status": "verified_uniprot",
@@ -998,8 +1429,16 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [1150, 1154],
         "window_offset": 1,
         "verified_parent_sequence": "VPPPVPPRRR",
-        "pdb_ids": ["1GBR"],
-        "notes": "Human SOS1 Class-II SH3-binding polyproline motif.",
+        "functional_rule": "P-P-X-[VIL]-P",
+        "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "Q07889", "isoform": "canonical", "parent_residue_range": [1149, 1158], "motif_residue_range": [1150, 1154]},
+            {"role": "motif_family_context", "source": "PDB", "id": "1GBR", "entity_id": "2", "chains": ["B"], "mapped_uniprot": "Q02384", "variant_sequence": "SPLLPKLPPKTYKRE", "notes": "PDB:1GBR entity 2 is mouse Sos1 (Q02384) peptide SPLLPKLPPKTYKRE (motif-family SH3 context only; lacks human PPPVP)."},
+            {"role": "motif_definition", "source": "ELM", "id": "LIG_SH3_2"},
+        ],
+        "notes": "Human SOS1 Class-II SH3-binding polyproline motif (1150-1154); PDB:1GBR is murine SH3-ligand context only.",
     },
     "INFEK": {
         "status": "verified_uniprot",
@@ -1009,8 +1448,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [260, 264],
         "window_offset": 2,
         "verified_parent_sequence": "SIINFEKL",
+        "functional_rule": "S-I-I-N-F-E-K-L",
         "pdb_ids": ["1VAC"],
-        "notes": "Gallus gallus Ovalbumin H-2Kb epitope SIINFEKL (canonical coords 258-265).",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P01012", "isoform": "canonical", "parent_residue_range": [258, 265], "motif_residue_range": [260, 264]},
+            {"role": "exact_structure", "source": "PDB", "id": "1VAC", "entity_id": "3", "chains": ["P"], "residue_range": [3, 7], "deposited_sequence": "SIINFEKL", "mapped_uniprot": "P01012"},
+        ],
+        "notes": "Gallus gallus Ovalbumin H-2Kb epitope SIINFEKL (UniProt:P01012 residues 260-264 within 258-265).",
     },
     "YQRLN": {
         "status": "verified_uniprot",
@@ -1020,19 +1466,35 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [350, 354],
         "window_offset": 2,
         "verified_parent_sequence": "SDYQRLNLKL",
+        "functional_rule": "Y-X-X-[LIVF]-N",
         "pdb_ids": ["1BXX"],
-        "notes": "Rat TGN38 tyrosine-based AP2 internalization motif.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P19814", "isoform": "canonical", "parent_residue_range": [348, 357], "motif_residue_range": [350, 354]},
+            {"role": "exact_structure", "source": "PDB", "id": "1BXX", "entity_id": "2", "chains": ["P"], "residue_range": [2, 6], "deposited_sequence": "DYQRLN", "mapped_uniprot": None},
+        ],
+        "notes": "Rat TGN38 tyrosine-based AP2 internalization motif; PDB:1BXX entity 2 is synthetic DYQRLN peptide.",
     },
-    "KKMPQ": {
-        "status": "consensus_exemplar",
-        "accession": "ELM:TRG_ER_diLys_1",
-        "isoform": None,
-        "parent_residue_range": None,
-        "motif_residue_range": None,
-        "window_offset": 0,
-        "verified_parent_sequence": "KKMPQ",
+    "KEKSD": {
+        "status": "verified_uniprot",
+        "accession": "P39656",
+        "isoform": "canonical",
+        "parent_residue_range": [437, 456],
+        "motif_residue_range": [452, 456],
+        "window_offset": 15,
+        "verified_parent_sequence": "LGLFIFSIVFLHMKEKEKSD",
+        "functional_rule": "K-X-K-X-X (C-terminal)",
+        "functional_rule_id": "COPI_DILYSINE_C_TERM",
         "pdb_ids": ["4J77"],
-        "notes": "Synthetic C-terminal -KKxxx COPI retrieval consensus exemplar; PDB:4J77 co-crystal peptide is AKEKSD.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P39656", "isoform": "canonical", "parent_residue_range": [437, 456], "motif_residue_range": [452, 456]},
+            {"role": "exact_structure", "source": "PDB", "id": "4J77", "entity_id": "1", "chains": ["C", "D"], "residue_range": [2, 6], "deposited_sequence": "AKEKSD", "mapped_uniprot": None},
+            {"role": "motif_definition", "source": "ELM", "id": "TRG_ER_diLys_1"},
+        ],
+        "notes": "Human OST48/DDOST extreme C-terminal -KxKxx COPI retrieval signal (452-456); PDB:4J77 entity 1 is co-crystallized Wbp1 C-terminal peptide AKEKSD.",
     },
     "CAACH": {
         "status": "verified_uniprot",
@@ -1042,8 +1504,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [101, 105],
         "window_offset": 4,
         "verified_parent_sequence": "YREVCAACHSLDR",
+        "functional_rule": "C-X-X-C-H",
         "pdb_ids": ["3CX5"],
-        "notes": "Yeast mitochondrial Cytochrome c1 CXXCH heme site; previously mis-cited CYC1 P00044 carries CLQCH.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P07143", "isoform": "canonical", "parent_residue_range": [97, 109], "motif_residue_range": [101, 105]},
+            {"role": "exact_structure", "source": "PDB", "id": "3CX5", "entity_id": "4", "chains": ["D", "O"], "residue_range": [40, 44], "deposited_sequence": "EVCAACHSL", "mapped_uniprot": "P07143"},
+        ],
+        "notes": "Yeast mitochondrial Cytochrome c1 CXXCH heme site.",
     },
     "NLTGY": {
         "status": "consensus_exemplar",
@@ -1053,8 +1522,16 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": None,
         "window_offset": 0,
         "verified_parent_sequence": "NLTGY",
-        "pdb_ids": ["3WAK"],
-        "notes": "N-X-[ST] glycosylation sequon consensus exemplar; PDB:3WAK is apo Archaeoglobus fulgidus AglB (O29867).",
+        "functional_rule": "N-[^P]-[ST]",
+        "functional_rule_id": "N_GLC_SEQUON",
+        "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "motif_definition", "source": "ELM", "id": "MOD_N-GLC_1"},
+            {"role": "motif_family_context", "source": "PDB", "id": "3WAK", "entity_id": "1", "chains": ["A"], "mapped_uniprot": "O29867", "notes": "PDB:3WAK is apo Archaeoglobus fulgidus AglB oligosaccharyltransferase (no bound acceptor peptide; UniProt O29867 lacks NLTGY)."},
+        ],
+        "notes": "Synthetic teaching example for the N-[^P]-[ST] eukaryotic N-glycosylation sequon (G-Y padding is pedagogical).",
     },
     "DSGLD": {
         "status": "verified_uniprot",
@@ -1064,8 +1541,16 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [31, 35],
         "window_offset": 4,
         "verified_parent_sequence": "DDRHDSGLDSMKD",
-        "pdb_ids": ["1P22"],
-        "notes": "Human NFKBIA / I-kappa-B-alpha beta-TrCP phosphodegron.",
+        "functional_rule": "D-S-G-X-X-S",
+        "pdb_ids": ["9T9W"],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P25963", "isoform": "canonical", "parent_residue_range": [27, 39], "motif_residue_range": [31, 35]},
+            {"role": "exact_structure", "source": "PDB", "id": "9T9W", "entity_id": "2", "chains": ["C"], "residue_range": [4, 8], "deposited_sequence": "RHDSGLDSM", "mapped_uniprot": "P25963"},
+            {"role": "motif_definition", "source": "ELM", "id": "DEG_SCF_TRCP1_1"},
+        ],
+        "notes": "Human NFKBIA / I-kappa-B-alpha beta-TrCP phosphodegron (PDB:9T9W entity 2 directly deposits phosphorylated I-kappa-B-alpha DRHDSGLDSMKD).",
     },
     "KENIP": {
         "status": "consensus_exemplar",
@@ -1075,8 +1560,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": None,
         "window_offset": 0,
         "verified_parent_sequence": "KENIP",
-        "pdb_ids": ["4BH6"],
-        "notes": "APC/C KEN-X-P degron consensus exemplar; PDB:4BH6 Acm1 (Q08981) carries KENLS and Hsl1 (P34244) carries NKENE.",
+        "functional_rule": "K-E-N",
+        "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "motif_definition", "source": "ELM", "id": "DEG_APCC_KENBOX_2"},
+            {"role": "motif_family_context", "source": "PDB", "id": "4BH6", "entity_id": "2", "chains": ["I", "J", "K", "L", "M", "N", "O", "P"], "mapped_uniprot": "Q08981", "variant_sequence": "KENLS", "variant_residue_range": [98, 102], "notes": "PDB:4BH6 Acm1 (Q08981) carries pseudosubstrate KENLS; Hsl1 (P34244 774-778) carries NKENE (neither requires downstream Pro)."},
+        ],
+        "notes": "Synthetic teaching example of the APC/C KEN-box core (K-E-N; I-P downstream padding is pedagogical, not a universal Pro requirement).",
     },
     "KKKRK": {
         "status": "verified_uniprot",
@@ -1086,8 +1578,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [127, 131],
         "window_offset": 1,
         "verified_parent_sequence": "PKKKRKV",
+        "functional_rule": "[PKR]-K-[KR]-X-[KR]",
         "pdb_ids": ["1BK6"],
-        "notes": "SV40 Large T-antigen monopartite nuclear localization signal.",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P03070", "isoform": "canonical", "parent_residue_range": [126, 132], "motif_residue_range": [127, 131]},
+            {"role": "exact_structure", "source": "PDB", "id": "1BK6", "entity_id": "2", "chains": ["C", "E"], "residue_range": [1, 5], "deposited_sequence": "KKKRKV", "mapped_uniprot": None},
+        ],
+        "notes": "SV40 Large T-antigen monopartite nuclear localization signal; PDB:1BK6 entity 2 is NLS peptide KKKRKV.",
     },
     "FGGFT": {
         "status": "verified_uniprot",
@@ -1097,7 +1596,13 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [130, 134],
         "window_offset": 0,
         "verified_parent_sequence": "FGGFTGARKSARKLANQ",
+        "functional_rule": "F-G-G-F-T (N-terminal message)",
         "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "Q13519", "isoform": "canonical", "parent_residue_range": [130, 146], "motif_residue_range": [130, 134]},
+        ],
         "notes": "Human Prepronociceptin cleaved mature Nociceptin (130-146); N-terminus generated by dibasic KR cleavage.",
     },
     "YGGFM": {
@@ -1108,7 +1613,14 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [100, 104],
         "window_offset": 0,
         "verified_parent_sequence": "YGGFM",
+        "functional_rule": "Y-G-G-F-M (N-terminal opioid message)",
         "pdb_ids": ["1PLW"],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P01210", "isoform": "canonical", "parent_residue_range": [100, 104], "motif_residue_range": [100, 104]},
+            {"role": "exact_structure", "source": "PDB", "id": "1PLW", "entity_id": "1", "chains": ["A"], "residue_range": [1, 5], "deposited_sequence": "YGGFM", "mapped_uniprot": "P01210"},
+        ],
         "notes": "Human Proenkephalin-A cleaved mature Met-enkephalin pentapeptide (100-104).",
     },
     "SYSGY": {
@@ -1119,8 +1631,15 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [37, 41],
         "window_offset": 3,
         "verified_parent_sequence": "GQQSYSGYSQ",
+        "functional_rule": "[SG]-Y-[SG]-G-Y",
         "pdb_ids": ["5W3N"],
-        "notes": "Human FUS low-complexity domain canonical repeat 37-41 (previously noted as 139-143).",
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P35637", "isoform": "canonical", "parent_residue_range": [34, 43], "motif_residue_range": [37, 41]},
+            {"role": "exact_structure", "source": "PDB", "id": "5W3N", "entity_id": "1", "chains": ["A", "B", "C", "D", "E", "F", "G", "H", "I"], "residue_range": [64, 68], "deposited_sequence": "QQSYSGYSQ", "mapped_uniprot": "P35637"},
+        ],
+        "notes": "Human FUS low-complexity domain canonical repeat 37-41.",
     },
     "LDLAS": {
         "status": "abstraction",
@@ -1130,7 +1649,14 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": None,
         "window_offset": 0,
         "verified_parent_sequence": "LDLAS",
-        "pdb_ids": ["3NBY"],
+        "functional_rule": "L-X(2,3)-L-X(2,3)-L-X-L",
+        "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": "N/A",
+        "citations": [
+            {"role": "motif_definition", "source": "ELM", "id": "TRG_NES_CRM1_1"},
+            {"role": "motif_family_context", "source": "PDB", "id": "3NBY", "notes": "CRM1-RanGTP nuclear export complex context (native NES spans 10-12 aa, not contiguous 5-mer)."},
+        ],
         "notes": "Learn-only pedagogical compression of amphipathic CRM1 nuclear export ridge.",
     },
     "NPLYK": {
@@ -1141,7 +1667,14 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [770, 774],
         "window_offset": 7,
         "verified_parent_sequence": "AKWDTANNPLYKEATSTFTNITYRGT",
+        "functional_rule": "N-P-L-Y-K",
         "pdb_ids": ["1MK7"],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P05106", "isoform": "canonical", "parent_residue_range": [763, 788], "motif_residue_range": [770, 774]},
+            {"role": "exact_structure", "source": "PDB", "id": "1MK7", "entity_id": "1", "chains": ["A", "C"], "residue_range": [10, 14], "deposited_sequence": "ANNPLYKE", "mapped_uniprot": "P05106"},
+        ],
         "notes": "Human Integrin Beta-3 (ITGB3) canonical cytoplasmic talin-binding turn 770-774 (744-748 mature).",
     },
     "GHHPH": {
@@ -1152,18 +1685,42 @@ SEQLE_REFERENCE_REGISTRY: Dict[str, Dict[str, Any]] = {
         "motif_residue_range": [383, 387],
         "window_offset": 0,
         "verified_parent_sequence": "GHHPHGHHPH",
+        "functional_rule": "G-H-H-P-H",
         "pdb_ids": [],
+        "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+        "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+        "citations": [
+            {"role": "native_sequence", "source": "UniProt", "id": "P04196", "isoform": "canonical", "parent_residue_range": [383, 392], "motif_residue_range": [383, 387]},
+        ],
         "notes": "Human HRG tandem HPR repeat 383-392 (motif 383-387; single-copy repeat also at 363-367).",
     },
 }
+
+
+def validate_seqle_registry_completeness(
+    records: Sequence[Dict[str, Any]],
+    registry: Optional[Dict[str, Dict[str, Any]]] = None,
+) -> None:
+    """Verifies a strict 1:1 bijective mapping between shipped Seqle records and the reference registry."""
+    reg = SEQLE_REFERENCE_REGISTRY if registry is None else registry
+    catalog_seqs = {str(r.get("seq", "")).strip().upper() for r in records}
+    reg_seqs = set(reg.keys())
+    missing = sorted(catalog_seqs - reg_seqs)
+    stale = sorted(reg_seqs - catalog_seqs)
+    if missing:
+        raise ValueError(f"Shipped Seqle catalog has motifs missing from reference registry: {missing}")
+    if stale:
+        raise ValueError(f"Reference registry contains stale extra entries not in shipped catalog: {stale}")
 
 
 def validate_seqle_motif_record(
     item: Dict[str, Any],
     aa_props: Dict[str, Dict[str, Any]],
     enforce_reference_registry: bool = True,
+    registry: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> None:
-    """Validates a Seqle motif record against P0-4 schema, biological constraints, and reference provenance."""
+    """Validates a Seqle motif record against P0-4 schema, biological rules, and typed provenance."""
+    reg = SEQLE_REFERENCE_REGISTRY if registry is None else registry
     seq = item.get("seq", "")
     if len(seq) != 5 or any(ch not in aa_props for ch in seq):
         raise ValueError(f"Invalid 5-AA sequence: {seq!r}")
@@ -1213,6 +1770,10 @@ def validate_seqle_motif_record(
     elif kind == "fragment":
         if len(tokens) < 5:
             raise ValueError(f"[{seq}] kind='fragment' consensus {consensus!r} shorter than 5 positions")
+        if len(tokens) == 5:
+            regex = "^" + "".join(tokens) + "$"
+            if not re.match(regex, seq):
+                raise ValueError(f"[{seq}] Sequence does not match its 5-position fragment consensus {consensus!r}")
 
     elig = item.get("game_eligibility", [])
     if not elig or not set(elig).issubset({"learn", "ranked"}):
@@ -1220,24 +1781,90 @@ def validate_seqle_motif_record(
     if kind == "abstraction" and "ranked" in elig:
         raise ValueError(f"[{seq}] kind='abstraction' cannot be eligible for 'ranked' mode")
 
-    if enforce_reference_registry and seq in SEQLE_REFERENCE_REGISTRY:
-        ref = SEQLE_REFERENCE_REGISTRY[seq]
-        if parent_seq != ref["verified_parent_sequence"]:
+    if enforce_reference_registry:
+        if seq not in reg:
+            raise ValueError(f"[{seq}] Motif missing from SEQLE_REFERENCE_REGISTRY (enforce_reference_registry=True)")
+        reg_ref = reg[seq]
+        ref = item.get("reference_provenance") if isinstance(item.get("reference_provenance"), dict) else reg_ref
+        status = item.get("provenance_status") if "provenance_status" in item else ref.get("status")
+        if status not in VALID_PROVENANCE_STATUSES or status != reg_ref.get("status"):
+            raise ValueError(f"[{seq}] Unknown or mismatched provenance status {status!r}")
+        if parent_seq != ref.get("verified_parent_sequence"):
             raise ValueError(
                 f"[{seq}] parent_sequence {parent_seq!r} does not match verified reference "
-                f"{ref['verified_parent_sequence']!r} ({ref['accession']})"
+                f"{ref.get('verified_parent_sequence')!r} ({ref.get('accession')})"
             )
-        if offset != ref["window_offset"]:
+        if offset != ref.get("window_offset"):
             raise ValueError(
-                f"[{seq}] window_offset {offset} != verified offset {ref['window_offset']} ({ref['accession']})"
+                f"[{seq}] window_offset {offset} != verified offset {ref.get('window_offset')} ({ref.get('accession')})"
             )
-        status = ref["status"]
+
+        citations = item.get("citations") if "citations" in item else ref.get("citations")
+        if not isinstance(citations, list) or not citations:
+            raise ValueError(f"[{seq}] Provenance requires non-empty typed citations list")
+        exact_pdb_ids: set[str] = set()
+        context_pdb_ids: set[str] = set()
+        for cit in citations:
+            if not isinstance(cit, dict):
+                raise ValueError(f"[{seq}] Malformed citation entry: {cit!r}")
+            role = cit.get("role")
+            if role not in VALID_CITATION_ROLES:
+                raise ValueError(f"[{seq}] Invalid citation role {role!r}")
+            if not cit.get("source") or not cit.get("id"):
+                raise ValueError(f"[{seq}] Citation missing source/id: {cit!r}")
+            if role == "native_sequence" and cit.get("source") == "UniProt":
+                if cit.get("id") != ref.get("accession"):
+                    raise ValueError(f"[{seq}] native_sequence UniProt id {cit.get('id')!r} != {ref.get('accession')!r}")
+                reg_native = next(
+                    (rc for rc in (reg_ref.get("citations") or []) if isinstance(rc, dict) and rc.get("role") == "native_sequence"),
+                    None,
+                )
+                expected_iso = (reg_native.get("isoform") if reg_native else None) or "canonical"
+                if cit.get("isoform") != expected_iso:
+                    raise ValueError(f"[{seq}] native_sequence isoform {cit.get('isoform')!r} != {expected_iso!r}")
+                if cit.get("motif_residue_range") != ref.get("motif_residue_range"):
+                    raise ValueError(
+                        f"[{seq}] native_sequence motif_residue_range {cit.get('motif_residue_range')!r} != {ref.get('motif_residue_range')!r}"
+                    )
+                if cit.get("parent_residue_range") != ref.get("parent_residue_range"):
+                    raise ValueError(
+                        f"[{seq}] native_sequence parent_residue_range {cit.get('parent_residue_range')!r} != {ref.get('parent_residue_range')!r}"
+                    )
+            if role == "exact_structure":
+                if status in ("consensus_exemplar", "abstraction"):
+                    raise ValueError(f"[{seq}] {status} cannot claim exact_structure citation {cit['id']!r}")
+                ent = cit.get("entity_id")
+                chains = cit.get("chains")
+                r_rng = cit.get("residue_range")
+                dep_seq = str(cit.get("deposited_sequence") or "")
+                if not ent or not isinstance(chains, list) or not chains:
+                    raise ValueError(f"[{seq}] exact_structure {cit['id']!r} must store entity_id and chains")
+                if not (isinstance(r_rng, list) and len(r_rng) == 2 and all(isinstance(v, int) for v in r_rng) and r_rng[0] >= 1 and r_rng[1] - r_rng[0] + 1 == 5):
+                    raise ValueError(f"[{seq}] exact_structure {cit['id']!r} invalid residue_range {r_rng!r}")
+                if seq not in dep_seq:
+                    raise ValueError(f"[{seq}] exact_structure {cit['id']!r} deposited_sequence {dep_seq!r} lacks motif")
+                mapped = cit.get("mapped_uniprot")
+                if status == "verified_uniprot" and mapped is not None:
+                    base_acc = str(ref["accession"]).split("-")[0]
+                    if mapped != ref["accession"] and mapped != base_acc:
+                        raise ValueError(
+                            f"[{seq}] Conflicting mapped_uniprot {mapped!r} in exact_structure {cit['id']!r} vs accession {ref['accession']!r}"
+                        )
+                exact_pdb_ids.add(str(cit["id"]))
+            elif role == "motif_family_context" and cit.get("source") == "PDB":
+                context_pdb_ids.add(str(cit["id"]))
+
+        if set(ref.get("pdb_ids") or []) != exact_pdb_ids:
+            raise ValueError(
+                f"[{seq}] Registry pdb_ids {ref.get('pdb_ids')!r} disagree with exact_structure citations {sorted(exact_pdb_ids)!r}"
+            )
+        if exact_pdb_ids & context_pdb_ids:
+            raise ValueError(f"[{seq}] PDB ID(s) {sorted(exact_pdb_ids & context_pdb_ids)} marked both exact and context")
+
         if status == "verified_uniprot":
             acc = str(ref["accession"])
             if f"UniProt:{acc}" not in exemplar:
-                raise ValueError(
-                    f"[{seq}] exemplar_source {exemplar!r} must cite verified UniProt:{acc}"
-                )
+                raise ValueError(f"[{seq}] exemplar_source {exemplar!r} must cite verified UniProt:{acc}")
             p_rng = ref["parent_residue_range"]
             m_rng = ref["motif_residue_range"]
             if not (isinstance(p_rng, list) and len(p_rng) == 2 and p_rng[1] - p_rng[0] + 1 == len(parent_seq)):
@@ -1247,11 +1874,28 @@ def validate_seqle_motif_record(
                 raise ValueError(
                     f"[{seq}] motif_residue_range {m_rng!r} inconsistent with parent range {p_rng!r} + offset {offset}"
                 )
+            cited_coords = f"{m_rng[0]}-{m_rng[1]}"
+            # Reject stale wrong range mentions when explicit coordinates appear in exemplar_source
+            for m_coord in re.findall(r"\b(\d+-\d+)\b", exemplar):
+                if m_coord != cited_coords and m_coord != f"{p_rng[0]}-{p_rng[1]}":
+                    # allow documented legacy mature coordinate parentheticals ONLY if canonical range is present
+                    if cited_coords not in exemplar:
+                        raise ValueError(f"[{seq}] exemplar_source {exemplar!r} cites {m_coord} instead of canonical {cited_coords}")
         elif status in ("consensus_exemplar", "abstraction"):
             if parent_seq != seq or offset != 0:
                 raise ValueError(
                     f"[{seq}] {status} must not fabricate flanking residues (got parent={parent_seq!r}, offset={offset})"
                 )
+            if re.search(r"UniProt:[A-Z0-9]+", exemplar) and "context" not in exemplar.lower() and "carries" not in exemplar.lower() and "consensus" not in exemplar.lower():
+                raise ValueError(f"[{seq}] {status} exemplar_source {exemplar!r} cannot imply direct native UniProt ownership")
+            if status == "abstraction" and kind != "abstraction":
+                raise ValueError(f"[{seq}] abstraction status requires kind='abstraction'")
+
+        rule_id = ref.get("functional_rule_id")
+        if rule_id == "COPI_DILYSINE_C_TERM":
+            validate_copi_terminal_motif(seq, str(terminal))
+        elif rule_id == "N_GLC_SEQUON":
+            validate_nglycosylation_sequon(seq, consensus)
 
 
 def compute_peptide_biochem(seq: str, aa_props: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:

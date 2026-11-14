@@ -32,8 +32,10 @@ from rdkit import Chem, DataStructs
 from chem_engine import (
     FINGERPRINT_SPEC,
     PEPTIDE_PKA_SPEC,
+    PROVENANCE_VERIFIED_DATE,
     SEQLE_REFERENCE_REGISTRY,
     STANDARDIZATION_SPEC,
+    UNIPROT_VERIFIED_RELEASE,
     assert_seqle_solver_gate,
     assert_solver_gate,
     audit_hint_text_leakage,
@@ -51,9 +53,10 @@ from chem_engine import (
     select_k_anonymous_level0_features,
     standardize_and_audit,
     validate_seqle_motif_record,
+    validate_seqle_registry_completeness,
 )
 
-SCHEMA_VERSION = "0.2.0"
+SCHEMA_VERSION = "0.2.2"
 
 # ---------------------------------------------------------------------------
 # 1. Curated CHEMLE Compound Library (36 Molecules, P2-3 Leakage-Audited)
@@ -551,16 +554,16 @@ SEQLE_RAW_MOTIFS: List[Dict[str, Any]] = [
         "seq": "NPVYK",
         "title": "Clathrin Endocytosis NPXY Internalization Turn",
         "kind": "exact",
-        "consensus": "N-P-X-Y-[KR]",
+        "consensus": "N-P-X-Y-X",
         "parent_sequence": "NPVYK",
         "window_offset": 0,
         "terminal": "none",
         "game_eligibility": ["learn", "ranked"],
         "family": "Membrane Trafficking",
         "hint_role": "Cytoplasmic tail sequence of lipoprotein and growth-factor receptors recruiting PTB-domain coat adaptors.",
-        "hint_detail": "First two residues form a type-I beta-turn docking the unphosphorylated phenolic ring into DAB2/ARH.",
-        "context_requirement": "Consensus exemplar of cytosolic juxtamembrane Type I receptor NPXY[KR] tails (human LDLR carries NPVYQ).",
-        "exemplar_source": "ELM:TRG_ENDOCYTIC_2; PDB:3SO6 (consensus exemplar; human LDLR UniProt:P01130 825-829 carries NPVYQ)",
+        "hint_detail": "Conserved Asn-Pro-X-Tyr turn docks the unphosphorylated phenolic ring into DAB2/ARH PTB adaptors (teaching example suffix X=Lys).",
+        "context_requirement": "Synthetic consensus example for the F-X-N-P-X-Y internalization signal (human LDLR UniProt:P01130 825-829 carries NPVYQ in PDB:3SO6).",
+        "exemplar_source": "ELM:TRG_ENDOCYTIC_2; PDB:3SO6 (motif-family context only: human LDLR UniProt:P01130 carries NPVYQ)",
     },
     {
         "seq": "KCVIM",
@@ -665,7 +668,7 @@ SEQLE_RAW_MOTIFS: List[Dict[str, Any]] = [
         "hint_role": "Left-handed 3.0-residues-per-turn secondary structure binding into aromatic Trp/Tyr grooves of Src-homology-3 domains.",
         "hint_detail": "Four cyclic imino acid residues flanking a single beta-branched aliphatic valine.",
         "context_requirement": "Adopts an extended left-handed PPII helical conformation recognized by Class II SH3 adaptor domains.",
-        "exemplar_source": "UniProt:Q07889 (Human SOS1 Proline-Rich Domain 1150-1154); PDB:1GBR; ELM:LIG_SH3_2",
+        "exemplar_source": "UniProt:Q07889 (Human SOS1 Proline-Rich Domain 1150-1154); ELM:LIG_SH3_2; PDB:1GBR (motif-family context only: murine Sos1 Q02384)",
     },
     {
         "seq": "INFEK",
@@ -680,7 +683,7 @@ SEQLE_RAW_MOTIFS: List[Dict[str, Any]] = [
         "hint_role": "Internal P3-P7 segment of the benchmark CD8+ T-cell octapeptide presented by murine major histocompatibility complexes.",
         "hint_detail": "Aromatic Phe at P5 buries into the deep C-pocket while P4 Asn and P6 Glu/P7 Lys face the T-cell receptor.",
         "context_requirement": "Internal 5-mer window (residues 3-7) of the 8-residue SIINFEKL peptide bound in the MHC-I groove.",
-        "exemplar_source": "UniProt:P01012 (Gallus gallus Ovalbumin 259-263); PDB:1VAC",
+        "exemplar_source": "UniProt:P01012 (Gallus gallus Ovalbumin 260-264 within 258-265); PDB:1VAC",
     },
     {
         "seq": "YQRLN",
@@ -698,19 +701,19 @@ SEQLE_RAW_MOTIFS: List[Dict[str, Any]] = [
         "exemplar_source": "UniProt:P19814 (Rat TGN38 Cytoplasmic Tail 350-354); PDB:1BXX; ELM:TRG_ENDOCYTIC_1",
     },
     {
-        "seq": "KKMPQ",
+        "seq": "KEKSD",
         "title": "COPI Coatomer Dilysine ER Retrieval Signal",
         "kind": "exact",
-        "consensus": "K-K-X-X-X",
-        "parent_sequence": "KKMPQ",
-        "window_offset": 0,
+        "consensus": "K-X-K-X-X",
+        "parent_sequence": "LGLFIFSIVFLHMKEKEKSD",
+        "window_offset": 15,
         "terminal": "C",
         "game_eligibility": ["learn", "ranked"],
         "family": "Subcellular Targeting",
-        "hint_role": "Cytosolic C-terminal tail sequence of transmembrane cargo recognized by alpha/beta'-COP WD40 propellers.",
-        "hint_detail": "Initiated by a twin positively charged primary amine dyad followed by a thioether, cyclic imino, and carboxamide tail.",
-        "context_requirement": "Consensus C-terminal retrieval exemplar (hWbp1 in PDB:4J77 carries AKEKSD; Ad2 E3-19K carries EKKMP).",
-        "exemplar_source": "ELM:TRG_ER_diLys_1; PDB:4J77 (consensus exemplar; hWbp1 in 4J77 carries AKEKSD)",
+        "hint_role": "Cytosolic extreme C-terminal retrieval signal on ER-resident membrane proteins recognized by alpha/beta'-COP WD40 propellers.",
+        "hint_detail": "Alternating cationic primary amines at positions -5 and -3 from the C-terminus pair with an acidic side chain, polar hydroxyl, and terminal carboxylate.",
+        "context_requirement": "Canonical extreme C-terminal K-X-K-X-X retrieval signal (lysines at positions -5 and -3; co-crystallized AKEKSD peptide in PDB:4J77 entity 1).",
+        "exemplar_source": "UniProt:P39656 (Human OST48/DDOST 452-456); PDB:4J77 (AKEKSD entity 1); ELM:TRG_ER_diLys_1",
     },
     {
         "seq": "CAACH",
@@ -731,16 +734,16 @@ SEQLE_RAW_MOTIFS: List[Dict[str, Any]] = [
         "seq": "NLTGY",
         "title": "ER Luminal N-Linked Glycosylation Sequon",
         "kind": "exact",
-        "consensus": "N-X-[ST]-X-Y",
+        "consensus": "N-[^P]-[ST]-X-X",
         "parent_sequence": "NLTGY",
         "window_offset": 0,
         "terminal": "none",
         "game_eligibility": ["learn", "ranked"],
         "family": "Post-Translational Modification",
         "hint_role": "Oligosaccharyltransferase transfers a 14-sugar Glc3Man9GlcNAc2 precursor onto the primary carboxamide nitrogen.",
-        "hint_detail": "Requires Asn at position 1, any non-Pro at position 2, and a hydroxylated Thr or Ser at position 3.",
-        "context_requirement": "Consensus acceptor sequon exemplar; must translocate into the ER lumen for STT3 oligosaccharyltransferase recognition.",
-        "exemplar_source": "ELM:MOD_N-GLC_1; PDB:3WAK (consensus exemplar; 3WAK is apo Archaeoglobus fulgidus AglB UniProt:O29867)",
+        "hint_detail": "Requires Asn at position 1, any residue except Pro at position 2, and Thr or Ser at position 3 (synthetic G-Y padding completes the 5-mer).",
+        "context_requirement": "Synthetic N-[^P]-[ST] eukaryotic acceptor sequon example (no universal Tyr5 requirement; PDB:3WAK is apo archaeal AglB UniProt:O29867).",
+        "exemplar_source": "ELM:MOD_N-GLC_1; PDB:3WAK (motif-family context only: apo Archaeoglobus fulgidus AglB UniProt:O29867)",
     },
     {
         "seq": "DSGLD",
@@ -753,24 +756,24 @@ SEQLE_RAW_MOTIFS: List[Dict[str, Any]] = [
         "game_eligibility": ["learn", "ranked"],
         "family": "Proteasomal Degradation",
         "hint_role": "Phosphorylation by IKK kinase recruits the cullin-RING E3 ubiquitin ligase to trigger NF-kappa-B activation.",
-        "hint_detail": "First five residues of the human I-kappa-B-alpha destruction box bound to the WD40 beta-propeller.",
-        "context_requirement": "Requires dual serine phosphorylation within the disordered N-terminal regulatory tail of I-kappa-B-alpha.",
-        "exemplar_source": "UniProt:P25963 (Human NFKBIA / I-kappa-B-alpha 31-35); PDB:1P22; ELM:DEG_SCF_TRCP1_1",
+        "hint_detail": "First five residues of the human I-kappa-B-alpha destruction box bound to the SCF-beta-TrCP WD40 receptor in PDB:9T9W.",
+        "context_requirement": "Requires dual serine phosphorylation within the disordered N-terminal tail (31-35) of I-kappa-B-alpha.",
+        "exemplar_source": "UniProt:P25963 (Human NFKBIA / I-kappa-B-alpha 31-35); PDB:9T9W (entity 2); ELM:DEG_SCF_TRCP1_1",
     },
     {
         "seq": "KENIP",
         "title": "APC/C-Cdh1 Mitotic Exit Destruction Box",
         "kind": "fragment",
-        "consensus": "K-E-N-X-P",
+        "consensus": "K-E-N-X-X",
         "parent_sequence": "KENIP",
         "window_offset": 0,
         "terminal": "none",
         "game_eligibility": ["learn", "ranked"],
         "family": "Proteasomal Degradation",
         "hint_role": "Recruits the Anaphase-Promoting Complex coactivator to ubiquitinate cell-cycle kinases during late mitosis and G1.",
-        "hint_detail": "Begins with a cationic-anionic-carboxamide triad followed by a beta-branched aliphatic and C-terminal cyclic proline.",
-        "context_requirement": "Consensus K-E-N-X-P degron exemplar (PDB:4BH6 yeast Acm1 carries QVKENLS; Hsl1 P34244 carries NKENE).",
-        "exemplar_source": "ELM:DEG_APCC_KENBOX_2; PDB:4BH6 (consensus exemplar; yeast Acm1 UniProt:Q08981 carries KENLS and Hsl1 UniProt:P34244 carries NKENE)",
+        "hint_detail": "Begins with an invariant cationic-anionic-carboxamide core followed by an aliphatic-imino teaching suffix (downstream positions vary across native substrates).",
+        "context_requirement": "Synthetic K-E-N degron example without a universal Pro requirement (PDB:4BH6 Acm1 UniProt:Q08981 carries KENLS; Hsl1 UniProt:P34244 carries NKENE).",
+        "exemplar_source": "ELM:DEG_APCC_KENBOX_2; PDB:4BH6 (motif-family context only: yeast Acm1 UniProt:Q08981 carries KENLS)",
     },
     {
         "seq": "KKKRK",
@@ -970,6 +973,8 @@ def compute_canonical_dataset_hash(
             "terminal": r["terminal"],
             "game_eligibility": r["game_eligibility"],
             "family": r["family"],
+            "functional_rule": r.get("functional_rule", ""),
+            "provenance_status": r.get("provenance_status", ""),
             "net_charge_ph74": r["net_charge_ph74"],
             "gravy": r["gravy"],
             "isoelectric_point": r["isoelectric_point"],
@@ -991,31 +996,48 @@ def compute_canonical_dataset_hash(
     return hashlib.sha256(blob).hexdigest()[:12]
 
 
+LEGACY_SCHEDULE_HASHES = ["9257bd168fa6", "8bb96ac156cc", "919ad8afb190"]
+V021_CHEMLE_ROSTER_DIGEST = "87689dabf71408a8"
+
+
+def compute_chemle_schedule_hash(chemle_records: Sequence[Dict[str, Any]]) -> str:
+    """Computes per-game daily schedule hash strictly from Ranked-eligible Chemle answer IDs."""
+    ranked_ids = sorted(
+        r["id"]
+        for r in chemle_records
+        if "ranked" in r.get("game_eligibility", ["learn", "ranked"])
+    )
+    roster_digest = hashlib.sha256(
+        json.dumps(ranked_ids, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:16]
+    # Preserve the v0.2.1 Ranked Chemle daily & classroom schedule when the answer roster is unchanged.
+    if roster_digest == V021_CHEMLE_ROSTER_DIGEST:
+        return "9257bd168fa6"
+    payload = {"game": "chemle", "chooser": "fnv1a_v1", "ranked_ids": ranked_ids}
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()[:12]
+
+
+def compute_seqle_schedule_hash(seqle_records: Sequence[Dict[str, Any]]) -> str:
+    """Computes per-game daily schedule hash strictly from Ranked-eligible Seqle answer sequences."""
+    ranked_seqs = sorted(
+        r["seq"]
+        for r in seqle_records
+        if "ranked" in r.get("game_eligibility", ["learn"])
+    )
+    payload = {"game": "seqle", "chooser": "fnv1a_v1", "ranked_seqs": ranked_seqs}
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()[:12]
+
+
 def compute_schedule_version_hash(
     chemle_records: Sequence[Dict[str, Any]],
     seqle_records: Sequence[Dict[str, Any]],
 ) -> str:
-    """Computes a daily-schedule hash strictly from catalog identities and mode eligibility.
-
-    Separated from `dataset_version_hash` so tuning descriptors or feedback thresholds
-    does not scramble the daily puzzle rotation or orphan active-day state.
-    """
-    payload = {
-        "schema_version": SCHEMA_VERSION,
-        "chemle_ids": sorted(r["id"] for r in chemle_records),
-        "seqle_catalog": sorted(
-            (
-                {
-                    "seq": r["seq"],
-                    "kind": r["kind"],
-                    "game_eligibility": sorted(r["game_eligibility"]),
-                }
-                for r in seqle_records
-            ),
-            key=lambda x: x["seq"],
-        ),
-    }
-    blob = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    """Combines per-game Ranked schedule hashes for backwards-compatible callers."""
+    chem_h = compute_chemle_schedule_hash(chemle_records)
+    seq_h = compute_seqle_schedule_hash(seqle_records)
+    blob = f"chemle:{chem_h}|seqle:{seq_h}".encode("utf-8")
     return hashlib.sha256(blob).hexdigest()[:12]
 
 
@@ -1141,7 +1163,9 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
         )
         assert_solver_gate(stats, prof_spec["solver_gate"], prof_id)
         solver_reports[prof_id] = {
-            k: v for k, v in stats.items() if k not in ("probe_metrics", "per_target_guesses")
+            k: v
+            for k, v in stats.items()
+            if k not in ("probe_metrics", "per_target_guesses", "per_target_results")
         }
         print(
             f"[P0-2 Solver Gate PASS · {prof_id}] mean={stats['mean']} median={stats['median']} "
@@ -1191,12 +1215,14 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
         svg_peptide = render_responsive_svg(pep_mol, width=380, height=210, dark_mode=False)
         svg_sha = hashlib.sha256(svg_peptide.encode("utf-8")).hexdigest()[:12]
 
+        ref_prov = SEQLE_REFERENCE_REGISTRY.get(seq) or {}
         seq_rec: Dict[str, Any] = {
             "seq": seq,
             "title": item["title"],
             "kind": item["kind"],
             "consensus": item["consensus"],
             "pattern": item["consensus"],
+            "functional_rule": ref_prov.get("functional_rule", item["consensus"]),
             "parent_sequence": item["parent_sequence"],
             "window_offset": item["window_offset"],
             "terminal": item["terminal"],
@@ -1206,7 +1232,11 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             "hint_detail": item["hint_detail"],
             "context_requirement": item["context_requirement"],
             "exemplar_source": item["exemplar_source"],
-            "reference_provenance": SEQLE_REFERENCE_REGISTRY.get(seq),
+            "provenance_status": ref_prov.get("status", "unknown"),
+            "provenance_verified_date": ref_prov.get("provenance_verified_date", PROVENANCE_VERIFIED_DATE),
+            "uniprot_release": ref_prov.get("uniprot_release", UNIPROT_VERIFIED_RELEASE),
+            "citations": ref_prov.get("citations", []),
+            "reference_provenance": ref_prov,
             "three_letter": "-".join(AA_PROPERTIES[aa]["three"] for aa in seq),
             "formula": pep_desc["formula"],
             "Formula": pep_desc["formula"],
@@ -1221,8 +1251,11 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             "svg_peptide": svg_peptide,
             "svg_full": svg_peptide,
         }
+        validate_seqle_motif_record(seq_rec, AA_PROPERTIES, enforce_reference_registry=True)
         audit_hint_text_leakage(seq_rec, ("hint_role", "hint_detail"), "seq")
         seqle_records.append(seq_rec)
+
+    validate_seqle_registry_completeness(seqle_records)
 
     # P0-1: Select k-anonymous Level-0 opening clues for Seqle
     seq_extractors = _build_seqle_candidate_extractors()
@@ -1245,8 +1278,8 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             f"5-mer window of {rec['parent_sequence']} (offset {rec['window_offset']})"
             if rec["kind"] == "fragment" and rec["parent_sequence"] != rec["seq"]
             else (
-                f"Consensus representative ({rec['consensus']})"
-                if (rec.get("reference_provenance") or {}).get("status") == "consensus_exemplar"
+                f"Consensus teaching example ({rec['functional_rule']})"
+                if rec.get("provenance_status") == "consensus_exemplar"
                 else ("Pedagogical coordination abstraction (Learn mode)" if rec["kind"] == "abstraction" else "Canonical 5-residue motif")
             )
         )
@@ -1280,10 +1313,14 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
         )
         assert_seqle_solver_gate(seq_stats, prof_spec["seqle_solver_gate"], prof_id)
         seqle_solver_reports[prof_id] = {
-            k: v for k, v in seq_stats.items() if k not in ("per_target_guesses",)
+            k: v
+            for k, v in seq_stats.items()
+            if k not in ("per_target_guesses", "per_target_results")
         }
 
     dataset_hash = compute_canonical_dataset_hash(chemle_records, seqle_records, feedback_spec)
+    chemle_schedule_hash = compute_chemle_schedule_hash(chemle_records)
+    seqle_schedule_hash = compute_seqle_schedule_hash(seqle_records)
     schedule_hash = compute_schedule_version_hash(chemle_records, seqle_records)
 
     return {
@@ -1293,7 +1330,13 @@ def build_all(feedback_spec: Dict[str, Any]) -> Dict[str, Any]:
             "rdkit_version": Chem.rdBase.rdkitVersion,
             "dataset_version_hash": dataset_hash,
             "schedule_version_hash": schedule_hash,
-            "daily_seed_policy": "FNV-1a over '{game}:{profile}:{utcDate}:{schedule_version_hash}' indexing canonically sorted pool",
+            "chemle_schedule_hash": chemle_schedule_hash,
+            "seqle_schedule_hash": seqle_schedule_hash,
+            "legacy_schedule_hashes": LEGACY_SCHEDULE_HASHES,
+            "retired_seqle_answers": ["KKMPQ"],
+            "provenance_verified_date": PROVENANCE_VERIFIED_DATE,
+            "uniprot_release": UNIPROT_VERIFIED_RELEASE,
+            "daily_seed_policy": "FNV-1a over '{game}:{profile}:{utcDate}:{gameScheduleHash}' indexing canonically sorted Ranked answer pool",
             "chemle_count": len(chemle_records),
             "seqle_count": len(seqle_records),
             "seqle_ranked_count": len(ranked_seq_pool),
@@ -1350,7 +1393,7 @@ def write_golden_feedback_vectors(payload: Dict[str, Any], base_dir: str) -> str
 
     golden_path = os.path.join(tests_dir, "golden_feedback.json")
     tmp_golden = golden_path + ".tmp"
-    with open(tmp_golden, "w", encoding="utf-8") as f:
+    with open(tmp_golden, "w", encoding="utf-8", newline="\n") as f:
         json.dump(
             {
                 "dataset_version_hash": payload["metadata"]["dataset_version_hash"],
@@ -1378,13 +1421,13 @@ def main() -> None:
 
     json_path = os.path.join(data_dir, "puzzles.json")
     tmp_json = json_path + ".tmp"
-    with open(tmp_json, "w", encoding="utf-8") as f:
+    with open(tmp_json, "w", encoding="utf-8", newline="\n") as f:
         json.dump(payload, f, indent=2)
     os.replace(tmp_json, json_path)
 
     js_path = os.path.join(data_dir, "puzzles_data.js")
     tmp_js = js_path + ".tmp"
-    with open(tmp_js, "w", encoding="utf-8") as f:
+    with open(tmp_js, "w", encoding="utf-8", newline="\n") as f:
         f.write("// Auto-generated by build_puzzles.py using RDKit — do not edit manually.\n")
         f.write("window.BIOWORDLE_DATA = ")
         json.dump(payload, f, separators=(",", ":"))
@@ -1405,13 +1448,13 @@ def main() -> None:
     app_js_path = os.path.join(base_dir, "app.js")
     if all(os.path.isfile(p) for p in (index_path, css_path, app_js_path)):
         with open(index_path, "r", encoding="utf-8") as f:
-            html_src = f.read()
+            html_src = f.read().replace("\r\n", "\n")
         with open(css_path, "r", encoding="utf-8") as f:
-            css_src = f.read()
+            css_src = f.read().replace("\r\n", "\n")
         with open(js_path, "r", encoding="utf-8") as f:
-            data_js_src = f.read()
+            data_js_src = f.read().replace("\r\n", "\n")
         with open(app_js_path, "r", encoding="utf-8") as f:
-            app_js_src = f.read()
+            app_js_src = f.read().replace("\r\n", "\n")
 
         bundled = html_src.replace(
             '<link rel="stylesheet" href="styles.css" />',
@@ -1426,7 +1469,7 @@ def main() -> None:
         os.makedirs(dist_dir, exist_ok=True)
         standalone_path = os.path.join(dist_dir, "biowordle_standalone.html")
         tmp_standalone = standalone_path + ".tmp"
-        with open(tmp_standalone, "w", encoding="utf-8") as f:
+        with open(tmp_standalone, "w", encoding="utf-8", newline="\n") as f:
             f.write(bundled)
         os.replace(tmp_standalone, standalone_path)
         print(f"  - {standalone_path} (Single-file standalone bundle)")
@@ -1434,7 +1477,7 @@ def main() -> None:
         if len(sys.argv) > 1 and sys.argv[1] == "--artifact-output" and len(sys.argv) > 2:
             art_path = sys.argv[2]
             tmp_art = art_path + ".tmp"
-            with open(tmp_art, "w", encoding="utf-8") as f:
+            with open(tmp_art, "w", encoding="utf-8", newline="\n") as f:
                 f.write(bundled)
             os.replace(tmp_art, art_path)
             print(f"  - {art_path} (Artifact preview updated)")

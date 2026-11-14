@@ -23,25 +23,46 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install Node dependencies & Playwright Chromium
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run Cross-Language Golden Vector & Runtime Invariant Suite (Node.js)
+        run: node tests/verify_golden_and_dom.mjs
+
+      - name: Run Playwright E2E suite on checked-out assets
+        run: npm run test:e2e
+
+      - name: Upload Playwright failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
       - name: Install pinned RDKit & Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run build compiler & verify canonical dataset_version_hash determinism
+      - name: Run build compiler & verify clean LF-normalized tracked diff
         run: |
           H_BEFORE=$(python -c "import json; print(json.load(open('data/puzzles.json'))['metadata']['dataset_version_hash'])")
           python build_puzzles.py
           H_AFTER=$(python -c "import json; print(json.load(open('data/puzzles.json'))['metadata']['dataset_version_hash'])")
           echo "dataset_version_hash before=$H_BEFORE after=$H_AFTER"
           test "$H_BEFORE" = "$H_AFTER"
+          git diff --exit-code data/puzzles.json data/puzzles_data.js tests/golden_feedback.json dist/biowordle_standalone.html
 
       - name: Run Solver-Bot Difficulty & k-Anonymity Calibration Gates
         run: python tools/solver_bot.py
-
-      - name: Run Cross-Language Golden Vector & Runtime Invariant Suite (Node.js)
-        run: node tests/verify_golden_and_dom.mjs
 
       - name: Run Python Scientific & Audit Unit Test Suite
         run: python -m unittest discover -v -s . -p "test_*.py"

@@ -2,4 +2,7 @@
 __pycache__/
 *.pyc
 .DS_Store
+node_modules/
+playwright-report/
+test-results/
 tests/screenshots/
