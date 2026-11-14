@@ -8,7 +8,7 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
       - name: Install Node dependencies & Playwright Chromium
         run: |
           npm ci
-          npx playwright install --with-deps chromium
+          npm run pw:install:ci
 
       - name: Run Cross-Language Golden Vector & Runtime Invariant Suite (Node.js)
         run: node tests/verify_golden_and_dom.mjs
