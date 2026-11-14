@@ -2116,6 +2116,7 @@ ALLOWED_CHEMLE_PROTONATION_POLICIES = frozenset(
 _CHEMLE_VALID_PROFILES = frozenset({"learn", "ranked"})
 _CHEMLE_UNCHARGER = rdMolStandardize.Uncharger()
 _CHEMLE_LARGEST_FRAG = rdMolStandardize.LargestFragmentChooser()
+_NITRO_GROUP_SMARTS = Chem.MolFromSmarts("[N+](=O)[O-]")
 
 
 def validate_chemle_manifest_entry(item: Dict[str, Any]) -> Tuple[Chem.Mol, Dict[str, Any], str]:
@@ -2238,7 +2239,14 @@ def validate_chemle_manifest_entry(item: Dict[str, Any]) -> Tuple[Chem.Mol, Dict
         )
 
     net_q = Chem.GetFormalCharge(std_mol)
-    nonzero_atoms = [a.GetFormalCharge() for a in std_mol.GetAtoms() if a.GetFormalCharge() != 0]
+    nitro_atom_idxs = {
+        idx for match in std_mol.GetSubstructMatches(_NITRO_GROUP_SMARTS) for idx in match
+    }
+    nonzero_atoms = [
+        a.GetFormalCharge()
+        for a in std_mol.GetAtoms()
+        if a.GetFormalCharge() != 0 and a.GetIdx() not in nitro_atom_idxs
+    ]
     if protonation_policy in ("neutral_canonical", "neutral_major_tautomer"):
         if net_q != 0 or nonzero_atoms:
             raise ValueError(

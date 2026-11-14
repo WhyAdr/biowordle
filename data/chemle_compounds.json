@@ -2,6 +2,213 @@
   "schema_version": "0.3.0",
   "compounds": [
     {
+      "id": "1_hydroxyphenazine",
+      "name": "1-Hydroxyphenazine",
+      "aliases": [
+        "Hemipyocyanin",
+        "1-Phenazinol"
+      ],
+      "Category": "Microbial Natural Product",
+      "primary_class": "phenazine_phenol",
+      "role_tags": [
+        "virulence_factor",
+        "cilia_inhibitor",
+        "pseudomonas_metabolite"
+      ],
+      "input_isomeric_smiles": "C1=CC=C2C(=C1)N=C3C=CC=C(C3=N2)O",
+      "expected_standardized_smiles": "Oc1cccc2nc3ccccc3nc12",
+      "expected_inchikey": "SVRNCBGWUMMBQB-UHFFFAOYSA-N",
+      "expected_formula": "C12H8N2O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 135412648,
+        "chebi_id": "CHEBI:62216",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:135412648",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/135412648",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:62216",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:62216",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Phenolic tricyclic Pseudomonas exometabolite that chelates host iron and impairs respiratory ciliary beating.",
+      "hint_origin": "Formed via oxidative decarboxylation of phenazine-1-carboxylate by PhzS monooxygenase.",
+      "structural_note": "Planar tricyclic phenazine bearing a single peri C1 hydroxyl phenol group.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 135412648 and ChEBI CHEBI:62216.",
+      "pilot_family": "Microbial and related natural products"
+    },
+    {
+      "id": "2_4_diacetylphloroglucinol",
+      "name": "2,4-Diacetylphloroglucinol",
+      "aliases": [
+        "DAPG",
+        "2,4-DAPG"
+      ],
+      "Category": "Microbial Natural Product",
+      "primary_class": "polyketide_phloroglucinol",
+      "role_tags": [
+        "antifungal",
+        "take_all_suppression",
+        "type_iii_pks"
+      ],
+      "input_isomeric_smiles": "CC(=O)C1=C(C(=C(C=C1O)O)C(=O)C)O",
+      "expected_standardized_smiles": "CC(=O)c1c(O)cc(O)c(C(C)=O)c1O",
+      "expected_inchikey": "PIFFQYJYNWXNGE-UHFFFAOYSA-N",
+      "expected_formula": "C10H10O5",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 16547,
+        "chebi_id": "CHEBI:78688",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:16547",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/16547",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:78688",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:78688",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Broad-spectrum polyketide antifungal mediating take-all disease suppression in wheat rhizosphere pseudomonads.",
+      "hint_origin": "Constructed from three malonyl-CoA extenders on acetyl-CoA via type-III PKS PhlD and PhlACB acetyltransferase.",
+      "structural_note": "Monocyclic trihydroxybenzene (phloroglucinol) core acylated with two ketone acetyl groups.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 16547 and ChEBI CHEBI:78688.",
+      "pilot_family": "Microbial and related natural products"
+    },
+    {
+      "id": "4_hydroxybenzoic_acid",
+      "name": "4-Hydroxybenzoic acid",
+      "aliases": [
+        "4-HBA",
+        "p-Hydroxybenzoic acid"
+      ],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "phenolic_acid",
+      "role_tags": [
+        "aromatic_degradation",
+        "ubiquinone_precursor"
+      ],
+      "input_isomeric_smiles": "C1=CC(=CC=C1C(=O)O)O",
+      "expected_standardized_smiles": "O=C(O)c1ccc(O)cc1",
+      "expected_inchikey": "FJKROLUGYXJWQN-UHFFFAOYSA-N",
+      "expected_formula": "C7H6O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 135,
+        "chebi_id": "CHEBI:30763",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:135",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/135",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30763",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:30763",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Para-substituted phenolic carboxylate feeding bacterial protocatechuate conversion and eukaryotic ubiquinone synthesis.",
+      "hint_origin": "Derived from chorismate via UbiC lyase in prokaryotes or tyrosine ammonia-lyase beta-oxidation in eukaryotes.",
+      "structural_note": "Benzene ring carrying both a carboxylate and a para-positioned hydroxyl group (1,4-disubstituted).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 135 and ChEBI CHEBI:30763.",
+      "pilot_family": "Aromatic degradation"
+    },
+    {
+      "id": "5_htp",
+      "name": "5-Hydroxy-L-tryptophan",
+      "aliases": [
+        "5-HTP",
+        "Oxitriptan",
+        "5-Hydroxy-L-tryptophan"
+      ],
+      "Category": "Neurotransmitter",
+      "primary_class": "indole_amino_acid",
+      "role_tags": [
+        "serotonin_precursor",
+        "amino_acid_intermediate"
+      ],
+      "input_isomeric_smiles": "C1=CC2=C(C=C1O)C(=CN2)C[C@@H](C(=O)O)N",
+      "expected_standardized_smiles": "N[C@@H](Cc1c[nH]c2ccc(O)cc12)C(=O)O",
+      "expected_inchikey": "LDCYZAJDBXYCGN-VIFPVBQESA-N",
+      "expected_formula": "C11H12N2O3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 439280,
+        "chebi_id": "CHEBI:17780",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:439280",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/439280",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17780",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:17780",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Rate-limiting phenolic indole amino acid converted directly into an indolamine mood and melatonin precursor.",
+      "hint_origin": "Synthesized by tetrahydrobiopterin-dependent TPH1/TPH2 monooxygenases from an essential indole amino acid.",
+      "structural_note": "5-Hydroxyindole bicyclic core carrying an L-alpha-aminopropionic carboxylate.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 439280 and ChEBI CHEBI:17780.",
+      "pilot_family": "Neuroactive metabolites"
+    },
+    {
       "id": "acetaminophen",
       "name": "Acetaminophen",
       "aliases": [
@@ -54,6 +261,57 @@
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
     },
     {
+      "id": "adenine",
+      "name": "Adenine",
+      "aliases": [
+        "6-Aminopurine"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "aminopurine",
+      "role_tags": [
+        "nucleobase",
+        "atp_component",
+        "cofactor_scaffold"
+      ],
+      "input_isomeric_smiles": "C1=NC2=NC=NC(=C2N1)N",
+      "expected_standardized_smiles": "Nc1ncnc2nc[nH]c12",
+      "expected_inchikey": "GFFGJBXGBJISGV-UHFFFAOYSA-N",
+      "expected_formula": "C5H5N5",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 190,
+        "chebi_id": "CHEBI:16708",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:190",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/190",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16708",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16708",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Canonical nucleic-acid purine base embedded across ATP energy carriers, NAD+, FAD, and S-adenosylmethionine.",
+      "hint_origin": "Synthesized ribosylated as AMP from IMP by adenylosuccinate synthetase and lyase.",
+      "structural_note": "Oxygen-free bicyclic purine carrying a primary C6 exocyclic amino (-NH2) group (C5H5N5).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 190 and ChEBI CHEBI:16708.",
+      "pilot_family": "Purines and nucleobases"
+    },
+    {
       "id": "adrenaline",
       "name": "Adrenaline",
       "aliases": [
@@ -103,6 +361,57 @@
       "structural_note": "(R)-Enantiomer catecholamine bearing both a benzylic beta-hydroxyl stereocenter and an N-methyl secondary amine.",
       "review_status": "verified",
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "amoxicillin",
+      "name": "Amoxicillin",
+      "aliases": [
+        "Amoxycillin"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "beta_lactam_antibiotic",
+      "role_tags": [
+        "antibiotic",
+        "pbp_inhibitor",
+        "aminopenicillin"
+      ],
+      "input_isomeric_smiles": "CC1([C@@H](N2[C@H](S1)[C@@H](C2=O)NC(=O)[C@@H](C3=CC=C(C=C3)O)N)C(=O)O)C",
+      "expected_standardized_smiles": "CC1(C)S[C@@H]2[C@H](NC(=O)[C@H](N)c3ccc(O)cc3)C(=O)N2[C@H]1C(=O)O",
+      "expected_inchikey": "LSQZJLSUYDQPKJ-NJBDSQKTSA-N",
+      "expected_formula": "C16H19N3O5S",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 33613,
+        "chebi_id": "CHEBI:2676",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:33613",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/33613",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:2676",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:2676",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Acid-stable oral aminopenicillin blocking peptidoglycan cross-linking via covalent serine acylation.",
+      "hint_origin": "Semi-synthetic beta-lactam bearing a p-hydroxyphenylglycyl side chain for improved Gram-negative uptake.",
+      "structural_note": "Fused 4-membered beta-lactam and 5-membered thiazolidine with a phenolic amine side chain.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 33613 and ChEBI CHEBI:2676.",
+      "pilot_family": "Therapeutic analogues"
     },
     {
       "id": "artemisinin",
@@ -254,6 +563,56 @@
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
     },
     {
+      "id": "benzoic_acid",
+      "name": "Benzoic acid",
+      "aliases": [
+        "Benzoate"
+      ],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "monocyclic_aromatic_acid",
+      "role_tags": [
+        "aromatic_degradation",
+        "antifungal_preservative"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C=C1)C(=O)O",
+      "expected_standardized_smiles": "O=C(O)c1ccccc1",
+      "expected_inchikey": "WPYMKLBDIGXBTP-UHFFFAOYSA-N",
+      "expected_formula": "C7H6O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 243,
+        "chebi_id": "CHEBI:30746",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:243",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/243",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30746",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:30746",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Central monocyclic carboxylate convergent hub in both aerobic dioxygenase and anaerobic CoA catabolism.",
+      "hint_origin": "Formed from CoA-ligated toluene or phenylalanine side-chain shortening in soil microbes and plants.",
+      "structural_note": "Unsubtituted phenyl ring attached directly to a single carboxylic acid group.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 243 and ChEBI CHEBI:30746.",
+      "pilot_family": "Aromatic degradation"
+    },
+    {
       "id": "biotin",
       "name": "Biotin",
       "aliases": [],
@@ -301,6 +660,57 @@
       "structural_note": "Bicyclic heteroarene-free core with three contiguous stereocenters and a five-carbon valeric acid side chain.",
       "review_status": "verified",
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "caffeic_acid",
+      "name": "Caffeic acid",
+      "aliases": [
+        "3,4-Dihydroxycinnamic acid"
+      ],
+      "Category": "Plant Natural Product",
+      "primary_class": "hydroxycinnamic_acid",
+      "role_tags": [
+        "phenylpropanoid",
+        "lignin_pathway",
+        "antioxidant"
+      ],
+      "input_isomeric_smiles": "C1=CC(=C(C=C1/C=C/C(=O)O)O)O",
+      "expected_standardized_smiles": "O=C(O)/C=C/c1ccc(O)c(O)c1",
+      "expected_inchikey": "QAIPRVGONGVQAS-DUXPYHPUSA-N",
+      "expected_formula": "C9H8O4",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 689043,
+        "chebi_id": "CHEBI:36281",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:689043",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/689043",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:36281",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:36281",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Catechol-bearing hydroxycinnamate acting as an intermediate on the route to monolignols and chlorogenate.",
+      "hint_origin": "Produced across land plants by 3-hydroxylation of a precursor phenylpropanoid ester.",
+      "structural_note": "Trans-propenoic carboxylate linked to a 3,4-dihydroxylated benzene ring.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 689043 and ChEBI CHEBI:36281.",
+      "pilot_family": "Phenylpropanoids and plant metabolites"
     },
     {
       "id": "caffeine",
@@ -695,6 +1105,57 @@
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
     },
     {
+      "id": "diclofenac",
+      "name": "Diclofenac",
+      "aliases": [
+        "Diclofenac acid"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "phenylacetic_nsaid",
+      "role_tags": [
+        "nsaid",
+        "cox_inhibitor",
+        "environmental_micropollutant"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C(=C1)CC(=O)O)NC2=C(C=CC=C2Cl)Cl",
+      "expected_standardized_smiles": "O=C(O)Cc1ccccc1Nc1c(Cl)cccc1Cl",
+      "expected_inchikey": "DCOPUUMXTXDBNB-UHFFFAOYSA-N",
+      "expected_formula": "C14H11Cl2NO2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 3033,
+        "chebi_id": "CHEBI:47381",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3033",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3033",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:47381",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:47381",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Potent diarylamine phenylacetic anti-inflammatory widely studied in wastewater biodegradation and avian nephrotoxicity.",
+      "hint_origin": "Synthesized with a sterically twisted chlorinated aniline ring stabilizing COX active-site binding.",
+      "structural_note": "2-Phenylacetic acid linked via a secondary NH bridge to a 2,6-dichlorophenyl ring.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 3033 and ChEBI CHEBI:47381.",
+      "pilot_family": "Therapeutic analogues"
+    },
+    {
       "id": "dopamine",
       "name": "Dopamine",
       "aliases": [],
@@ -744,6 +1205,107 @@
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
     },
     {
+      "id": "eugenol",
+      "name": "Eugenol",
+      "aliases": [
+        "4-Allyl-2-methoxyphenol"
+      ],
+      "Category": "Plant Natural Product",
+      "primary_class": "allylphenol",
+      "role_tags": [
+        "essential_oil",
+        "trpv_agonist",
+        "dental_analgesic"
+      ],
+      "input_isomeric_smiles": "COC1=C(C=CC(=C1)CC=C)O",
+      "expected_standardized_smiles": "C=CCc1ccc(O)c(OC)c1",
+      "expected_inchikey": "RRAFCDWBNXTKKO-UHFFFAOYSA-N",
+      "expected_formula": "C10H12O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 3314,
+        "chebi_id": "CHEBI:4917",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3314",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3314",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:4917",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:4917",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Volatile clove essential-oil phenylpropene used as a topical dental analgesic and floral pollinator attractant.",
+      "hint_origin": "Biosynthesized in Lamiaceae and Myrtaceae species via reductive cleavage of coniferyl acetate.",
+      "structural_note": "Guaiacyl phenol (2-methoxyphenol) carrying a terminal unconjugated allyl (C-CH2-CH=CH2) chain.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 3314 and ChEBI CHEBI:4917.",
+      "pilot_family": "Phenylpropanoids and plant metabolites"
+    },
+    {
+      "id": "ferulic_acid",
+      "name": "Ferulic acid",
+      "aliases": [
+        "4-Hydroxy-3-methoxycinnamic acid"
+      ],
+      "Category": "Plant Natural Product",
+      "primary_class": "hydroxycinnamic_acid",
+      "role_tags": [
+        "phenylpropanoid",
+        "cell_wall_crosslinker"
+      ],
+      "input_isomeric_smiles": "COC1=C(C=CC(=C1)/C=C/C(=O)O)O",
+      "expected_standardized_smiles": "COc1cc(/C=C/C(=O)O)ccc1O",
+      "expected_inchikey": "KSEBMYQBYZTDHS-HWKANZROSA-N",
+      "expected_formula": "C10H10O4",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 445858,
+        "chebi_id": "CHEBI:193350",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:445858",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/445858",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:193350",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:193350",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Methoxy-substituted hydroxycinnamate cross-linking arabinoxylans in grass cell walls and feeding microbial aroma synthesis.",
+      "hint_origin": "Formed in the angiosperm monolignol pathway via O-methylation of a catechol propenoate CoA thioester.",
+      "structural_note": "Trans-acrylate chain attached to a 4-hydroxy-3-methoxyphenyl guaiacyl ring.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 445858 and ChEBI CHEBI:193350.",
+      "pilot_family": "Phenylpropanoids and plant metabolites"
+    },
+    {
       "id": "fluoxetine",
       "name": "Fluoxetine",
       "aliases": [],
@@ -791,6 +1353,108 @@
       "structural_note": "Contains two benzene rings, a secondary methylamine, an aryl ether, and a para-trifluoromethyl (-CF3) group.",
       "review_status": "verified",
       "review_notes": "Clinically marketed and biologically dosed as the racemic (R,S)-fluoxetine mixture (PubChem CID 3386)."
+    },
+    {
+      "id": "fumaric_acid",
+      "name": "Fumaric acid",
+      "aliases": [
+        "(E)-Butenedioic acid",
+        "Fumarate"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "unsaturated_dicarboxylic_acid",
+      "role_tags": [
+        "tca_cycle",
+        "urea_cycle_byproduct"
+      ],
+      "input_isomeric_smiles": "C(=C/C(=O)O)\\C(=O)O",
+      "expected_standardized_smiles": "O=C(O)/C=C/C(=O)O",
+      "expected_inchikey": "VZCYOOQTPOCHFL-OWOJBTEDSA-N",
+      "expected_formula": "C4H4O4",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 444972,
+        "chebi_id": "CHEBI:18012",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:444972",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/444972",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18012",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18012",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Trans-unsaturated C4 dicarboxylate formed by mitochondrial Complex II dehydrogenation and urea cycle argininosuccinate cleavage.",
+      "hint_origin": "Symmetric planar olefin intermediate hydrated stereospecifically to a hydroxy-diacid by fumarase.",
+      "structural_note": "Achiral symmetric trans-(E)-2-butenedioic acid (C=C between two carboxyls).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 444972 and ChEBI CHEBI:18012.",
+      "pilot_family": "Primary metabolism"
+    },
+    {
+      "id": "gaba",
+      "name": "gamma-Aminobutyric acid",
+      "aliases": [
+        "gamma-Aminobutyric acid",
+        "4-Aminobutanoic acid"
+      ],
+      "Category": "Neurotransmitter",
+      "primary_class": "amino_acid_neurotransmitter",
+      "role_tags": [
+        "inhibitory_neurotransmitter",
+        "shunt_metabolite"
+      ],
+      "input_isomeric_smiles": "C(CC(=O)O)CN",
+      "expected_standardized_smiles": "NCCCC(=O)O",
+      "expected_inchikey": "BTCSSZJGUNDROE-UHFFFAOYSA-N",
+      "expected_formula": "C4H9NO2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 119,
+        "chebi_id": "CHEBI:16865",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:119",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/119",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16865",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16865",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Chief inhibitory mammalian CNS transmitter gating chloride channels and bridging cytosolic TCA shunt flow.",
+      "hint_origin": "Formed across bacteria, plants, and neurons by PLP-dependent alpha-decarboxylation of glutamate.",
+      "structural_note": "Acyclic 4-carbon chain separating an omega primary amine and a carboxylic acid (Rings = 0).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 119 and ChEBI CHEBI:16865.",
+      "pilot_family": "Neuroactive metabolites"
     },
     {
       "id": "gentisic_acid",
@@ -940,6 +1604,57 @@
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
     },
     {
+      "id": "hypoxanthine",
+      "name": "Hypoxanthine",
+      "aliases": [
+        "6-Hydroxypurine",
+        "Purin-6-one"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "purine_one",
+      "role_tags": [
+        "purine_salvage",
+        "hgprt_substrate"
+      ],
+      "input_isomeric_smiles": "C1=NC2=C(N1)C(=O)NC=N2",
+      "expected_standardized_smiles": "O=c1[nH]cnc2nc[nH]c12",
+      "expected_inchikey": "FDGQSTZJBFJUBT-UHFFFAOYSA-N",
+      "expected_formula": "C5H4N4O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 135398638,
+        "chebi_id": "CHEBI:17368",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:135398638",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/135398638",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17368",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:17368",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Central purine salvage nucleobase recycled back into IMP nucleotide pools by HGPRT transferase.",
+      "hint_origin": "Arises from adenosine deamination to inosine followed by purine nucleoside phosphorylase cleavage.",
+      "structural_note": "Bicyclic purine ring containing only a single C6 carbonyl oxygen (lacking the C2 carbonyl).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 135398638 and ChEBI CHEBI:17368.",
+      "pilot_family": "Purines and nucleobases"
+    },
+    {
       "id": "ibuprofen",
       "name": "Ibuprofen",
       "aliases": [],
@@ -987,6 +1702,417 @@
       "structural_note": "Lipophilic NSAID (cLogP 3.07) with a 4-isobutylphenyl core, an alpha-methyl propanoate group, and zero nitrogens.",
       "review_status": "verified",
       "review_notes": "Clinically marketed as the racemic (+-)-ibuprofen mixture with chiral inversion of (R) to (S) in vivo (PubChem CID 3672)."
+    },
+    {
+      "id": "indole_3_acetic_acid",
+      "name": "Indole-3-acetic acid",
+      "aliases": [
+        "IAA",
+        "Heteroauxin"
+      ],
+      "Category": "Microbial Natural Product",
+      "primary_class": "auxin_indole_acid",
+      "role_tags": [
+        "phytohormone",
+        "auxin",
+        "rhizosphere_signaling"
+      ],
+      "input_isomeric_smiles": "C1=CC=C2C(=C1)C(=CN2)CC(=O)O",
+      "expected_standardized_smiles": "O=C(O)Cc1c[nH]c2ccccc12",
+      "expected_inchikey": "SEOVTRFCIGRIMH-UHFFFAOYSA-N",
+      "expected_formula": "C10H9NO2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 802,
+        "chebi_id": "CHEBI:16411",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:802",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/802",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16411",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16411",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Primary auxin hormone and plant-microbe rhizosphere signal activating TIR1/AFB ubiquitin-ligase transcription.",
+      "hint_origin": "Produced by plant YUCCA flavin monooxygenases and associative rhizobacteria via Trp-derived pyruvic or acetamide routes.",
+      "structural_note": "Bicyclic indole substituted at C3 by a short 2-carbon carboxymethyl (-CH2COOH) side chain.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 802 and ChEBI CHEBI:16411.",
+      "pilot_family": "Microbial and related natural products"
+    },
+    {
+      "id": "ketoprofen",
+      "name": "Ketoprofen",
+      "aliases": [
+        "(RS)-Ketoprofen"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "propionic_nsaid",
+      "role_tags": [
+        "nsaid",
+        "cox_inhibitor",
+        "benzophenone_drug"
+      ],
+      "input_isomeric_smiles": "CC(C1=CC(=CC=C1)C(=O)C2=CC=CC=C2)C(=O)O",
+      "expected_standardized_smiles": "CC(C(=O)O)c1cccc(C(=O)c2ccccc2)c1",
+      "expected_inchikey": "DKYWVDODHFEZIM-UHFFFAOYSA-N",
+      "expected_formula": "C16H14O3",
+      "stereo_status": "racemate",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 3825,
+        "chebi_id": "CHEBI:6128",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3825",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3825",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:6128",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:6128",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Benzophenone-derived 2-arylpropionic anti-inflammatory inhibiting prostaglandin synthesis and bradykinin action.",
+      "hint_origin": "Developed synthetically and dosed orally or topically as a racemic carboxylate drug.",
+      "structural_note": "Diarylmethanone (benzophenone) core bearing a meta-substituted alpha-methylacetic acid.",
+      "review_status": "verified",
+      "review_notes": "Clinically marketed as the racemic (RS)-ketoprofen formulation (PubChem CID 3825).",
+      "pilot_family": "Therapeutic analogues"
+    },
+    {
+      "id": "l_dopa",
+      "name": "L-DOPA",
+      "aliases": [
+        "Levodopa",
+        "L-3,4-Dihydroxyphenylalanine"
+      ],
+      "Category": "Neurotransmitter",
+      "primary_class": "catechol_amino_acid",
+      "role_tags": [
+        "dopamine_precursor",
+        "parkinson_therapy"
+      ],
+      "input_isomeric_smiles": "C1=CC(=C(C=C1C[C@@H](C(=O)O)N)O)O",
+      "expected_standardized_smiles": "N[C@@H](Cc1ccc(O)c(O)c1)C(=O)O",
+      "expected_inchikey": "WTDRDQBEARUVNC-LURJTMIESA-N",
+      "expected_formula": "C9H11NO4",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 6047,
+        "chebi_id": "CHEBI:15765",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6047",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6047",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15765",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15765",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Blood-brain-barrier-crossing catechol amino acid decarboxylated in situ by AADC to replenish motor-circuit signaling.",
+      "hint_origin": "Produced from an aromatic amino acid by tyrosine hydroxylase using tetrahydrobiopterin cofactor.",
+      "structural_note": "Catechol (3,4-dihydroxyphenyl) ring attached to an L-alpha-aminopropanoic carboxylate.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 6047 and ChEBI CHEBI:15765.",
+      "pilot_family": "Neuroactive metabolites"
+    },
+    {
+      "id": "l_malic_acid",
+      "name": "L-Malic acid",
+      "aliases": [
+        "(S)-Malic acid",
+        "Malate"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "hydroxy_dicarboxylic_acid",
+      "role_tags": [
+        "tca_cycle",
+        "cam_malate_valve",
+        "c4_shuttle"
+      ],
+      "input_isomeric_smiles": "C([C@@H](C(=O)O)O)C(=O)O",
+      "expected_standardized_smiles": "O=C(O)C[C@H](O)C(=O)O",
+      "expected_inchikey": "BJEPYKJPYRNKOW-REOHCLBHSA-N",
+      "expected_formula": "C4H6O5",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 222656,
+        "chebi_id": "CHEBI:30797",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:222656",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/222656",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30797",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:30797",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Chiral C4 hydroxy-dicarboxylate oxidized by MDH to oxaloacetate and stored in plant vacuoles during C4/CAM photosynthesis.",
+      "hint_origin": "Produced via stereospecific syn/anti hydration of a trans-enedioate in the mitochondrial matrix.",
+      "structural_note": "Four-carbon dicarboxylic acid carrying one secondary (S)-hydroxyl group.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 222656 and ChEBI CHEBI:30797.",
+      "pilot_family": "Primary metabolism"
+    },
+    {
+      "id": "l_phenylalanine",
+      "name": "L-Phenylalanine",
+      "aliases": [
+        "Phe",
+        "(S)-Phenylalanine"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "aromatic_amino_acid",
+      "role_tags": [
+        "proteinogenic_amino_acid",
+        "phenylpropanoid_starter"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C=C1)C[C@@H](C(=O)O)N",
+      "expected_standardized_smiles": "N[C@@H](Cc1ccccc1)C(=O)O",
+      "expected_inchikey": "COLNVLDHVKWLRT-QMMMGPOBSA-N",
+      "expected_formula": "C9H11NO2",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 6140,
+        "chebi_id": "CHEBI:17295",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6140",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6140",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17295",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:17295",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Essential hydrophobic aromatic amino acid whose deficiency clearance underlies PKU and initiates cinnamate synthesis.",
+      "hint_origin": "Generated exclusively from shikimate/chorismate prephenate pathways in microbes and plants.",
+      "structural_note": "Unsubstituted phenyl ring attached to an L-alpha-aminopropanoic acid (0 phenolic OH).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 6140 and ChEBI CHEBI:17295.",
+      "pilot_family": "Primary metabolism"
+    },
+    {
+      "id": "l_tyrosine",
+      "name": "L-Tyrosine",
+      "aliases": [
+        "Tyr",
+        "(S)-Tyrosine"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "aromatic_amino_acid",
+      "role_tags": [
+        "proteinogenic_amino_acid",
+        "catecholamine_precursor",
+        "kinase_phosphosite"
+      ],
+      "input_isomeric_smiles": "C1=CC(=CC=C1C[C@@H](C(=O)O)N)O",
+      "expected_standardized_smiles": "N[C@@H](Cc1ccc(O)cc1)C(=O)O",
+      "expected_inchikey": "OUYCCCASQSFEME-QMMMGPOBSA-N",
+      "expected_formula": "C9H11NO3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 6057,
+        "chebi_id": "CHEBI:17895",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6057",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6057",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17895",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:17895",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Proteinogenic phenolic amino acid serving as phosphorylation target in receptor kinases and starter for pigments.",
+      "hint_origin": "Biosynthesized via prephenate/arogenate in plants and microbes or PAH hydroxylation in animal liver.",
+      "structural_note": "Para-hydroxyphenyl ring linked to an L-alanyl carboxylate (one phenolic OH, zero methoxy).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 6057 and ChEBI CHEBI:17895.",
+      "pilot_family": "Primary metabolism"
+    },
+    {
+      "id": "m_xylene",
+      "name": "m-Xylene",
+      "aliases": [
+        "1,3-Dimethylbenzene",
+        "meta-Xylene"
+      ],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "dimethylbenzene_isomer",
+      "role_tags": [
+        "aromatic_degradation",
+        "tol_plasmid_substrate"
+      ],
+      "input_isomeric_smiles": "CC1=CC(=CC=C1)C",
+      "expected_standardized_smiles": "Cc1cccc(C)c1",
+      "expected_inchikey": "IVSZLXZYQVIEFR-UHFFFAOYSA-N",
+      "expected_formula": "C8H10",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 7929,
+        "chebi_id": "CHEBI:28488",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:7929",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/7929",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28488",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:28488",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Canonical TOL plasmid pWW0 upper-pathway substrate converted sequentially into a toluate and catechol.",
+      "hint_origin": "BTEX hydrocarbon component oxidized stepwise by soil Pseudomonas xylM-encoded monooxygenase.",
+      "structural_note": "Benzene ring carrying two methyl substituents in a 1,3-meta orientation.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 7929 and ChEBI CHEBI:28488.",
+      "pilot_family": "Aromatic degradation"
+    },
+    {
+      "id": "mefenamic_acid",
+      "name": "Mefenamic acid",
+      "aliases": [
+        "Ponstel"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "anthranilic_nsaid",
+      "role_tags": [
+        "nsaid",
+        "fenamate",
+        "cox_inhibitor"
+      ],
+      "input_isomeric_smiles": "CC1=C(C(=CC=C1)NC2=CC=CC=C2C(=O)O)C",
+      "expected_standardized_smiles": "Cc1cccc(Nc2ccccc2C(=O)O)c1C",
+      "expected_inchikey": "HYYBABOKPJLUIN-UHFFFAOYSA-N",
+      "expected_formula": "C15H15NO2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 4044,
+        "chebi_id": "CHEBI:6717",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:4044",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/4044",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:6717",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:6717",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Fenamate anthranilic-acid COX inhibitor used clinically for short-term inflammatory and dysmenorrhea relief.",
+      "hint_origin": "Synthesized as a dimethylphenyl-anthranilate derivative retaining intramolecular NH-to-carbonyl H-bonding.",
+      "structural_note": "Ortho-aminobenzoic (anthranilic) acid N-substituted by a 2,3-dimethylphenyl ring.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 4044 and ChEBI CHEBI:6717.",
+      "pilot_family": "Therapeutic analogues"
     },
     {
       "id": "melatonin",
@@ -1087,6 +2213,57 @@
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
     },
     {
+      "id": "naproxen",
+      "name": "Naproxen",
+      "aliases": [
+        "(S)-Naproxen"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "propionic_nsaid",
+      "role_tags": [
+        "nsaid",
+        "cox_inhibitor",
+        "chiral_single_enantiomer"
+      ],
+      "input_isomeric_smiles": "C[C@@H](C1=CC2=C(C=C1)C=C(C=C2)OC)C(=O)O",
+      "expected_standardized_smiles": "COc1ccc2cc([C@H](C)C(=O)O)ccc2c1",
+      "expected_inchikey": "CMWTZPSULFXXJA-VIFPVBQESA-N",
+      "expected_formula": "C14H14O3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 156391,
+        "chebi_id": "CHEBI:7476",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:156391",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/156391",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:7476",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:7476",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Enantiopure (S)-2-arylpropionic acid non-selective cyclooxygenase inhibitor with extended plasma half-life.",
+      "hint_origin": "Clinically formulated strictly as the active dextro-enantiomer rather than a racemic mixture.",
+      "structural_note": "6-Methoxynaphthalene fused bicyclic core linked to an (S)-methyl-acetic chiral center.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 156391 and ChEBI CHEBI:7476.",
+      "pilot_family": "Therapeutic analogues"
+    },
+    {
       "id": "nicotine",
       "name": "Nicotine",
       "aliases": [],
@@ -1134,6 +2311,260 @@
       "structural_note": "(S)-Enantiomer linking 1 aromatic pyridine ring directly to 1 saturated N-methylpyrrolidine ring.",
       "review_status": "verified",
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "norepinephrine",
+      "name": "Norepinephrine",
+      "aliases": [
+        "Noradrenaline",
+        "Levarterenol"
+      ],
+      "Category": "Hormone / Neurotransmitter",
+      "primary_class": "catecholamine",
+      "role_tags": [
+        "neurotransmitter",
+        "sympathomimetic",
+        "hormone"
+      ],
+      "input_isomeric_smiles": "C1=CC(=C(C=C1[C@H](CN)O)O)O",
+      "expected_standardized_smiles": "NC[C@H](O)c1ccc(O)c(O)c1",
+      "expected_inchikey": "SFLSHLFXELFNJZ-QMMMGPOBSA-N",
+      "expected_formula": "C8H11NO3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 439260,
+        "chebi_id": "CHEBI:18357",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:439260",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/439260",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18357",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18357",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Locus coeruleus arousal catecholamine and sympathetic postganglionic transmitter acting on alpha/beta adrenergic receptors.",
+      "hint_origin": "Formed inside chromaffin and synaptic vesicles via ascorbate-dependent beta-hydroxylation.",
+      "structural_note": "(R)-beta-hydroxy catecholamine ending in an unmethylated primary ethylamine nitrogen.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 439260 and ChEBI CHEBI:18357.",
+      "pilot_family": "Neuroactive metabolites"
+    },
+    {
+      "id": "norfloxacin",
+      "name": "Norfloxacin",
+      "aliases": [
+        "Noroxin"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "fluoroquinolone",
+      "role_tags": [
+        "antibiotic",
+        "gyrase_inhibitor"
+      ],
+      "input_isomeric_smiles": "CCN1C=C(C(=O)C2=CC(=C(C=C21)N3CCNCC3)F)C(=O)O",
+      "expected_standardized_smiles": "CCn1cc(C(=O)O)c(=O)c2cc(F)c(N3CCNCC3)cc21",
+      "expected_inchikey": "OGJPXUAPXNRGGI-UHFFFAOYSA-N",
+      "expected_formula": "C16H18FN3O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 4539,
+        "chebi_id": "CHEBI:100246",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:4539",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/4539",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:100246",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100246",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "First-generation 6-fluoro-7-piperazinyl quinolone antibacterial blocking bacterial DNA supercoiling.",
+      "hint_origin": "Developed before cyclopropyl-substituted analogues as a broad-spectrum urinary-tract antibacterial.",
+      "structural_note": "Carries an N1-ethyl substituent on the 4-quinolone-3-carboxylic acid ring (unlike cyclopropyl analogues).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 4539 and ChEBI CHEBI:100246.",
+      "pilot_family": "Therapeutic analogues"
+    },
+    {
+      "id": "o_xylene",
+      "name": "o-Xylene",
+      "aliases": [
+        "1,2-Dimethylbenzene",
+        "ortho-Xylene"
+      ],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "dimethylbenzene_isomer",
+      "role_tags": [
+        "aromatic_degradation",
+        "solvent_hydrocarbon"
+      ],
+      "input_isomeric_smiles": "CC1=CC=CC=C1C",
+      "expected_standardized_smiles": "Cc1ccccc1C",
+      "expected_inchikey": "CTQNGGLPUBDAKN-UHFFFAOYSA-N",
+      "expected_formula": "C8H10",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 7237,
+        "chebi_id": "CHEBI:28063",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:7237",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/7237",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28063",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:28063",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Adjacent-substituted volatile aromatic hydrocarbon oxidized via methylbenzyl alcohol or ring monooxygenation.",
+      "hint_origin": "Petrochemical BTEX pollutant degraded sluggishly relative to meta/para regioisomers due to steric vicinality.",
+      "structural_note": "Benzene ring with two adjacent methyl substituents in a 1,2-ortho relationship.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 7237 and ChEBI CHEBI:28063.",
+      "pilot_family": "Aromatic degradation"
+    },
+    {
+      "id": "p_coumaric_acid",
+      "name": "p-Coumaric acid",
+      "aliases": [
+        "4-Hydroxycinnamic acid"
+      ],
+      "Category": "Plant Natural Product",
+      "primary_class": "hydroxycinnamic_acid",
+      "role_tags": [
+        "phenylpropanoid",
+        "flavonoid_precursor"
+      ],
+      "input_isomeric_smiles": "C1=CC(=CC=C1/C=C/C(=O)O)O",
+      "expected_standardized_smiles": "O=C(O)/C=C/c1ccc(O)cc1",
+      "expected_inchikey": "NGSWKAQJJWESNS-ZZXKWVIFSA-N",
+      "expected_formula": "C9H8O3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 637542,
+        "chebi_id": "CHEBI:32374",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:637542",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/637542",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:32374",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:32374",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Entryway hydroxycinnamate branching toward lignin monomers, stilbenes, flavonoids, and benzopyrone lactones.",
+      "hint_origin": "Synthesized by cytochrome P450 C4H hydroxylation of cinnamate after phenylalanine ammonia-lyase elimination.",
+      "structural_note": "Trans-propenoic acid attached to a mono-hydroxylated 4-hydroxyphenyl ring.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 637542 and ChEBI CHEBI:32374.",
+      "pilot_family": "Phenylpropanoids and plant metabolites"
+    },
+    {
+      "id": "p_xylene",
+      "name": "p-Xylene",
+      "aliases": [
+        "1,4-Dimethylbenzene",
+        "para-Xylene"
+      ],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "dimethylbenzene_isomer",
+      "role_tags": [
+        "aromatic_degradation",
+        "pet_monomer_precursor"
+      ],
+      "input_isomeric_smiles": "CC1=CC=C(C=C1)C",
+      "expected_standardized_smiles": "Cc1ccc(C)cc1",
+      "expected_inchikey": "URLKBWYHVLBVBO-UHFFFAOYSA-N",
+      "expected_formula": "C8H10",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 7809,
+        "chebi_id": "CHEBI:27417",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:7809",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/7809",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:27417",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:27417",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Symmetric dialkyl arene oxidized by microbial side-chain monooxygenases and industrially into terephthalate.",
+      "hint_origin": "BTEX hydrocarbon metabolized by TOL-pathway enzymes into a para-methylated aromatic carboxylate.",
+      "structural_note": "D2h-symmetric benzene ring bearing two methyl groups at opposite 1,4-para positions.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 7809 and ChEBI CHEBI:27417.",
+      "pilot_family": "Aromatic degradation"
     },
     {
       "id": "penicillin_g",
@@ -1234,6 +2665,158 @@
       "structural_note": "Angular 3-ring homologue of C10H8 (C14H10, MW 178.2 Da), increasing cLogP from 2.84 to 4.00.",
       "review_status": "verified",
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "phenazine",
+      "name": "Phenazine",
+      "aliases": [
+        "Dibenzopyrazine"
+      ],
+      "Category": "Microbial Natural Product",
+      "primary_class": "tricyclic_diazine",
+      "role_tags": [
+        "microbial_scaffold",
+        "redox_heterocycle"
+      ],
+      "input_isomeric_smiles": "C1=CC=C2C(=C1)N=C3C=CC=CC3=N2",
+      "expected_standardized_smiles": "c1ccc2nc3ccccc3nc2c1",
+      "expected_inchikey": "PCNDJXKNXGMECE-UHFFFAOYSA-N",
+      "expected_formula": "C12H8N2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 4757,
+        "chebi_id": "CHEBI:36674",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:4757",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/4757",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:36674",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:36674",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Symmetric parent tricyclic nitrogen heterocycle underlying fluorescent Pseudomonas electron-shuttling pigments.",
+      "hint_origin": "Found as a core chromophore in soil actinomycete and pseudomonad secondary metabolite clusters.",
+      "structural_note": "Unsubstituted planar tricyclic benzene-pyrazine-benzene core with formula C12H8N2.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 4757 and ChEBI CHEBI:36674.",
+      "pilot_family": "Microbial and related natural products"
+    },
+    {
+      "id": "phenazine_1_carboxylic_acid",
+      "name": "Phenazine-1-carboxylic acid",
+      "aliases": [
+        "PCA",
+        "Tubermycin B"
+      ],
+      "Category": "Microbial Natural Product",
+      "primary_class": "phenazine_carboxylate",
+      "role_tags": [
+        "biocontrol_antibiotic",
+        "redox_shuttle",
+        "pseudomonas_metabolite"
+      ],
+      "input_isomeric_smiles": "C1=CC=C2C(=C1)N=C3C=CC=C(C3=N2)C(=O)O",
+      "expected_standardized_smiles": "O=C(O)c1cccc2nc3ccccc3nc12",
+      "expected_inchikey": "JGCSKOVQDXEQHI-UHFFFAOYSA-N",
+      "expected_formula": "C13H8N2O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 95069,
+        "chebi_id": "CHEBI:62412",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:95069",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/95069",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:62412",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:62412",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Canonical yellow-green root-colonizing Pseudomonas biocontrol metabolite and precursor to N-methylated redox pigments.",
+      "hint_origin": "Assembled from chorismate via PhzA-G enzymes and head-to-tail dimerization.",
+      "structural_note": "Tricyclic phenazine scaffold carrying a single C1 carboxylic acid group.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 95069 and ChEBI CHEBI:62412.",
+      "pilot_family": "Microbial and related natural products"
+    },
+    {
+      "id": "phenol",
+      "name": "Phenol",
+      "aliases": [
+        "Carbolic acid"
+      ],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "monocyclic_aromatic_alcohol",
+      "role_tags": [
+        "aromatic_degradation",
+        "catabolite"
+      ],
+      "input_isomeric_smiles": "C1=CC=C(C=C1)O",
+      "expected_standardized_smiles": "Oc1ccccc1",
+      "expected_inchikey": "ISWSIDIOOBJBQZ-UHFFFAOYSA-N",
+      "expected_formula": "C6H6O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 996,
+        "chebi_id": "CHEBI:15882",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:996",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/996",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15882",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15882",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Simplest hydroxylated benzene intermediate entering bacterial meta- or ortho-ring-cleavage pathways.",
+      "hint_origin": "Generated during anaerobic lignin decay and hydroxylated to a 1,2-diol by monooxygenases.",
+      "structural_note": "Monocyclic benzene ring bearing a single hydroxyl group with no carboxylic acid or alkyl substituents.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 996 and ChEBI CHEBI:15882.",
+      "pilot_family": "Aromatic degradation"
     },
     {
       "id": "prodigiosin",
@@ -1383,6 +2966,108 @@
       "structural_note": "Planar N-methylphenazin-1-one tricyclic heteroaromatic pigment (Fsp3 = 0.08, 3 aromatic rings).",
       "review_status": "baseline_legacy",
       "review_notes": "Preserved v0.2.2 neutral keto-tautomer form (10-methylphenazin-2(10H)-one, PubChem CID 14360019) rather than zwitterionic betaine resonance contributor to maintain schedule hash parity."
+    },
+    {
+      "id": "pyrrolnitrin",
+      "name": "Pyrrolnitrin",
+      "aliases": [
+        "3-Chloro-4-(3-chloro-2-nitrophenyl)pyrrole"
+      ],
+      "Category": "Microbial Natural Product",
+      "primary_class": "phenylpyrrole_antibiotic",
+      "role_tags": [
+        "antifungal",
+        "biocontrol_metabolite",
+        "halogenated_natural_product"
+      ],
+      "input_isomeric_smiles": "C1=CC(=C(C(=C1)Cl)[N+](=O)[O-])C2=CNC=C2Cl",
+      "expected_standardized_smiles": "O=[N+]([O-])c1c(Cl)cccc1-c1c[nH]cc1Cl",
+      "expected_inchikey": "QJBZDBLBQWFTPZ-UHFFFAOYSA-N",
+      "expected_formula": "C10H6Cl2N2O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 13916,
+        "chebi_id": "CHEBI:32079",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:13916",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/13916",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:32079",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:32079",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Halogenated bacterial antifungal inhibiting fungal mitochondrial electron transport and inspiring synthetic phenylpyrroles.",
+      "hint_origin": "Biosynthesized from tryptophan through PrnA-D sequential halogenation, ring rearrangement, and aryl-amine oxidation.",
+      "structural_note": "Biaromatic chlorinated benzene and pyrrole joined directly, bearing an ortho nitro (-NO2) group.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 13916 and ChEBI CHEBI:32079.",
+      "pilot_family": "Microbial and related natural products"
+    },
+    {
+      "id": "pyruvic_acid",
+      "name": "Pyruvic acid",
+      "aliases": [
+        "2-Oxopropanoic acid",
+        "Pyruvate"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "alpha_keto_acid",
+      "role_tags": [
+        "glycolysis_endproduct",
+        "central_carbon_hub"
+      ],
+      "input_isomeric_smiles": "CC(=O)C(=O)O",
+      "expected_standardized_smiles": "CC(=O)C(=O)O",
+      "expected_inchikey": "LCTONWCANYUPML-UHFFFAOYSA-N",
+      "expected_formula": "C3H4O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 1060,
+        "chebi_id": "CHEBI:32816",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1060",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1060",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:32816",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:32816",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Three-carbon terminal glycolytic product shuttling between lactate fermentation, transamination, and PDH oxidation.",
+      "hint_origin": "Formed by phosphoenolpyruvate phosphate transfer via the final ATP-generating step of glycolysis.",
+      "structural_note": "Smallest acyclic alpha-keto monocarboxylic acid (CH3-C(=O)-COOH, 3 carbons).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 1060 and ChEBI CHEBI:32816.",
+      "pilot_family": "Primary metabolism"
     },
     {
       "id": "quinine",
@@ -1632,6 +3317,261 @@
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
     },
     {
+      "id": "sinapic_acid",
+      "name": "Sinapic acid",
+      "aliases": [
+        "3,5-Dimethoxy-4-hydroxycinnamic acid"
+      ],
+      "Category": "Plant Natural Product",
+      "primary_class": "hydroxycinnamic_acid",
+      "role_tags": [
+        "phenylpropanoid",
+        "syringyl_lignin"
+      ],
+      "input_isomeric_smiles": "COC1=CC(=CC(=C1O)OC)/C=C/C(=O)O",
+      "expected_standardized_smiles": "COc1cc(/C=C/C(=O)O)cc(OC)c1O",
+      "expected_inchikey": "PCMORTLOPMLEFB-ONEGZZNKSA-N",
+      "expected_formula": "C11H12O5",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 637775,
+        "chebi_id": "CHEBI:15714",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:637775",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/637775",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15714",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15714",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Dialkoxylated hydroxycinnamate defining the syringyl branch of angiosperm hardwood lignin.",
+      "hint_origin": "Produced via F5H hydroxylation and COMT O-methylation of guaiacyl phenylpropanoid intermediates.",
+      "structural_note": "Trans-cinnamate bearing a 4-hydroxy-3,5-dimethoxyphenyl (syringyl) aromatic core.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 637775 and ChEBI CHEBI:15714.",
+      "pilot_family": "Phenylpropanoids and plant metabolites"
+    },
+    {
+      "id": "succinic_acid",
+      "name": "Succinic acid",
+      "aliases": [
+        "Butanedioic acid",
+        "Succinate"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "dicarboxylic_acid",
+      "role_tags": [
+        "tca_cycle",
+        "complex_ii_substrate",
+        "hif1a_signal"
+      ],
+      "input_isomeric_smiles": "C(CC(=O)O)C(=O)O",
+      "expected_standardized_smiles": "O=C(O)CCC(=O)O",
+      "expected_inchikey": "KDYFGRWQOYBRFD-UHFFFAOYSA-N",
+      "expected_formula": "C4H6O4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 1110,
+        "chebi_id": "CHEBI:15741",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1110",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1110",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15741",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15741",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Four-carbon saturated TCA cycle intermediate oxidized at Complex II and accumulated as an immunometabolic signal.",
+      "hint_origin": "Generated from 4-carbon acyl-CoA thioester cleavage in mitochondria or bacterial fermentation of sugars.",
+      "structural_note": "Linear saturated 4-carbon alpha,omega-dicarboxylic acid (HOOC-CH2-CH2-COOH).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 1110 and ChEBI CHEBI:15741.",
+      "pilot_family": "Primary metabolism"
+    },
+    {
+      "id": "theobromine",
+      "name": "Theobromine",
+      "aliases": [
+        "3,7-Dimethylxanthine"
+      ],
+      "Category": "Alkaloid / Metabolite",
+      "primary_class": "dimethylxanthine",
+      "role_tags": [
+        "alkaloid",
+        "cacao_metabolite",
+        "xanthine_isomer"
+      ],
+      "input_isomeric_smiles": "CN1C=NC2=C1C(=O)NC(=O)N2C",
+      "expected_standardized_smiles": "Cn1cnc2c1c(=O)[nH]c(=O)n2C",
+      "expected_inchikey": "YAPQBXQYLJRXSA-UHFFFAOYSA-N",
+      "expected_formula": "C7H8N4O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 5429,
+        "chebi_id": "CHEBI:28946",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5429",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5429",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28946",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:28946",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Dominant bitter cacao-seed methylxanthine acting as a mild vasodilator and low-toxicity human cardiac stimulant.",
+      "hint_origin": "Accumulates in cacao seeds via sequential xanthosine N-methylations stopping before final N1 methylation.",
+      "structural_note": "Dimethylxanthine isomer methylated at N3 and N7 (bearing one N1-H imide donor).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 5429 and ChEBI CHEBI:28946.",
+      "pilot_family": "Purines and nucleobases"
+    },
+    {
+      "id": "theophylline",
+      "name": "Theophylline",
+      "aliases": [
+        "1,3-Dimethylxanthine"
+      ],
+      "Category": "Alkaloid / Metabolite",
+      "primary_class": "dimethylxanthine",
+      "role_tags": [
+        "alkaloid",
+        "bronchodilator",
+        "phosphodiesterase_inhibitor"
+      ],
+      "input_isomeric_smiles": "CN1C2=C(C(=O)N(C1=O)C)NC=N2",
+      "expected_standardized_smiles": "Cn1c(=O)c2[nH]cnc2n(C)c1=O",
+      "expected_inchikey": "ZFXYFBGIUFBOJW-UHFFFAOYSA-N",
+      "expected_formula": "C7H8N4O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 2153,
+        "chebi_id": "CHEBI:28177",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:2153",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2153",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28177",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:28177",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Airway-relaxing methylxanthine bronchodilator present in trace tea leaves and clinical asthma regimens.",
+      "hint_origin": "Generated by hepatic CYP1A2 7-demethylation in mammals or tea-leaf purine alkaloid salvage.",
+      "structural_note": "Dimethylxanthine carrying methyl groups on both pyrimidinedione nitrogens (N1, N3) with free N7-H.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 2153 and ChEBI CHEBI:28177.",
+      "pilot_family": "Purines and nucleobases"
+    },
+    {
+      "id": "tryptamine",
+      "name": "Tryptamine",
+      "aliases": [
+        "3-(2-Aminoethyl)indole"
+      ],
+      "Category": "Biogenic Amine",
+      "primary_class": "indoleamine",
+      "role_tags": [
+        "biogenic_amine",
+        "trace_amine",
+        "alkaloid_precursor"
+      ],
+      "input_isomeric_smiles": "C1=CC=C2C(=C1)C(=CN2)CCN",
+      "expected_standardized_smiles": "NCCc1c[nH]c2ccccc12",
+      "expected_inchikey": "APJYDQYYACXCRM-UHFFFAOYSA-N",
+      "expected_formula": "C10H12N2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 1150,
+        "chebi_id": "CHEBI:16765",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1150",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1150",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16765",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16765",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Monoterpenoid indole alkaloid gateway and trace amine acting on vascular and gut TAAR/5-HT sites.",
+      "hint_origin": "Synthesized in plants and gut microbiota via aromatic L-amino acid decarboxylase action without 5-hydroxylation.",
+      "structural_note": "Plain bicyclic indole ring bearing an unsubstituted C3-ethyl primary amine (zero oxygens).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 1150 and ChEBI CHEBI:16765.",
+      "pilot_family": "Neuroactive metabolites"
+    },
+    {
       "id": "tryptophan",
       "name": "L-Tryptophan",
       "aliases": [],
@@ -1679,6 +3619,157 @@
       "structural_note": "(S)-Alpha-amino acid bearing an electron-rich bicyclic indole side chain.",
       "review_status": "verified",
       "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "tyramine",
+      "name": "Tyramine",
+      "aliases": [
+        "4-Hydroxyphenethylamine"
+      ],
+      "Category": "Biogenic Amine",
+      "primary_class": "trace_amine",
+      "role_tags": [
+        "biogenic_amine",
+        "taar1_agonist",
+        "fermented_food_amine"
+      ],
+      "input_isomeric_smiles": "C1=CC(=CC=C1CCN)O",
+      "expected_standardized_smiles": "NCCc1ccc(O)cc1",
+      "expected_inchikey": "DZGWFCGJZKJUFP-UHFFFAOYSA-N",
+      "expected_formula": "C8H11NO",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 5610,
+        "chebi_id": "CHEBI:15760",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5610",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5610",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15760",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15760",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Dietary pressor trace amine from aged cheeses causing hypertensive crisis under MAO-A inhibition.",
+      "hint_origin": "Generated by bacterial or plant pyridoxal-phosphate decarboxylation of a phenolic amino acid.",
+      "structural_note": "Single para-hydroxyphenethylamine chain lacking a second catechol hydroxyl or beta-OH group.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 5610 and ChEBI CHEBI:15760.",
+      "pilot_family": "Neuroactive metabolites"
+    },
+    {
+      "id": "uracil",
+      "name": "Uracil",
+      "aliases": [
+        "Pyrimidine-2,4-dione"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "pyrimidine_dione",
+      "role_tags": [
+        "rna_nucleobase",
+        "pyrimidine"
+      ],
+      "input_isomeric_smiles": "C1=CNC(=O)NC1=O",
+      "expected_standardized_smiles": "O=c1cc[nH]c(=O)[nH]1",
+      "expected_inchikey": "ISAKRJDGNUQOIC-UHFFFAOYSA-N",
+      "expected_formula": "C4H4N2O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 1174,
+        "chebi_id": "CHEBI:17568",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1174",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1174",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17568",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:17568",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Monocyclic RNA-exclusive pyrimidine nucleobase base-pairing with adenine and omitted from native DNA via dUTPase.",
+      "hint_origin": "Generated from UMP salvage turnover or cytosine hydrolytic deamination.",
+      "structural_note": "Monocyclic 6-membered pyrimidine-2,4-dione ring (MW ~112 Da, zero methyl substituents).",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 1174 and ChEBI CHEBI:17568.",
+      "pilot_family": "Purines and nucleobases"
+    },
+    {
+      "id": "vanillic_acid",
+      "name": "Vanillic acid",
+      "aliases": [
+        "4-Hydroxy-3-methoxybenzoic acid"
+      ],
+      "Category": "Plant Natural Product",
+      "primary_class": "hydroxybenzoic_acid",
+      "role_tags": [
+        "lignin_catabolite",
+        "phenolic_acid"
+      ],
+      "input_isomeric_smiles": "COC1=C(C=CC(=C1)C(=O)O)O",
+      "expected_standardized_smiles": "COc1cc(C(=O)O)ccc1O",
+      "expected_inchikey": "WKOLLVMJNQIZCI-UHFFFAOYSA-N",
+      "expected_formula": "C8H8O4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 8468,
+        "chebi_id": "CHEBI:30816",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:8468",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/8468",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30816",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:30816",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Oxidized guaiacyl benzoate funneling softwood lignin depolymerization into O-demethylation.",
+      "hint_origin": "Generated by microbial oxidation of an aromatic methoxy-aldehyde or cleavage of guaiacyl phenylpropanoids.",
+      "structural_note": "Direct benzoic carboxylate (lacking the propenoate bridge) bearing 4-hydroxy and 3-methoxy groups.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 8468 and ChEBI CHEBI:30816.",
+      "pilot_family": "Phenylpropanoids and plant metabolites"
     },
     {
       "id": "vanillin",
@@ -1777,6 +3868,56 @@
       "structural_note": "Five-ring conjugated system (5-hydroxyindole + oxindole + central pyrrolidone + indole, Fsp3 = 0.00).",
       "review_status": "baseline_legacy",
       "review_notes": "Preserved v0.2.2 Ranked SMILES (extra indole substituent C28H18N4O3 and unspecified double bond vs canonical C20H13N3O3 PubChem CID 11053) to maintain schedule hash parity."
+    },
+    {
+      "id": "xanthine",
+      "name": "Xanthine",
+      "aliases": [
+        "2,6-Dioxopurine"
+      ],
+      "Category": "Primary Metabolite",
+      "primary_class": "purine_dione",
+      "role_tags": [
+        "purine_catabolism",
+        "xanthine_oxidase_substrate"
+      ],
+      "input_isomeric_smiles": "C1=NC2=C(N1)C(=O)NC(=O)N2",
+      "expected_standardized_smiles": "O=c1[nH]c(=O)c2[nH]cnc2[nH]1",
+      "expected_inchikey": "LRFVTYWOQMYALW-UHFFFAOYSA-N",
+      "expected_formula": "C5H4N4O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn"
+      ],
+      "guess_eligibility": [
+        "learn"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 1188,
+        "chebi_id": "CHEBI:15318",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1188",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1188",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15318",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15318",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Unmethylated purinedione intermediate oxidized to urate by molybdenum-containing oxidoreductases.",
+      "hint_origin": "Produced via guanine deamination or hypoxanthine oxidation during cellular nucleotide turnover.",
+      "structural_note": "Core bicyclic purine-2,6-dione scaffold lacking any N-methyl substituents.",
+      "review_status": "verified",
+      "review_notes": "Verified Learn pilot compound matching PubChem CID 1188 and ChEBI CHEBI:15318.",
+      "pilot_family": "Purines and nucleobases"
     }
   ]
 }

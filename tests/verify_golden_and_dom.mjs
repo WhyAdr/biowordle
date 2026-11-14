@@ -33,7 +33,7 @@ const goldenData = JSON.parse(
 );
 const indexHtml = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 
-// 1. Cross-language Golden Vectors: Chemle (36 x 36 x 2 = 2,592 pairs)
+// 1. Cross-language Golden Vectors: Chemle (N x N x profiles; e.g. 78 x 78 x 2 = 12,168 pairs)
 let chemChecked = 0;
 for (const [profId, profSpec] of Object.entries(puzzlesData.feedback_spec.profiles)) {
   for (const g of puzzlesData.chemle) {
@@ -51,7 +51,15 @@ for (const [profId, profSpec] of Object.entries(puzzlesData.feedback_spec.profil
     }
   }
 }
-assert.equal(chemChecked, 2592, "Expected 2,592 Chemle golden vector checks");
+const expectedChemChecks =
+  puzzlesData.chemle.length *
+  puzzlesData.chemle.length *
+  Object.keys(puzzlesData.feedback_spec.profiles).length;
+assert.equal(
+  chemChecked,
+  expectedChemChecks,
+  `Expected ${expectedChemChecks} Chemle golden vector checks`
+);
 
 // 2. Cross-language Golden Vectors: Seqle (30 x 30 x 2 = 1,800 pairs) + H-H Biochem parity
 let seqChecked = 0;
@@ -98,10 +106,18 @@ assert.ok(seqLearnClassTiles > 0, "Learn Seqle must preserve positional 'class' 
 // 3. P0-3 Category-Lockout Regression Test: target in guessPool for ALL mode x profile x pack
 const categories = ["ALL", ...new Set(puzzlesData.chemle.map((m) => m.Category))];
 for (const profile of ["ranked", "learn"]) {
+  const expectedGuessCount = profile === "ranked"
+    ? puzzlesData.metadata.chemle_ranked_guess_count
+    : puzzlesData.metadata.chemle_learn_guess_count;
   for (const pack of categories) {
-    const guessPool = Engine.getGuessPool(puzzlesData, "chemle");
-    assert.equal(guessPool.length, 36, "Chemle guessPool must always contain all 36 compounds");
-    for (const target of puzzlesData.chemle) {
+    const guessPool = Engine.getGuessPool(puzzlesData, "chemle", profile);
+    assert.equal(
+      guessPool.length,
+      expectedGuessCount,
+      `Chemle ${profile} guessPool must contain all ${expectedGuessCount} compounds`
+    );
+    const answerPool = Engine.getAnswerPool(puzzlesData, "chemle", profile, pack);
+    for (const target of answerPool) {
       assert.ok(
         guessPool.some((x) => x.id === target.id),
         `Target ${target.id} missing from guessPool under profile=${profile}, pack=${pack}`
@@ -149,8 +165,8 @@ for (const profile of ["ranked", "learn"]) {
     profSpec,
     chemById
   );
-  assert.equal(c0, 36);
-  assert.ok(c1 < c0 && c1 >= 1, `Expected 1 <= c1 < 36 after first guess, got ${c1}`);
+  assert.equal(c0, ansPool.length);
+  assert.ok(c1 < c0 && c1 >= 1, `Expected 1 <= c1 < ${ansPool.length} after first guess, got ${c1}`);
   assert.equal(cWin, 1, "Winning guess must narrow compatible candidates to 1");
 }
 
@@ -211,7 +227,10 @@ for (const profile of ["ranked", "learn"]) {
       targetScaffoldSmiles: target.scaffold_smiles || "",
     }
   );
-  assert.ok(cClue0 < 36 && cClue0 >= 4, `Level-0 Learn clue should narrow to 4..35, got ${cClue0}`);
+  assert.ok(
+    cClue0 < learnPool.length && cClue0 >= 4,
+    `Level-0 Learn clue should narrow to 4..${learnPool.length - 1}, got ${cClue0}`
+  );
   assert.ok(cClue1 <= cClue0 && cClue1 >= 1, `Level-1 + scaffold clue must further narrow (${cClue1} <= ${cClue0})`);
 
   const seqPool = Engine.getAnswerPool(puzzlesData, "seqle", "learn", "ALL");
@@ -281,6 +300,7 @@ assert.equal(st.maxStreak, 2, "maxStreak is preserved across streak resets");
 // 6. P0-1 Pre-Guess Clue Ladder & DOM Non-Leakage + P2-2 ARIA Verification
 for (const m of puzzlesData.chemle) {
   for (const prof of ["ranked", "learn"]) {
+    if (!(m.game_eligibility || []).includes(prof)) continue;
     const lvl0 = m.clue_ladder[prof].find((c) => c.level === 0);
     assert.ok(lvl0, `Missing Level-0 clue for ${m.id} (${prof})`);
     assert.ok(

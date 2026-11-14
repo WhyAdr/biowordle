@@ -57,15 +57,19 @@ class TestBioWordleAudit(unittest.TestCase):
     def test_02_molecular_identity_stereochem_and_acs1996_svg(self) -> None:
         """Verify unique IDs, InChIKeys, canonical SMILES, preserved stereocenters, and normalized SVG hashes."""
         chemle = self.data["chemle"]
-        self.assertEqual(len(chemle), 36)
+        self.assertEqual(len(chemle), 78)
+        self.assertEqual(self.data["metadata"]["chemle_ranked_count"], 36)
+        self.assertEqual(self.data["metadata"]["chemle_ranked_guess_count"], 36)
+        self.assertEqual(self.data["metadata"]["chemle_learn_count"], 78)
+        self.assertEqual(self.data["metadata"]["chemle_learn_guess_count"], 78)
 
         ids = [c["id"] for c in chemle]
         inchikeys = [c["inchikey"] for c in chemle]
         can_smiles = [c["canonical_smiles"] for c in chemle]
 
-        self.assertEqual(len(set(ids)), 36, "Duplicate compound IDs found")
-        self.assertEqual(len(set(inchikeys)), 36, "Duplicate InChIKeys after standardization")
-        self.assertEqual(len(set(can_smiles)), 36, "Duplicate canonical SMILES after standardization")
+        self.assertEqual(len(set(ids)), 78, "Duplicate compound IDs found")
+        self.assertEqual(len(set(inchikeys)), 78, "Duplicate InChIKeys after standardization")
+        self.assertEqual(len(set(can_smiles)), 78, "Duplicate canonical SMILES after standardization")
         self.assertEqual(ids, sorted(ids), "Chemle catalog must be canonically sorted by id")
 
         by_id = {c["id"]: c for c in chemle}
@@ -152,6 +156,8 @@ class TestBioWordleAudit(unittest.TestCase):
 
         for c in self.data["chemle"]:
             for prof in ("ranked", "learn"):
+                if prof not in c.get("game_eligibility", []):
+                    continue
                 lvl0 = c["clue_ladder"][prof][0]["text"]
                 self.assertNotIn(str(c["MW"]), lvl0)
                 self.assertNotIn(c["Category"], lvl0)
@@ -358,8 +364,9 @@ class TestBioWordleAudit(unittest.TestCase):
 
         # Changing descriptors/clues/spec updates dataset_version_hash WITHOUT shifting daily schedule_version_hash
         chem_mutated = copy.deepcopy(self.data["chemle"])
-        chem_mutated[0]["MW"] = round(chem_mutated[0]["MW"] + 1.0, 1)
-        chem_mutated[0]["clue_ladder"]["ranked"][0]["text"] = "Updated band text"
+        ranked_rec = next(r for r in chem_mutated if "ranked" in r.get("game_eligibility", []))
+        ranked_rec["MW"] = round(ranked_rec["MW"] + 1.0, 1)
+        ranked_rec["clue_ladder"]["ranked"][0]["text"] = "Updated band text"
         self.assertNotEqual(
             h_orig,
             build_puzzles.compute_canonical_dataset_hash(chem_mutated, self.data["seqle"], self.feedback_spec),
@@ -433,7 +440,7 @@ class TestBioWordleAudit(unittest.TestCase):
             0,
             f"Node golden/DOM suite failed:\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}",
         )
-        self.assertIn("2592 Chemle vectors + 1800 Seqle vectors", proc.stdout)
+        self.assertIn("12168 Chemle vectors + 1800 Seqle vectors", proc.stdout)
 
 
     def test_12_p0_5_provenance_registry_and_offline_fixtures(self):
@@ -691,8 +698,8 @@ class TestBioWordleAudit(unittest.TestCase):
 
         self.assertEqual(ext_db["metadata"]["chemle_ranked_count"], 36)
         self.assertEqual(ext_db["metadata"]["chemle_ranked_guess_count"], 36)
-        self.assertEqual(ext_db["metadata"]["chemle_learn_count"], 37)
-        self.assertEqual(ext_db["metadata"]["chemle_learn_guess_count"], 37)
+        self.assertEqual(ext_db["metadata"]["chemle_learn_count"], 79)
+        self.assertEqual(ext_db["metadata"]["chemle_learn_guess_count"], 79)
         self.assertEqual(ext_db["metadata"]["chemle_schedule_hash"], "9257bd168fa6")
         self.assertEqual(ext_db["metadata"]["seqle_schedule_hash"], "623f02623c18")
         self.assertEqual(compute_chemle_schedule_hash(ext_db["chemle"]), "9257bd168fa6")
@@ -707,11 +714,12 @@ class TestBioWordleAudit(unittest.TestCase):
             ext_m = ext_by_id[mid]
             self.assertEqual(ext_m["game_eligibility"], base_m["game_eligibility"])
             self.assertEqual(ext_m["guess_eligibility"], base_m["guess_eligibility"])
-            self.assertEqual(ext_m["clue_ladder"]["ranked"], base_m["clue_ladder"]["ranked"])
-            self.assertEqual(
-                ext_m["opening_probe_quality"]["ranked"],
-                base_m["opening_probe_quality"]["ranked"],
-            )
+            if "ranked" in base_m.get("game_eligibility", []):
+                self.assertEqual(ext_m["clue_ladder"]["ranked"], base_m["clue_ladder"]["ranked"])
+                self.assertEqual(
+                    ext_m["opening_probe_quality"]["ranked"],
+                    base_m["opening_probe_quality"]["ranked"],
+                )
 
         self.assertEqual(
             ext_db["metadata"]["k_anonymity_audit"]["chemle_ranked"],
@@ -741,7 +749,7 @@ class TestBioWordleAudit(unittest.TestCase):
         )
 
         manifest = load_chemle_manifest()
-        self.assertEqual(len(manifest), 36)
+        self.assertEqual(len(manifest), 78)
         validate_chemle_manifest(manifest)
 
         # Every verified/baseline_legacy manifest entry surfaces provenance fields in compiled puzzles.json

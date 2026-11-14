@@ -90,8 +90,9 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     expect(level0Text).not.toContain(scaffoldTarget.Category);
     expect(level0Text.toLowerCase()).not.toContain("bits");
 
-    // Pick 6 distinct wrong guesses for full loss/reveal test (first via combobox ArrowDown + Enter)
-    const wrongs = PUZZLES.chemle.filter((m) => m.id !== scaffoldTarget.id).slice(0, 6);
+    // Pick 6 distinct wrong Ranked guesses for full loss/reveal test (first via combobox ArrowDown + Enter)
+    const rankedPool = BioWordleEngine.getGuessPool(PUZZLES, "chemle", "ranked");
+    const wrongs = rankedPool.filter((m) => m.id !== scaffoldTarget.id).slice(0, 6);
     const searchInput = page.locator("#chemle-search-input");
     await searchInput.focus();
     await searchInput.fill(wrongs[0].name.slice(0, 4));
@@ -211,7 +212,9 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     // Category pack dropdown enabled in Learn; switching category changes denominator in candidates pill
     const catSelect = page.locator("#chemle-cat-filter");
     await expect(catSelect).toBeEnabled();
-    await expect(page.locator("#chemle-candidates-pill")).toContainText("/ 36");
+    await expect(page.locator("#chemle-candidates-pill")).toContainText(
+      `/ ${PUZZLES.metadata.chemle_learn_count}`
+    );
 
     // Unlock Level 1 clue manually BEFORE guessing via Learn Hint button
     await expect(page.locator("#chemle-clue-stage")).toContainText("Level 0");
@@ -228,7 +231,9 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
 
     // Switch category pack -> denominator shrinks while target moves to active category & Level-0 compatibility applies
     const targetCat = aspirin.Category;
-    const packMols = PUZZLES.chemle.filter((m) => m.Category === targetCat);
+    const packMols = PUZZLES.chemle.filter(
+      (m) => (m.game_eligibility || []).includes("learn") && m.Category === targetCat
+    );
     const catCount = packMols.length;
     const aspirinLvl0 = aspirin.clue_ladder.learn.find((c) => c.level === 0).text;
     const compatLvl0 = packMols.filter((m) => m.clue_ladder.learn.find((c) => c.level === 0).text === aspirinLvl0).length;
@@ -333,7 +338,9 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     await p2.goto("/");
     // Advance system Date without firing setInterval countdown
     await p2.clock.setFixedTime(new Date("2026-11-15T00:05:00Z"));
-    const staleGuess = PUZZLES.chemle.find((m) => m.id !== targetDay1.id && m.id !== targetDay2.id);
+    const staleGuess = BioWordleEngine.getGuessPool(PUZZLES, "chemle", "ranked").find(
+      (m) => m.id !== targetDay1.id && m.id !== targetDay2.id
+    );
     await p2.locator("#chemle-search-input").fill(staleGuess.name);
     await p2.locator("#chemle-search-input").press("Enter");
     // Stale click must trigger rollover notice and keep guess count at 0 for 2026-11-15
@@ -348,7 +355,9 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     const p3 = await ctx3.newPage();
     await p3.clock.install({ time: new Date(`${repeatPair.dateA}T23:59:50Z`) });
     await p3.goto("/");
-    const probe = PUZZLES.chemle.find((m) => m.id !== repeatPair.target.id);
+    const probe = BioWordleEngine.getGuessPool(PUZZLES, "chemle", "ranked").find(
+      (m) => m.id !== repeatPair.target.id
+    );
     await p3.locator("#chemle-search-input").fill(probe.name);
     await p3.locator("#chemle-search-input").press("Enter");
     await expect(p3.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
@@ -418,8 +427,9 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
       };
     });
     await Promise.all([pA.goto("/"), pB.goto("/")]);
-    const wA = PUZZLES.chemle.find((m) => m.id !== chemTarget.id);
-    const wB = PUZZLES.chemle.find((m) => m.id !== chemTarget.id && m.id !== wA.id);
+    const rankedGuessPool = BioWordleEngine.getGuessPool(PUZZLES, "chemle", "ranked");
+    const wA = rankedGuessPool.find((m) => m.id !== chemTarget.id);
+    const wB = rankedGuessPool.find((m) => m.id !== chemTarget.id && m.id !== wA.id);
     await pA.locator("#chemle-search-input").fill(wA.name);
     await pA.locator(`#chemle-dropdown .chemle-opt[data-mol-id="${wA.id}"]`).click();
     await expect(pA.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
@@ -474,7 +484,9 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     const pageErrors = attachPageErrorTrap(page);
     const utcDate = "2026-11-14";
     const chemTarget = dailyTargetForDate("chemle", utcDate);
-    const wrongChem = PUZZLES.chemle.find((m) => m.id !== chemTarget.id);
+    const wrongChem = BioWordleEngine.getGuessPool(PUZZLES, "chemle", "ranked").find(
+      (m) => m.id !== chemTarget.id
+    );
     const seqTarget = dailyTargetForDate("seqle", utcDate);
 
     // 7a. Compatible legacy Chemle record under 919ad8afb190
@@ -560,7 +572,7 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     await expect(page.locator("#app-meta-subtitle")).toContainText("v0.2.2");
 
     // Submit 1 Chemle guess in offline file:// mode (verifies lock fallback works without navigator.locks/HTTP origin errors)
-    const mol = PUZZLES.chemle[0];
+    const mol = BioWordleEngine.getGuessPool(PUZZLES, "chemle", "ranked")[0];
     await page.locator("#chemle-search-input").fill(mol.name);
     await page.locator("#chemle-search-input").press("Enter");
     await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
@@ -597,11 +609,12 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
       clonedData.chemle_similarity[learnMolId][m.id] = s;
       clonedData.chemle_similarity[m.id][learnMolId] = s;
     }
+    const baseLearnCount = PUZZLES.metadata.chemle_learn_count;
     clonedData.metadata.chemle_count = clonedData.chemle.length;
     clonedData.metadata.chemle_ranked_count = 36;
     clonedData.metadata.chemle_ranked_guess_count = 36;
-    clonedData.metadata.chemle_learn_count = 37;
-    clonedData.metadata.chemle_learn_guess_count = 37;
+    clonedData.metadata.chemle_learn_count = baseLearnCount + 1;
+    clonedData.metadata.chemle_learn_guess_count = baseLearnCount + 1;
 
     await page.route("**/data/puzzles_data.js", async (route) => {
       await route.fulfill({
@@ -630,11 +643,15 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     await page.locator("#chemle-search-input").press("Enter");
     await expect(page.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
 
-    // Switch to Learn mode -> sees 37 Mols / 37 denominator and accepts Synthetic Learn Probe via mouse click
+    // Switch to Learn mode -> sees +1 Learn pool and accepts Synthetic Learn Probe via mouse click
     await page.locator("#btn-playstyle").click();
-    await expect(page.locator("#badge-chemle-count")).toHaveText("37 Mols");
-    await expect(page.locator("#chemle-candidates-pill")).toHaveText(/^Candidates: \d+ \/ 37$/);
-    await expect(page.locator("#chemle-cat-filter")).toContainText("All Answer Packs (37 Mols)");
+    await expect(page.locator("#badge-chemle-count")).toHaveText(`${baseLearnCount + 1} Mols`);
+    await expect(page.locator("#chemle-candidates-pill")).toHaveText(
+      new RegExp(`^Candidates: \\d+ / ${baseLearnCount + 1}$`)
+    );
+    await expect(page.locator("#chemle-cat-filter")).toContainText(
+      `All Answer Packs (${baseLearnCount + 1} Mols)`
+    );
 
     await page.locator("#chemle-search-input").fill("Synthetic Learn Probe");
     const opt = page.locator(`#chemle-opt-${learnMolId}`);
@@ -694,5 +711,72 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     }
 
     expect(pageErrors).toEqual([]);
+  });
+
+  test("10. Learn 78-compound pilot exposes methylxanthines and xylenes cleanly and distinguishes close isomers", async ({ browser }) => {
+    const utcDate = "2026-11-14";
+
+    // 1. Methylxanthines in Learn mode: target Caffeine, probe Theophylline & Theobromine
+    const ctx1 = await browser.newContext();
+    await ctx1.addInitScript((d) => {
+      window.__BIOWORDLE_TEST_UTC_DATE__ = d;
+      window.__BIOWORDLE_TEST_LEARN_TARGETS__ = { chemle: "caffeine" };
+    }, utcDate);
+    const page1 = await ctx1.newPage();
+    const errs1 = attachPageErrorTrap(page1);
+    await page1.goto("/");
+    await page1.locator("#btn-playstyle").click();
+    await expect(page1.locator("#badge-chemle-count")).toHaveText("78 Mols");
+    await expect(page1.locator("#chemle-cat-filter")).toContainText("All Answer Packs (78 Mols)");
+
+    await page1.locator("#chemle-search-input").fill("Theophylline");
+    await page1.locator('#chemle-dropdown .chemle-opt[data-mol-id="theophylline"]').click();
+    await expect(page1.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
+    const theoText = await page1.locator("#chemle-guesses .chemle-guess-card").first().innerText();
+    expect(theoText).toMatch(/\d+%/);
+    expect(theoText).not.toContain("100%");
+
+    await page1.locator("#chemle-search-input").fill("Theobromine");
+    await page1.locator('#chemle-dropdown .chemle-opt[data-mol-id="theobromine"]').click();
+    await expect(page1.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(2);
+
+    await page1.locator("#chemle-search-input").fill("Caffeine");
+    await page1.locator('#chemle-dropdown .chemle-opt[data-mol-id="caffeine"]').click();
+    await expect(page1.locator("#chemle-full-props")).toBeVisible();
+    await expect(page1.locator("#chemle-clue-stage")).toHaveText("Revealed");
+    await expect(page1.locator("#chemle-full-props")).toContainText(/Caffeine|C8H10N4O2/);
+    expect(errs1).toEqual([]);
+    await ctx1.close();
+
+    // 2. Xylene regioisomers in Learn mode: target o-Xylene, probe m-Xylene & p-Xylene
+    const ctx2 = await browser.newContext();
+    await ctx2.addInitScript((d) => {
+      window.__BIOWORDLE_TEST_UTC_DATE__ = d;
+      window.__BIOWORDLE_TEST_LEARN_TARGETS__ = { chemle: "o_xylene" };
+    }, utcDate);
+    const page2 = await ctx2.newPage();
+    const errs2 = attachPageErrorTrap(page2);
+    await page2.goto("/");
+    await page2.locator("#btn-playstyle").click();
+    await expect(page2.locator("#badge-chemle-count")).toHaveText("78 Mols");
+
+    await page2.locator("#chemle-search-input").fill("m-Xylene");
+    await page2.locator('#chemle-dropdown .chemle-opt[data-mol-id="m_xylene"]').click();
+    await expect(page2.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(1);
+    const mXyleneText = await page2.locator("#chemle-guesses .chemle-guess-card").first().innerText();
+    expect(mXyleneText).toMatch(/\d+%/);
+    expect(mXyleneText).not.toContain("100%");
+
+    await page2.locator("#chemle-search-input").fill("p-Xylene");
+    await page2.locator('#chemle-dropdown .chemle-opt[data-mol-id="p_xylene"]').click();
+    await expect(page2.locator("#chemle-guesses .chemle-guess-card")).toHaveCount(2);
+
+    await page2.locator("#chemle-search-input").fill("o-Xylene");
+    await page2.locator('#chemle-dropdown .chemle-opt[data-mol-id="o_xylene"]').click();
+    await expect(page2.locator("#chemle-full-props")).toBeVisible();
+    await expect(page2.locator("#chemle-clue-stage")).toHaveText("Revealed");
+    await expect(page2.locator("#chemle-full-props")).toContainText(/o-Xylene|C8H10/);
+    expect(errs2).toEqual([]);
+    await ctx2.close();
   });
 });
