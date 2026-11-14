@@ -62,6 +62,8 @@ for (const m of puzzlesData.seqle) {
   assert.equal(jsBio.isoelectric_point, m.isoelectric_point, `pI mismatch on ${m.seq}`);
 }
 
+let seqRankedClassTiles = 0;
+let seqLearnClassTiles = 0;
 for (const [profId, profSpec] of Object.entries(puzzlesData.feedback_spec.profiles)) {
   for (const g of puzzlesData.seqle) {
     for (const t of puzzlesData.seqle) {
@@ -74,6 +76,11 @@ for (const [profId, profSpec] of Object.entries(puzzlesData.feedback_spec.profil
         g,
         t
       );
+      if (profId === "ranked") {
+        seqRankedClassTiles += jsRes.tiles.filter((x) => x === "class").length;
+      } else if (profId === "learn") {
+        seqLearnClassTiles += jsRes.tiles.filter((x) => x === "class").length;
+      }
       const pySig = goldenData.seqle_signatures[profId][key];
       assert.equal(
         jsRes.signature,
@@ -85,6 +92,8 @@ for (const [profId, profSpec] of Object.entries(puzzlesData.feedback_spec.profil
   }
 }
 assert.equal(seqChecked, 1800, "Expected 1,800 Seqle golden vector checks");
+assert.equal(seqRankedClassTiles, 0, "Ranked Seqle must suppress positional 'class' tiles");
+assert.ok(seqLearnClassTiles > 0, "Learn Seqle must preserve positional 'class' tiles");
 
 // 3. P0-3 Category-Lockout Regression Test: target in guessPool for ALL mode x profile x pack
 const categories = ["ALL", ...new Set(puzzlesData.chemle.map((m) => m.Category))];
@@ -145,7 +154,99 @@ for (const profile of ["ranked", "learn"]) {
   assert.equal(cWin, 1, "Winning guess must narrow compatible candidates to 1");
 }
 
-// 5. P1-2 UTC-Day Streak State Machine Verification
+// 4b. Learn Candidate Filtering Completeness (SIM_PCT, live FG overlap, and clue ladder)
+{
+  const learnSpec = puzzlesData.feedback_spec.profiles.learn;
+  const learnNoExtras = {
+    ...learnSpec,
+    show_exact_tanimoto: false,
+    show_functional_groups_live: false,
+  };
+  const learnPool = Engine.getAnswerPool(puzzlesData, "chemle", "learn", "ALL");
+  const target = chemById["aspirin"];
+  const withFullLearn = Engine.countCompatibleChemleCandidates(
+    ["ibuprofen"],
+    target,
+    learnPool,
+    puzzlesData.chemle_similarity,
+    learnSpec,
+    chemById
+  );
+  const withoutSimFg = Engine.countCompatibleChemleCandidates(
+    ["ibuprofen"],
+    target,
+    learnPool,
+    puzzlesData.chemle_similarity,
+    learnNoExtras,
+    chemById
+  );
+  assert.ok(
+    withFullLearn <= withoutSimFg && withFullLearn >= 1,
+    `Learn SIM_PCT/FG feedback must narrow or equal stripped spec (${withFullLearn} vs ${withoutSimFg})`
+  );
+
+  // Also test a pair where exact SIM_PCT / FG strictly disambiguates targets
+  const lvl0Clue = target.clue_ladder.learn[0].text;
+  const cClue0 = Engine.countCompatibleChemleCandidates(
+    [],
+    target,
+    learnPool,
+    puzzlesData.chemle_similarity,
+    learnSpec,
+    chemById,
+    { profileId: "learn", level0Text: lvl0Clue, superClass: null, scaffoldUnlocked: false, targetScaffoldSmiles: "" }
+  );
+  const cClue1 = Engine.countCompatibleChemleCandidates(
+    [],
+    target,
+    learnPool,
+    puzzlesData.chemle_similarity,
+    learnSpec,
+    chemById,
+    {
+      profileId: "learn",
+      level0Text: lvl0Clue,
+      superClass: target.super_class,
+      scaffoldUnlocked: true,
+      targetScaffoldSmiles: target.scaffold_smiles || "",
+    }
+  );
+  assert.ok(cClue0 < 36 && cClue0 >= 4, `Level-0 Learn clue should narrow to 4..35, got ${cClue0}`);
+  assert.ok(cClue1 <= cClue0 && cClue1 >= 1, `Level-1 + scaffold clue must further narrow (${cClue1} <= ${cClue0})`);
+
+  const seqPool = Engine.getAnswerPool(puzzlesData, "seqle", "learn", "ALL");
+  const yigsr = puzzlesData.seqle.find((s) => s.seq === "YIGSR");
+  const seqClue0 = Engine.countCompatibleSeqleCandidates(
+    [],
+    yigsr,
+    seqPool,
+    puzzlesData.aa_properties,
+    learnSpec,
+    { profileId: "learn", level0Text: yigsr.clue_ladder.learn[0].text, level1Text: null }
+  );
+  const seqClue1 = Engine.countCompatibleSeqleCandidates(
+    [],
+    yigsr,
+    seqPool,
+    puzzlesData.aa_properties,
+    learnSpec,
+    { profileId: "learn", level0Text: yigsr.clue_ladder.learn[0].text, level1Text: yigsr.clue_ladder.learn[1].text }
+  );
+  assert.ok(seqClue0 < 30 && seqClue1 <= seqClue0 && seqClue1 >= 1, "Seqle clue constraints must narrow Learn pool");
+}
+
+// 5. P1-2 UTC-Day Streak State Machine & v1-to-v2 Migration Verification
+const migratedStats = Engine.migrateV1Stats({ chemWins: 5, seqWins: 3, streak: 7, maxStreak: 9 });
+assert.equal(migratedStats.schema, 2);
+assert.equal(migratedStats.chemWins, 5, "v1 chemWins must be preserved");
+assert.equal(migratedStats.seqWins, 3, "v1 seqWins must be preserved");
+assert.equal(migratedStats.streak, 0, "v1 streak must NOT migrate without verified UTC dates");
+assert.equal(migratedStats.maxStreak, 0, "v1 maxStreak must reset to 0 on v2 migration");
+
+globalThis.__BIOWORDLE_TEST_UTC_DATE__ = "2026-12-31";
+assert.equal(Engine.getUtcDateString(), "2026-12-31", "Test UTC date override must work cleanly");
+delete globalThis.__BIOWORDLE_TEST_UTC_DATE__;
+
 let st = {
   schema: 2,
   chemWins: 0,
@@ -199,6 +300,7 @@ for (const m of puzzlesData.chemle) {
 
 assert.ok(indexHtml.includes('role="combobox"'), "index.html must include role=combobox on search input");
 assert.ok(indexHtml.includes('role="listbox"'), "index.html must include role=listbox on dropdown");
+assert.ok(indexHtml.includes('id="utc-rollover-banner"'), "index.html must include utc-rollover-banner");
 assert.ok(!indexHtml.includes("IG bits shown"), "index.html search placeholder must not expose pre-guess IG bits");
 
 console.log(

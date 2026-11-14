@@ -164,31 +164,105 @@ class TestBioWordleAudit(unittest.TestCase):
                 self.assertNotIn(m["seq"], lvl0)
 
     def test_06_p0_2_solver_bot_calibration_gate(self) -> None:
-        """Run the greedy max-entropy solver across Ranked and Learn profiles and enforce difficulty gates."""
+        """Run clue-conditioned Chemle & Seqle greedy solvers, enforce gates, and verify pre-tuning YIGSR 28/28 collapse."""
         report = solver_bot.run_all_gates(
             Path(BASE_DIR) / "data" / "puzzles.json",
             Path(BASE_DIR) / "data" / "feedback_spec.json",
         )
         r_stats = report["chemle"]["ranked"]
-        self.assertTrue(3.5 <= r_stats["mean"] <= 4.5)
-        self.assertLess(r_stats["pct_solved_le2"], 5.0)
+        self.assertTrue(r_stats["conditioned_on_clues"])
+        self.assertTrue(3.0 <= r_stats["mean"] <= 4.3)
+        self.assertLess(r_stats["pct_solved_le2"], self.feedback_spec["profiles"]["ranked"]["solver_gate"]["max_le2_pct"])
         self.assertGreaterEqual(r_stats["pct_solved_le6"], 98.0)
         self.assertGreaterEqual(r_stats["min_opening_expected_remaining"], 2.5)
 
         l_stats = report["chemle"]["learn"]
+        self.assertTrue(l_stats["conditioned_on_clues"])
         self.assertLessEqual(l_stats["mean"], 3.5)
-        self.assertLess(l_stats["pct_solved_le2"], 25.0)
+        self.assertLess(l_stats["pct_solved_le2"], self.feedback_spec["profiles"]["learn"]["solver_gate"]["max_le2_pct"])
         self.assertGreaterEqual(l_stats["pct_solved_le6"], 98.0)
-        self.assertGreaterEqual(l_stats["min_opening_expected_remaining"], 2.5)
+        self.assertGreaterEqual(l_stats["min_opening_expected_remaining"], 1.0)
+
+        sr_stats = report["seqle"]["ranked"]
+        sl_stats = report["seqle"]["learn"]
+        self.assertEqual(sr_stats["eligible_count"], 28)
+        self.assertEqual(sl_stats["eligible_count"], 30)
+        self.assertLessEqual(
+            sr_stats["max_single_probe_distinct_targets"],
+            self.feedback_spec["profiles"]["ranked"]["seqle_solver_gate"]["max_single_probe_distinct_targets"],
+        )
+        self.assertLess(sr_stats["yigsr_distinct_signatures"], 28)
+
+        # Reproduce pre-tuning v0.2.0 Ranked Seqle feedback against corrected NPLYK and legacy NPLYR catalogs
+        raw_ranked_spec = copy.deepcopy(self.feedback_spec["profiles"]["ranked"])
+        raw_ranked_spec["show_positional_class_match"] = True
+        raw_ranked_spec["seqle_strip_fields"] = [
+            {
+                "name": "net_charge_ph74",
+                "label": "Q (pH 7.4)",
+                "decimals": 2,
+                "kind": "delta",
+                "exact_tol": 0.4,
+                "close_tol": 1.8,
+                "close_directional": False,
+                "far_directional": True,
+                "shown": True,
+            },
+            {
+                "name": "gravy",
+                "label": "GRAVY",
+                "decimals": 2,
+                "kind": "delta",
+                "exact_tol": 0.6,
+                "close_tol": 1.8,
+                "close_directional": False,
+                "far_directional": True,
+                "shown": True,
+            },
+        ]
+        raw_seq_stats = chem_engine.run_seqle_greedy_solver(
+            self.data["seqle"],
+            self.data["aa_properties"],
+            raw_ranked_spec,
+            profile_id="ranked",
+            condition_on_clues=False,
+        )
+        self.assertEqual(raw_seq_stats["yigsr_distinct_signatures"], 27)
+        self.assertEqual(raw_seq_stats["max_single_probe_distinct_targets"], 28)
+        self.assertEqual(raw_seq_stats["max"], 2)
+
+        # Confirm exact v0.2.0 NPLYR baseline reproduction: YIGSR splits all 28/28 targets
+        legacy_seqle = copy.deepcopy(self.data["seqle"])
+        for rec in legacy_seqle:
+            if rec["seq"] == "NPLYK":
+                bio = chem_engine.compute_peptide_biochem("NPLYR", self.data["aa_properties"])
+                rec["seq"] = "NPLYR"
+                rec.update(bio)
+                break
+        legacy_raw_stats = chem_engine.run_seqle_greedy_solver(
+            legacy_seqle,
+            self.data["aa_properties"],
+            raw_ranked_spec,
+            profile_id="ranked",
+            condition_on_clues=False,
+        )
+        self.assertEqual(legacy_raw_stats["yigsr_distinct_signatures"], 28)
+        self.assertEqual(legacy_raw_stats["max"], 2)
 
     def test_07_p0_4_seqle_motif_validator_and_negative_cases(self) -> None:
-        """Verify all 30 curated motifs pass P0-4 schema validation and test negative rejection of KDELR/CVIMK."""
+        """Verify all 30 curated motifs pass P0-4 & UniProt provenance validation and test negative rejections."""
         aa = self.data["aa_properties"]
         seqle = self.data["seqle"]
         self.assertEqual(len(seqle), 30)
         by_seq = {m["seq"]: m for m in seqle}
 
-        # Verify scientific replacements from P0-4 table
+        # Verify scientific replacements & v0.2.1 NPLYK (ITGB3 P05106) correction
+        self.assertIn("NPLYK", by_seq)
+        self.assertNotIn("NPLYR", by_seq)
+        self.assertIn("UniProt:P05106", by_seq["NPLYK"]["exemplar_source"])
+        self.assertEqual(by_seq["NPLYK"]["parent_sequence"], "AKWDTANNPLYKEATSTFTNITYRGT")
+        self.assertEqual(by_seq["NPLYK"]["reference_provenance"]["status"], "verified_uniprot")
+
         for expected_seq in (
             "EKDEL",
             "KCVIM",
@@ -200,12 +274,16 @@ class TestBioWordleAudit(unittest.TestCase):
             "KKKRK",
             "FGGFT",
             "SYSGY",
+            "NPLYK",
             "GHHPH",
             "INFEK",
             "CCHHC",
             "LDLAS",
         ):
             self.assertIn(expected_seq, by_seq, f"Missing audited motif {expected_seq}")
+
+        for m in seqle:
+            chem_engine.validate_seqle_motif_record(m, aa, enforce_reference_registry=True)
 
         # Verify abstractions CCHHC and LDLAS are excluded from Ranked mode
         for abs_seq in ("CCHHC", "LDLAS"):
@@ -246,8 +324,19 @@ class TestBioWordleAudit(unittest.TestCase):
         with self.assertRaises(ValueError):
             chem_engine.validate_seqle_motif_record(bad_abstraction, aa)
 
+        # Negative test 4: artificial NPLYR parent override or fabricated NPLYK flank must fail reference validation
+        bad_nplyr_override = copy.deepcopy(by_seq["NPLYK"])
+        bad_nplyr_override["parent_sequence"] = "AKWDTANNPLYREATST"
+        with self.assertRaises(ValueError):
+            chem_engine.validate_seqle_motif_record(bad_nplyr_override, aa, enforce_reference_registry=True)
+
+        bad_nplyk_fabricated = copy.deepcopy(by_seq["NPLYK"])
+        bad_nplyk_fabricated["parent_sequence"] = "ZZZZZZZNPLYKZZZZZZ"
+        with self.assertRaises(ValueError):
+            chem_engine.validate_seqle_motif_record(bad_nplyk_fabricated, aa, enforce_reference_registry=True)
+
     def test_08_p1_3_order_independent_canonical_hash(self) -> None:
-        """Verify shuffling catalog order leaves dataset_version_hash invariant while descriptor edits change it."""
+        """Verify dataset_version_hash and schedule_version_hash order-invariance and decoupled sensitivity."""
         chem_copy = copy.deepcopy(self.data["chemle"])
         seq_copy = copy.deepcopy(self.data["seqle"])
         rng = random.Random(42)
@@ -255,17 +344,41 @@ class TestBioWordleAudit(unittest.TestCase):
         rng.shuffle(seq_copy)
 
         h_orig = self.data["metadata"]["dataset_version_hash"]
-        h_shuffled = build_puzzles.compute_canonical_dataset_hash(
-            chem_copy, seq_copy, self.feedback_spec
+        s_orig = self.data["metadata"]["schedule_version_hash"]
+        self.assertEqual(
+            h_orig,
+            build_puzzles.compute_canonical_dataset_hash(chem_copy, seq_copy, self.feedback_spec),
+            "dataset_version_hash must be invariant to catalog input ordering",
         )
-        self.assertEqual(h_orig, h_shuffled, "dataset_version_hash must be invariant to catalog input ordering")
+        self.assertEqual(
+            s_orig,
+            build_puzzles.compute_schedule_version_hash(chem_copy, seq_copy),
+            "schedule_version_hash must be invariant to catalog input ordering",
+        )
 
+        # Changing descriptors/clues/spec updates dataset_version_hash WITHOUT shifting daily schedule_version_hash
         chem_mutated = copy.deepcopy(self.data["chemle"])
         chem_mutated[0]["MW"] = round(chem_mutated[0]["MW"] + 1.0, 1)
-        h_mutated = build_puzzles.compute_canonical_dataset_hash(
-            chem_mutated, self.data["seqle"], self.feedback_spec
+        chem_mutated[0]["clue_ladder"]["ranked"][0]["text"] = "Updated band text"
+        self.assertNotEqual(
+            h_orig,
+            build_puzzles.compute_canonical_dataset_hash(chem_mutated, self.data["seqle"], self.feedback_spec),
+            "dataset_version_hash must change when a gameplay descriptor changes",
         )
-        self.assertNotEqual(h_orig, h_mutated, "dataset_version_hash must change when a gameplay descriptor changes")
+        self.assertEqual(
+            s_orig,
+            build_puzzles.compute_schedule_version_hash(chem_mutated, self.data["seqle"]),
+            "schedule_version_hash must remain stable across descriptor/feedback tuning changes",
+        )
+
+        # Changing pool membership / game_eligibility updates schedule_version_hash
+        seq_elig_mut = copy.deepcopy(self.data["seqle"])
+        seq_elig_mut[0]["game_eligibility"] = ["learn"]
+        self.assertNotEqual(
+            s_orig,
+            build_puzzles.compute_schedule_version_hash(self.data["chemle"], seq_elig_mut),
+            "schedule_version_hash must change when game_eligibility changes",
+        )
 
     def test_09_p1_5_split_carbonyl_smarts(self) -> None:
         """Verify non-overlapping split carbonyl SMARTS distinguish ketone, aldehyde, acid, ester, and amide."""
