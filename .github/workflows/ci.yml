@@ -59,7 +59,12 @@ jobs:
           H_AFTER=$(python -c "import json; print(json.load(open('data/puzzles.json'))['metadata']['dataset_version_hash'])")
           echo "dataset_version_hash before=$H_BEFORE after=$H_AFTER"
           test "$H_BEFORE" = "$H_AFTER"
-          git diff --exit-code data/puzzles.json data/puzzles_data.js tests/golden_feedback.json dist/biowordle_standalone.html
+          if ! git diff --exit-code data/puzzles.json data/puzzles_data.js tests/golden_feedback.json dist/biowordle_standalone.html; then
+            CHANGED=$(git diff --name-only data/puzzles.json data/puzzles_data.js tests/golden_feedback.json dist/biowordle_standalone.html | tr '\n' ' ')
+            SAMPLE=$(python -c "import subprocess; d=subprocess.check_output(['git','diff','-U1','data/puzzles.json','tests/golden_feedback.json'],text=True); print(' | '.join([l[:140] for l in d.splitlines()[:25]]))")
+            echo "::error title=Tracked output diff ($CHANGED)::$SAMPLE"
+            exit 1
+          fi
 
       - name: Run Solver-Bot Difficulty & k-Anonymity Calibration Gates
         run: python tools/solver_bot.py
