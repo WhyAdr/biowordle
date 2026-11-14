@@ -1,0 +1,222 @@
+{
+  "revision": "83f05f96102abea5d2fcce0ed75dbf3535127f71",
+  "runs": 3,
+  "conditions": "Chromium 390x844 mobile, 4x CPU; HTTP Fast 3G 1.6 Mbps/150 ms; loopback server; file unthrottled network",
+  "projections_bytes": {
+    "original_data": {
+      "raw": 3100664,
+      "gzip": 341122,
+      "brotli": 193909
+    },
+    "without_svg_values_nonfunctional": {
+      "raw": 514379,
+      "gzip": 69529,
+      "brotli": 50639
+    },
+    "chemle_only_nonfunctional": {
+      "raw": 1451820,
+      "gzip": 174343,
+      "brotli": 107513
+    },
+    "seqle_only_nonfunctional": {
+      "raw": 1659216,
+      "gzip": 169301,
+      "brotli": 90200
+    },
+    "standalone": {
+      "raw": 3235746,
+      "gzip": 371293,
+      "brotli": 219337
+    }
+  },
+  "samples": {
+    "raw": [
+      {
+        "cold": {
+          "boot_ms": 16557.259999990463,
+          "transfer_bytes": 3237010,
+          "encoded_body_bytes": 3235810
+        },
+        "warm": null,
+        "switch_ms": 251.2708999812603,
+        "search_ms": 222.34799998998642,
+        "guess_ms": 158.8144000172615,
+        "js_heap_used_bytes": 4968368,
+        "page_errors": [],
+        "external_requests": []
+      },
+      {
+        "cold": {
+          "boot_ms": 16139.368499994278,
+          "transfer_bytes": 3237010,
+          "encoded_body_bytes": 3235810
+        },
+        "warm": null,
+        "switch_ms": 174.24529999494553,
+        "search_ms": 100.94269999861717,
+        "guess_ms": 101.61660000681877,
+        "js_heap_used_bytes": 4492820,
+        "page_errors": [],
+        "external_requests": []
+      },
+      {
+        "cold": {
+          "boot_ms": 16078.860500007868,
+          "transfer_bytes": 3237010,
+          "encoded_body_bytes": 3235810
+        },
+        "warm": null,
+        "switch_ms": 112.23429998755455,
+        "search_ms": 82.89410001039505,
+        "guess_ms": 96.94120001792908,
+        "js_heap_used_bytes": 4492820,
+        "page_errors": [],
+        "external_requests": []
+      }
+    ],
+    "gzip": [
+      {
+        "cold": {
+          "boot_ms": 2397.7302999794483,
+          "transfer_bytes": 373504,
+          "encoded_body_bytes": 372304
+        },
+        "warm": null,
+        "switch_ms": 178.22220000624657,
+        "search_ms": 159.98420000076294,
+        "guess_ms": 163.44229999184608,
+        "js_heap_used_bytes": 4492820,
+        "page_errors": [],
+        "external_requests": []
+      },
+      {
+        "cold": {
+          "boot_ms": 2338.2318999767303,
+          "transfer_bytes": 373504,
+          "encoded_body_bytes": 372304
+        },
+        "warm": null,
+        "switch_ms": 111.63379999995232,
+        "search_ms": 89.03270000219345,
+        "guess_ms": 104.18979999423027,
+        "js_heap_used_bytes": 4492820,
+        "page_errors": [],
+        "external_requests": []
+      },
+      {
+        "cold": {
+          "boot_ms": 2316.8553999960423,
+          "transfer_bytes": 373504,
+          "encoded_body_bytes": 372304
+        },
+        "warm": null,
+        "switch_ms": 167.8207999765873,
+        "search_ms": 119.95070001482964,
+        "guess_ms": 94.58209997415543,
+        "js_heap_used_bytes": 4492820,
+        "page_errors": [],
+        "external_requests": []
+      }
+    ],
+    "cache": [
+      {
+        "cold": {
+          "boot_ms": 2324.504099994898,
+          "transfer_bytes": 373504,
+          "encoded_body_bytes": 372304
+        },
+        "warm": {
+          "boot_ms": 164.3459999859333,
+          "transfer_bytes": 0,
+          "encoded_body_bytes": 372304
+        },
+        "switch_ms": 123.60140001773834,
+        "search_ms": 78.63490000367165,
+        "guess_ms": 145.85339999198914,
+        "js_heap_used_bytes": 4492820,
+        "page_errors": [],
+        "external_requests": []
+      },
+      {
+        "cold": {
+          "boot_ms": 2390.3075000047684,
+          "transfer_bytes": 373504,
+          "encoded_body_bytes": 372304
+        },
+        "warm": {
+          "boot_ms": 145.63889998197556,
+          "transfer_bytes": 0,
+          "encoded_body_bytes": 372304
+        },
+        "switch_ms": 147.3788000047207,
+        "search_ms": 123.26810002326965,
+        "guess_ms": 131.8319000005722,
+        "js_heap_used_bytes": 4492820,
+        "page_errors": [],
+        "external_requests": []
+      },
+      {
+        "cold": {
+          "boot_ms": 2345.4330999851227,
+          "transfer_bytes": 373504,
+          "encoded_body_bytes": 372304
+        },
+        "warm": {
+          "boot_ms": 126.55700001120567,
+          "transfer_bytes": 0,
+          "encoded_body_bytes": 372304
+        },
+        "switch_ms": 147.68779999017715,
+        "search_ms": 91.27809998393059,
+        "guess_ms": 117.86730000376701,
+        "js_heap_used_bytes": 4492820,
+        "page_errors": [],
+        "external_requests": []
+      }
+    ],
+    "file": [
+      {
+        "cold": {
+          "boot_ms": 1299.7982000112534,
+          "transfer_bytes": 3230201,
+          "encoded_body_bytes": 3229901
+        },
+        "warm": null,
+        "switch_ms": 108.51280000805855,
+        "search_ms": 103.36359998583794,
+        "guess_ms": 111.67030000686646,
+        "js_heap_used_bytes": 4450756,
+        "page_errors": [],
+        "external_requests": []
+      },
+      {
+        "cold": {
+          "boot_ms": 736.685799986124,
+          "transfer_bytes": 3230201,
+          "encoded_body_bytes": 3229901
+        },
+        "warm": null,
+        "switch_ms": 144.16729998588562,
+        "search_ms": 135.70219999551773,
+        "guess_ms": 105.69789999723434,
+        "js_heap_used_bytes": 4450756,
+        "page_errors": [],
+        "external_requests": []
+      },
+      {
+        "cold": {
+          "boot_ms": 756.8641999959946,
+          "transfer_bytes": 3230201,
+          "encoded_body_bytes": 3229901
+        },
+        "warm": null,
+        "switch_ms": 105.23469999432564,
+        "search_ms": 85.83540001511574,
+        "guess_ms": 92.7964999973774,
+        "js_heap_used_bytes": 4450756,
+        "page_errors": [],
+        "external_requests": []
+      }
+    ]
+  }
+}
