@@ -1081,8 +1081,40 @@
     {
       "id": "acetaminophen",
       "name": "Acetaminophen",
+      "aliases": [
+        "Paracetamol",
+        "APAP"
+      ],
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 1983,
+        "chebi_id": "CHEBI:46195",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1983",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1983",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:46195",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:46195",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -1215,8 +1247,39 @@
     {
       "id": "adrenaline",
       "name": "Adrenaline",
+      "aliases": [
+        "Epinephrine"
+      ],
       "Category": "Hormone / Neurotransmitter",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "hormone",
+        "neurotransmitter"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 5816,
+        "chebi_id": "CHEBI:33568",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5816",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5816",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:33568",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:33568",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -1353,8 +1416,37 @@
     {
       "id": "artemisinin",
       "name": "Artemisinin",
+      "aliases": [],
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 138059745,
+        "chebi_id": "CHEBI:223316",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:138059745",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/138059745",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:223316",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:223316",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (matches PubChem CID 138059745 enantiomer/stereoisomer rather than canonical (+)-artemisinin CID 68827) to maintain schedule hash parity.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -1487,8 +1579,37 @@
     {
       "id": "ascorbic_acid",
       "name": "Ascorbic Acid",
+      "aliases": [],
       "Category": "Cofactor / Vitamin",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "cofactor",
+        "vitamin"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 54670067,
+        "chebi_id": "CHEBI:22652",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:54670067",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/54670067",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:22652",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:22652",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -1618,8 +1739,39 @@
     {
       "id": "aspirin",
       "name": "Aspirin",
+      "aliases": [
+        "Acetylsalicylic acid"
+      ],
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 2244,
+        "chebi_id": "CHEBI:15365",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:2244",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2244",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15365",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15365",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -1753,8 +1905,37 @@
     {
       "id": "biotin",
       "name": "Biotin",
+      "aliases": [],
       "Category": "Cofactor / Vitamin",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "cofactor",
+        "vitamin"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 171548,
+        "chebi_id": "CHEBI:15956",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:171548",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/171548",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15956",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15956",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -1890,8 +2071,37 @@
     {
       "id": "caffeine",
       "name": "Caffeine",
+      "aliases": [],
       "Category": "Alkaloid / Metabolite",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "alkaloid",
+        "specialized_metabolite"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 2519,
+        "chebi_id": "CHEBI:27732",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:2519",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2519",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:27732",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:27732",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -2019,8 +2229,37 @@
     {
       "id": "camphor",
       "name": "Camphor",
+      "aliases": [],
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 159055,
+        "chebi_id": "CHEBI:15396",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:159055",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/159055",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15396",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15396",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -2148,8 +2387,37 @@
     {
       "id": "capsaicin",
       "name": "Capsaicin",
+      "aliases": [],
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 1548943,
+        "chebi_id": "CHEBI:3374",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1548943",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1548943",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:3374",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:3374",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -2285,8 +2553,37 @@
     {
       "id": "catechol",
       "name": "Catechol",
+      "aliases": [],
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 289,
+        "chebi_id": "CHEBI:18135",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:289",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/289",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18135",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18135",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -2421,8 +2718,37 @@
     {
       "id": "cholesterol",
       "name": "Cholesterol",
+      "aliases": [],
       "Category": "Primary Metabolite",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "primary_metabolite",
+        "core_metabolism"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 5997,
+        "chebi_id": "CHEBI:16113",
+        "pubchem_matched_inchikey": false
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5997",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5997",
+          "role": "canonical_parent_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16113",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16113",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (inverted configuration at one chiral center vs PubChem CID 5997 HVYWMOMLDIMFJA-DPAQBDIFSA-N) to maintain schedule hash parity.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -2556,8 +2882,37 @@
     {
       "id": "ciprofloxacin",
       "name": "Ciprofloxacin",
+      "aliases": [],
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 2764,
+        "chebi_id": "CHEBI:100241",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:2764",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2764",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:100241",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100241",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -2690,8 +3045,37 @@
     {
       "id": "citric_acid",
       "name": "Citric Acid",
+      "aliases": [],
       "Category": "Primary Metabolite",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "primary_metabolite",
+        "core_metabolism"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 311,
+        "chebi_id": "CHEBI:30769",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:311",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/311",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30769",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:30769",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -2821,8 +3205,37 @@
     {
       "id": "curcumin",
       "name": "Curcumin",
+      "aliases": [],
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 969516,
+        "chebi_id": "CHEBI:3962",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:969516",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/969516",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:3962",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:3962",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -2958,8 +3371,37 @@
     {
       "id": "dopamine",
       "name": "Dopamine",
+      "aliases": [],
       "Category": "Neurotransmitter",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "neurotransmitter",
+        "signaling"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 681,
+        "chebi_id": "CHEBI:18243",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:681",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/681",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18243",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18243",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -3095,8 +3537,37 @@
     {
       "id": "fluoxetine",
       "name": "Fluoxetine",
+      "aliases": [],
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "stereo_status": "racemate",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 3386,
+        "chebi_id": "CHEBI:5118",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3386",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3386",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:5118",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:5118",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Clinically marketed and biologically dosed as the racemic (R,S)-fluoxetine mixture (PubChem CID 3386).",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -3226,8 +3697,37 @@
     {
       "id": "gentisic_acid",
       "name": "Gentisic Acid",
+      "aliases": [],
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 3469,
+        "chebi_id": "CHEBI:17189",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3469",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3469",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17189",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:17189",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -3360,8 +3860,37 @@
     {
       "id": "geosmin",
       "name": "Geosmin",
+      "aliases": [],
       "Category": "Microbial Natural Product",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "microbial_natural_product",
+        "secondary_metabolism"
+      ],
+      "stereo_status": "unspecified_legacy",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 29746,
+        "chebi_id": "CHEBI:46703",
+        "pubchem_matched_inchikey": false
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:29746",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/29746",
+          "role": "canonical_parent_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:46703",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:46703",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (legacy connectivity and 1 unspecified chiral center vs PubChem CID 29746 JLPUXFOGCDVKGO-TUAOUCFPSA-N) to maintain schedule hash parity.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -3489,8 +4018,37 @@
     {
       "id": "histamine",
       "name": "Histamine",
+      "aliases": [],
       "Category": "Biogenic Amine",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "biogenic_amine",
+        "signaling"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 774,
+        "chebi_id": "CHEBI:18295",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:774",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/774",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18295",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18295",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -3619,8 +4177,37 @@
     {
       "id": "ibuprofen",
       "name": "Ibuprofen",
+      "aliases": [],
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "stereo_status": "racemate",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 3672,
+        "chebi_id": "CHEBI:5855",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3672",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3672",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:5855",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:5855",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Clinically marketed as the racemic (+-)-ibuprofen mixture with chiral inversion of (R) to (S) in vivo (PubChem CID 3672).",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -3749,8 +4336,37 @@
     {
       "id": "melatonin",
       "name": "Melatonin",
+      "aliases": [],
       "Category": "Hormone / Metabolite",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "hormone",
+        "signaling"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 896,
+        "chebi_id": "CHEBI:16796",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:896",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/896",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16796",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16796",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -3881,8 +4497,37 @@
     {
       "id": "naphthalene",
       "name": "Naphthalene",
+      "aliases": [],
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 931,
+        "chebi_id": "CHEBI:16482",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:931",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/931",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16482",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16482",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -4008,8 +4653,37 @@
     {
       "id": "nicotine",
       "name": "Nicotine",
+      "aliases": [],
       "Category": "Alkaloid / Metabolite",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "alkaloid",
+        "specialized_metabolite"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 89594,
+        "chebi_id": "CHEBI:18723",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:89594",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/89594",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18723",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18723",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -4138,8 +4812,39 @@
     {
       "id": "penicillin_g",
       "name": "Penicillin G",
+      "aliases": [
+        "Benzylpenicillin"
+      ],
       "Category": "Therapeutic Drug",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 5904,
+        "chebi_id": "CHEBI:18208",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5904",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5904",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18208",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18208",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -4270,8 +4975,37 @@
     {
       "id": "phenanthrene",
       "name": "Phenanthrene",
+      "aliases": [],
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 995,
+        "chebi_id": "CHEBI:28851",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:995",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/995",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28851",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:28851",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -4401,8 +5135,37 @@
     {
       "id": "prodigiosin",
       "name": "Prodigiosin",
+      "aliases": [],
       "Category": "Microbial Natural Product",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "microbial_natural_product",
+        "secondary_metabolism"
+      ],
+      "stereo_status": "unspecified_legacy",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 172897611,
+        "chebi_id": "CHEBI:82758",
+        "pubchem_matched_inchikey": false
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:172897611",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/172897611",
+          "role": "canonical_parent_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:82758",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:82758",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (C4 sidechain C19H23N3O and unspecified methine double-bond stereo vs canonical C20H25N3O PubChem CID 172897611) to maintain schedule hash parity.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -4532,8 +5295,37 @@
     {
       "id": "protocatechuic_acid",
       "name": "Protocatechuic Acid",
+      "aliases": [],
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 72,
+        "chebi_id": "CHEBI:36062",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:72",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/72",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:36062",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:36062",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -4669,8 +5461,39 @@
     {
       "id": "pyocyanin",
       "name": "Pyocyanin",
+      "aliases": [
+        "10-Methylphenazin-2(10H)-one"
+      ],
       "Category": "Microbial Natural Product",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "microbial_natural_product",
+        "secondary_metabolism"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_major_tautomer",
+      "structure_refs": {
+        "pubchem_cid": 14360019,
+        "chebi_id": "CHEBI:8653",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:14360019",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14360019",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:8653",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:8653",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 neutral keto-tautomer form (10-methylphenazin-2(10H)-one, PubChem CID 14360019) rather than zwitterionic betaine resonance contributor to maintain schedule hash parity.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -4802,8 +5625,37 @@
     {
       "id": "quinine",
       "name": "Quinine",
+      "aliases": [],
       "Category": "Alkaloid / Metabolite",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "alkaloid",
+        "specialized_metabolite"
+      ],
+      "stereo_status": "unspecified_legacy",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 94175,
+        "chebi_id": "CHEBI:15854",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:94175",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/94175",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15854",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15854",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (matches PubChem CID 94175 epiquinidine / unspecified bridgehead nitrogen rather than canonical Quinine CID 3034034) to maintain schedule hash parity.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -4938,8 +5790,39 @@
     {
       "id": "resveratrol",
       "name": "Resveratrol",
+      "aliases": [
+        "trans-Resveratrol"
+      ],
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 445154,
+        "chebi_id": "CHEBI:27881",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:445154",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/445154",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:27881",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:27881",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -5071,8 +5954,37 @@
     {
       "id": "salicylic_acid",
       "name": "Salicylic Acid",
+      "aliases": [],
       "Category": "Hydrocarbon Degradation",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 338,
+        "chebi_id": "CHEBI:16914",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:338",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/338",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16914",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16914",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -5201,8 +6113,37 @@
     {
       "id": "serotonin",
       "name": "Serotonin",
+      "aliases": [],
       "Category": "Neurotransmitter",
       "super_class": "Bioactive Nitrogen Heterocycle / Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "neurotransmitter",
+        "signaling"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 5202,
+        "chebi_id": "CHEBI:28790",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5202",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5202",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28790",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:28790",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -5333,8 +6274,37 @@
     {
       "id": "shikimic_acid",
       "name": "Shikimic Acid",
+      "aliases": [],
       "Category": "Primary Metabolite",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "primary_metabolite",
+        "core_metabolism"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 8742,
+        "chebi_id": "CHEBI:16119",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:8742",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/8742",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16119",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16119",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -5464,8 +6434,37 @@
     {
       "id": "tryptophan",
       "name": "L-Tryptophan",
+      "aliases": [],
       "Category": "Primary Metabolite",
       "super_class": "Core Cellular Metabolite / Cofactor",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "primary_metabolite",
+        "core_metabolism"
+      ],
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 6305,
+        "chebi_id": "CHEBI:16828",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6305",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6305",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16828",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16828",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -5597,8 +6596,37 @@
     {
       "id": "vanillin",
       "name": "Vanillin",
+      "aliases": [],
       "Category": "Plant Natural Product",
       "super_class": "Botanical Secondary Metabolite / Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 1183,
+        "chebi_id": "CHEBI:18346",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1183",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1183",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18346",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18346",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology.",
       "game_eligibility": [
         "learn",
         "ranked"
@@ -5732,8 +6760,37 @@
     {
       "id": "violacein",
       "name": "Violacein",
+      "aliases": [],
       "Category": "Microbial Natural Product",
       "super_class": "Microbial & Aromatic Catabolite",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "microbial_natural_product",
+        "secondary_metabolism"
+      ],
+      "stereo_status": "unspecified_legacy",
+      "protonation_policy": "neutral_canonical",
+      "structure_refs": {
+        "pubchem_cid": 11053,
+        "chebi_id": "CHEBI:131914",
+        "pubchem_matched_inchikey": false
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:11053",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/11053",
+          "role": "canonical_parent_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:131914",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:131914",
+          "role": "ontology_classification"
+        }
+      ],
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (extra indole substituent C28H18N4O3 and unspecified double bond vs canonical C20H13N3O3 PubChem CID 11053) to maintain schedule hash parity.",
       "game_eligibility": [
         "learn",
         "ranked"

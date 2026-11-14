@@ -2098,3 +2098,222 @@ def audit_hint_text_leakage(record: Dict[str, Any], text_fields: Sequence[str], 
                 raise AssertionError(
                     f"[P2-3 Hint Leakage] Record {record.get(id_key)!r} leaks token/stem {tok!r} in field {field!r}: {record.get(field)!r}"
                 )
+
+
+# ---------------------------------------------------------------------------
+# 10. Offline Chemle Compound Manifest Validator (Commit 3)
+# ---------------------------------------------------------------------------
+ALLOWED_CHEMLE_REVIEW_STATUSES = frozenset(
+    {"verified", "baseline_legacy", "pending", "draft", "rejected"}
+)
+PLAYABLE_CHEMLE_REVIEW_STATUSES = frozenset({"verified", "baseline_legacy"})
+ALLOWED_CHEMLE_STEREO_STATUSES = frozenset(
+    {"achiral", "defined_stereo", "racemate", "unspecified_legacy"}
+)
+ALLOWED_CHEMLE_PROTONATION_POLICIES = frozenset(
+    {"neutral_canonical", "neutral_major_tautomer", "zwitterion_neutral_net"}
+)
+_CHEMLE_VALID_PROFILES = frozenset({"learn", "ranked"})
+_CHEMLE_UNCHARGER = rdMolStandardize.Uncharger()
+_CHEMLE_LARGEST_FRAG = rdMolStandardize.LargestFragmentChooser()
+
+
+def validate_chemle_manifest_entry(item: Dict[str, Any]) -> Tuple[Chem.Mol, Dict[str, Any], str]:
+    """Validates one Chemle manifest compound strictly offline via RDKit.
+
+    Returns `(std_mol, std_info, parent_uncharged_inchikey)`.
+    Raises `ValueError` on schema, stereochemical, salt/parent, formula,
+    label/graph, or unreviewed playable eligibility violations.
+    """
+    if not isinstance(item, dict):
+        raise ValueError("Manifest entry must be a JSON object")
+
+    mid = str(item.get("id") or "").strip()
+    if not mid or not re.match(r"^[a-z0-9_]+$", mid):
+        raise ValueError(f"Invalid or missing manifest id: {item.get('id')!r}")
+
+    required_str_fields = (
+        "id",
+        "name",
+        "Category",
+        "primary_class",
+        "input_isomeric_smiles",
+        "expected_standardized_smiles",
+        "expected_inchikey",
+        "expected_formula",
+        "stereo_status",
+        "protonation_policy",
+        "review_status",
+        "hint_role",
+        "hint_origin",
+        "structural_note",
+    )
+    for field in required_str_fields:
+        if not isinstance(item.get(field), str) or not item[field].strip():
+            raise ValueError(f"[{mid}] Missing or empty required string field {field!r}")
+
+    review_status = item["review_status"].strip()
+    if review_status not in ALLOWED_CHEMLE_REVIEW_STATUSES:
+        raise ValueError(f"[{mid}] Unsupported review_status: {review_status!r}")
+
+    stereo_status = item["stereo_status"].strip()
+    if stereo_status not in ALLOWED_CHEMLE_STEREO_STATUSES:
+        raise ValueError(f"[{mid}] Unsupported stereo_status: {stereo_status!r}")
+
+    protonation_policy = item["protonation_policy"].strip()
+    if protonation_policy not in ALLOWED_CHEMLE_PROTONATION_POLICIES:
+        raise ValueError(f"[{mid}] Unsupported protonation_policy: {protonation_policy!r}")
+
+    role_tags = item.get("role_tags")
+    if not isinstance(role_tags, list) or not role_tags or not all(
+        isinstance(t, str) and t.strip() for t in role_tags
+    ):
+        raise ValueError(f"[{mid}] role_tags must be a non-empty list of strings")
+
+    aliases = item.get("aliases")
+    if aliases is None or not isinstance(aliases, list) or not all(
+        isinstance(a, str) and a.strip() for a in aliases
+    ):
+        raise ValueError(f"[{mid}] aliases must be a list of non-empty strings")
+
+    g_elig = item.get("game_eligibility")
+    q_elig = item.get("guess_eligibility")
+    if not isinstance(g_elig, list) or not isinstance(q_elig, list):
+        raise ValueError(f"[{mid}] game_eligibility and guess_eligibility must be lists")
+    g_set = set(g_elig)
+    q_set = set(q_elig)
+    if not g_set.issubset(_CHEMLE_VALID_PROFILES) or not q_set.issubset(_CHEMLE_VALID_PROFILES):
+        raise ValueError(f"[{mid}] Unknown profile in eligibility: game={g_elig!r}, guess={q_elig!r}")
+    if not g_set.issubset(q_set):
+        raise ValueError(f"[{mid}] game_eligibility {g_elig!r} must be a subset of guess_eligibility {q_elig!r}")
+
+    if (g_set or q_set) and review_status not in PLAYABLE_CHEMLE_REVIEW_STATUSES:
+        raise ValueError(
+            f"[{mid}] Unreviewed record (review_status={review_status!r}) cannot have playable eligibility"
+        )
+
+    s_refs = item.get("structure_refs")
+    if not isinstance(s_refs, dict):
+        raise ValueError(f"[{mid}] structure_refs must be an object")
+    cid = s_refs.get("pubchem_cid")
+    if isinstance(cid, bool) or not isinstance(cid, int) or cid <= 0:
+        raise ValueError(f"[{mid}] structure_refs.pubchem_cid must be a positive integer, got {cid!r}")
+    chebi_id = s_refs.get("chebi_id")
+    if not isinstance(chebi_id, str) or not re.match(r"^CHEBI:\d+$", chebi_id):
+        raise ValueError(f"[{mid}] structure_refs.chebi_id must match 'CHEBI:<digits>', got {chebi_id!r}")
+
+    e_refs = item.get("evidence_refs")
+    if not isinstance(e_refs, list) or len(e_refs) == 0:
+        raise ValueError(f"[{mid}] evidence_refs must be a non-empty list")
+    for idx, ref in enumerate(e_refs):
+        if not isinstance(ref, dict) or not all(
+            isinstance(ref.get(k), str) and ref[k].strip() for k in ("source", "id", "url", "role")
+        ):
+            raise ValueError(f"[{mid}] evidence_refs[{idx}] missing source/id/url/role")
+
+    raw_smi = item["input_isomeric_smiles"].strip()
+    if "." in raw_smi:
+        raise ValueError(
+            f"[{mid}] Disconnected multi-fragment / salt input SMILES disallowed in manifest: {raw_smi!r}"
+        )
+
+    raw_mol = Chem.MolFromSmiles(raw_smi)
+    if raw_mol is None:
+        raise ValueError(f"[{mid}] Invalid input_isomeric_smiles: {raw_smi!r}")
+
+    std_mol, std_info = standardize_and_audit(raw_smi)
+    if std_info["canonical_smiles"] != item["expected_standardized_smiles"]:
+        raise ValueError(
+            f"[{mid}] expected_standardized_smiles mismatch: expected {item['expected_standardized_smiles']!r}, got {std_info['canonical_smiles']!r}"
+        )
+    if std_info["inchikey"] != item["expected_inchikey"]:
+        raise ValueError(
+            f"[{mid}] expected_inchikey mismatch: expected {item['expected_inchikey']!r}, got {std_info['inchikey']!r}"
+        )
+
+    computed_formula = rdMolDescriptors.CalcMolFormula(std_mol)
+    if computed_formula != item["expected_formula"]:
+        raise ValueError(
+            f"[{mid}] Label/formula conflict: expected {item['expected_formula']!r}, got {computed_formula!r}"
+        )
+
+    net_q = Chem.GetFormalCharge(std_mol)
+    nonzero_atoms = [a.GetFormalCharge() for a in std_mol.GetAtoms() if a.GetFormalCharge() != 0]
+    if protonation_policy in ("neutral_canonical", "neutral_major_tautomer"):
+        if net_q != 0 or nonzero_atoms:
+            raise ValueError(
+                f"[{mid}] Protonation policy {protonation_policy!r} expects uncharged neutral graph, got charge={net_q}"
+            )
+    elif protonation_policy == "zwitterion_neutral_net":
+        if net_q != 0:
+            raise ValueError(f"[{mid}] Zwitterion policy expects net charge 0, got {net_q}")
+
+    centers = Chem.FindMolChiralCenters(std_mol, includeUnassigned=True)
+    pot_stereo = list(Chem.FindPotentialStereo(std_mol))
+    unspec_stereo = [p for p in pot_stereo if p.specified == Chem.StereoSpecified.Unspecified]
+
+    if stereo_status == "achiral":
+        if centers or pot_stereo:
+            raise ValueError(
+                f"[{mid}] stereo_status='achiral' conflicts with stereogenic elements (centers={centers}, pot={len(pot_stereo)})"
+            )
+    elif stereo_status == "defined_stereo":
+        if not (centers or pot_stereo):
+            raise ValueError(f"[{mid}] stereo_status='defined_stereo' set on achiral molecule")
+        if unspec_stereo:
+            raise ValueError(
+                f"[{mid}] stereo_status='defined_stereo' has {len(unspec_stereo)} unspecified stereogenic element(s)"
+            )
+    elif stereo_status == "racemate":
+        if not unspec_stereo:
+            raise ValueError(
+                f"[{mid}] Misleading stereo_status='racemate' on molecule with zero unspecified stereocenters"
+            )
+        if not isinstance(item.get("review_notes"), str) or not item["review_notes"].strip():
+            raise ValueError(f"[{mid}] stereo_status='racemate' requires explicit review_notes rationale")
+    elif stereo_status == "unspecified_legacy":
+        if review_status != "baseline_legacy":
+            raise ValueError(f"[{mid}] stereo_status='unspecified_legacy' requires review_status='baseline_legacy'")
+
+    if review_status == "baseline_legacy":
+        if not isinstance(item.get("review_notes"), str) or not item["review_notes"].strip():
+            raise ValueError(f"[{mid}] review_status='baseline_legacy' requires explicit review_notes")
+
+    parent_mol = _CHEMLE_UNCHARGER.uncharge(_CHEMLE_LARGEST_FRAG.choose(std_mol))
+    Chem.SanitizeMol(parent_mol)
+    parent_ik = Chem.MolToInchiKey(parent_mol)
+    return std_mol, std_info, parent_ik
+
+
+def validate_chemle_manifest(items: Sequence[Dict[str, Any]]) -> None:
+    """Validates an entire Chemle compound manifest for structural integrity and uniqueness."""
+    if not isinstance(items, (list, tuple)) or len(items) == 0:
+        raise ValueError("Chemle manifest must be a non-empty list of compounds")
+
+    seen_ids: Dict[str, str] = {}
+    seen_names: Dict[str, str] = {}
+    seen_inchikeys: Dict[str, str] = {}
+    seen_parent_iks: Dict[str, str] = {}
+
+    for item in items:
+        _, std_info, parent_ik = validate_chemle_manifest_entry(item)
+        mid = item["id"].strip()
+        norm_name = item["name"].strip().lower()
+        ik = std_info["inchikey"]
+
+        if mid in seen_ids:
+            raise ValueError(f"Duplicate compound id {mid!r}")
+        if norm_name in seen_names:
+            raise ValueError(f"Duplicate compound name {item['name']!r} ({mid} vs {seen_names[norm_name]})")
+        if ik in seen_inchikeys:
+            raise ValueError(f"Duplicate standardized InChIKey {ik!r} ({mid} vs {seen_inchikeys[ik]})")
+        if parent_ik in seen_parent_iks:
+            raise ValueError(
+                f"Duplicate desalted/uncharged parent InChIKey {parent_ik!r} ({mid} vs {seen_parent_iks[parent_ik]})"
+            )
+
+        seen_ids[mid] = mid
+        seen_names[norm_name] = mid
+        seen_inchikeys[ik] = mid
+        seen_parent_iks[parent_ik] = mid
+

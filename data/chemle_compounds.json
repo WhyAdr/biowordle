@@ -1,0 +1,1782 @@
+{
+  "schema_version": "0.3.0",
+  "compounds": [
+    {
+      "id": "acetaminophen",
+      "name": "Acetaminophen",
+      "aliases": [
+        "Paracetamol",
+        "APAP"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "input_isomeric_smiles": "CC(=O)Nc1ccc(O)cc1",
+      "expected_standardized_smiles": "CC(=O)Nc1ccc(O)cc1",
+      "expected_inchikey": "RZVAJINKPMORJF-UHFFFAOYSA-N",
+      "expected_formula": "C8H9NO2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 1983,
+        "chebi_id": "CHEBI:46195",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1983",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1983",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:46195",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:46195",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Para-acylated aminophenol central analgesic and antipyretic; oxidized at high doses by CYP2E1 to NAPQI.",
+      "hint_origin": "Active metabolite of phenacetin and acetanilide with minimal peripheral COX inhibition.",
+      "structural_note": "N-(4-Hydroxyphenyl)acetamide: minimalist 151.2 Da benzene ring bearing para-disubstituted phenol and acetamide groups.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "adrenaline",
+      "name": "Adrenaline",
+      "aliases": [
+        "Epinephrine"
+      ],
+      "Category": "Hormone / Neurotransmitter",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "hormone",
+        "neurotransmitter"
+      ],
+      "input_isomeric_smiles": "CNC[C@H](O)c1ccc(O)c(O)c1",
+      "expected_standardized_smiles": "CNC[C@H](O)c1ccc(O)c(O)c1",
+      "expected_inchikey": "UCTWMZQNUQWSLP-VIFPVBQESA-N",
+      "expected_formula": "C9H13NO3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 5816,
+        "chebi_id": "CHEBI:33568",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5816",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5816",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:33568",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:33568",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Fight-or-flight sympathomimetic hormone acting on alpha- and beta-adrenergic GPCRs.",
+      "hint_origin": "Produced in neuroendocrine chromaffin cells via PNMT SAM-dependent N-methylation of norepinephrine.",
+      "structural_note": "(R)-Enantiomer catecholamine bearing both a benzylic beta-hydroxyl stereocenter and an N-methyl secondary amine.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "artemisinin",
+      "name": "Artemisinin",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "input_isomeric_smiles": "C[C@@H]1CC[C@H]2[C@@H](C)C(=O)O[C@@H]3O[C@@]4(C)CC[C@@H]1[C@]23OO4",
+      "expected_standardized_smiles": "C[C@@H]1CC[C@H]2[C@@H](C)C(=O)O[C@@H]3O[C@@]4(C)CC[C@@H]1[C@@]32OO4",
+      "expected_inchikey": "BLUAFEHZUWYNDE-GZEPNZDPSA-N",
+      "expected_formula": "C15H22O5",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 138059745,
+        "chebi_id": "CHEBI:223316",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:138059745",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/138059745",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:223316",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:223316",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Sesquiterpene lactone antimalarial whose endoperoxide bridge is reductively cleaved by heme Fe2+.",
+      "hint_origin": "Isolated from sweet wormwood leaves in Project 523 (2015 Nobel Prize in Medicine).",
+      "structural_note": "Tetracyclic cage sesquiterpene lactone with 7 stereocenters, Fsp3 = 0.93, and zero aromatic rings.",
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (matches PubChem CID 138059745 enantiomer/stereoisomer rather than canonical (+)-artemisinin CID 68827) to maintain schedule hash parity."
+    },
+    {
+      "id": "ascorbic_acid",
+      "name": "Ascorbic Acid",
+      "aliases": [],
+      "Category": "Cofactor / Vitamin",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "cofactor",
+        "vitamin"
+      ],
+      "input_isomeric_smiles": "O=C1O[C@H]([C@@H](O)CO)C(O)=C1O",
+      "expected_standardized_smiles": "O=C1O[C@H]([C@@H](O)CO)C(O)=C1O",
+      "expected_inchikey": "CIWBSHSKHKDKBQ-JLAZNSOCSA-N",
+      "expected_formula": "C6H8O6",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 54670067,
+        "chebi_id": "CHEBI:22652",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:54670067",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/54670067",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:22652",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:22652",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Redox-active enediol gamma-lactone cofactor (Vitamin C) maintaining Fe2+ in prolyl hydroxylases.",
+      "hint_origin": "Essential dietary micronutrient in primates due to pseudogenization of L-gulonolactone oxidase (GULO).",
+      "structural_note": "Five-membered lactone ring whose conjugated 2,3-enediol makes the C3 hydroxyl strongly acidic (pKa 4.2).",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "aspirin",
+      "name": "Aspirin",
+      "aliases": [
+        "Acetylsalicylic acid"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "input_isomeric_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "expected_standardized_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "expected_inchikey": "BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
+      "expected_formula": "C9H8O4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 2244,
+        "chebi_id": "CHEBI:15365",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:2244",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2244",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15365",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15365",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Irreversible covalent NSAID inhibitor that transfers an acetyl group onto Ser530/Ser516 of COX-1/2.",
+      "hint_origin": "Synthetic O-acetyl ester of 2-hydroxybenzoic acid introduced clinically at the turn of the 20th century.",
+      "structural_note": "2-Acetoxybenzoic acid: converts an ortho-phenol into a reactive phenyl acetate ester.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "biotin",
+      "name": "Biotin",
+      "aliases": [],
+      "Category": "Cofactor / Vitamin",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "cofactor",
+        "vitamin"
+      ],
+      "input_isomeric_smiles": "O=C(O)CCCC[C@@H]1SC[C@@H]2NC(=O)N[C@H]12",
+      "expected_standardized_smiles": "O=C(O)CCCC[C@@H]1SC[C@@H]2NC(=O)N[C@@H]21",
+      "expected_inchikey": "YBJHBAHKTGYVGT-ZKWXMUAHSA-N",
+      "expected_formula": "C10H16N2O3S",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 171548,
+        "chebi_id": "CHEBI:15956",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:171548",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/171548",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15956",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15956",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Covalent carboxy-transfer cofactor (Vitamin B7) tethered to lysine in acetyl-CoA and pyruvate carboxylases.",
+      "hint_origin": "Cis-fused ureido-tetrahydrothiophene bicycle with femtomolar affinity for avidin and streptavidin.",
+      "structural_note": "Bicyclic heteroarene-free core with three contiguous stereocenters and a five-carbon valeric acid side chain.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "caffeine",
+      "name": "Caffeine",
+      "aliases": [],
+      "Category": "Alkaloid / Metabolite",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "alkaloid",
+        "specialized_metabolite"
+      ],
+      "input_isomeric_smiles": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+      "expected_standardized_smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+      "expected_inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
+      "expected_formula": "C8H10N4O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 2519,
+        "chebi_id": "CHEBI:27732",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:2519",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2519",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:27732",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:27732",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Adenosine A1/A2A receptor antagonist and trimethylated xanthine CNS stimulant.",
+      "hint_origin": "Biosynthesized via sequential SAM-dependent N-methylations of xanthosine in coffee and tea leaves.",
+      "structural_note": "1,3,7-Trimethylxanthine bicyclic purine-2,6-dione core with zero H-bond donors.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "camphor",
+      "name": "Camphor",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "input_isomeric_smiles": "CC1(C)[C@@H]2CC[C@@]1(C)C(=O)C2",
+      "expected_standardized_smiles": "CC1(C)[C@@H]2CC[C@@]1(C)C(=O)C2",
+      "expected_inchikey": "DSSYKIVIOFKYAU-XCBNKYQSSA-N",
+      "expected_formula": "C10H16O",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 159055,
+        "chebi_id": "CHEBI:15396",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:159055",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/159055",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15396",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15396",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Bridged bicyclic monoterpene ketone and textbook substrate of bacterial cytochrome P450 (CYP101A1).",
+      "hint_origin": "Regio- and stereoselectively hydroxylated at the C5-exo position by Pseudomonas putida monooxygenase.",
+      "structural_note": "Bicyclo[2.2.1]heptan-2-one (bornanone) cage monoterpene with Fsp3 = 0.90 and zero aromatic rings.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "capsaicin",
+      "name": "Capsaicin",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "input_isomeric_smiles": "COc1cc(CNC(=O)CCCC/C=C/C(C)C)ccc1O",
+      "expected_standardized_smiles": "COc1cc(CNC(=O)CCCC/C=C/C(C)C)ccc1O",
+      "expected_inchikey": "YKPUWZUDDOIDPM-SOFGYWHQSA-N",
+      "expected_formula": "C18H27NO3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 1548943,
+        "chebi_id": "CHEBI:3374",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1548943",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1548943",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:3374",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:3374",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Vanilloid amide agonist that opens the heat- and proton-gated TRPV1 nociceptor ion channel.",
+      "hint_origin": "Biosynthesized in chili pepper placental tissue by condensing vanillylamine with 8-methyl-6-nonenoyl-CoA.",
+      "structural_note": "Pairs a 4-hydroxy-3-methoxybenzyl headgroup with a flexible 9-carbon hydrophobic alkenyl amide tail (RotB = 9).",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "catechol",
+      "name": "Catechol",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "input_isomeric_smiles": "Oc1ccccc1O",
+      "expected_standardized_smiles": "Oc1ccccc1O",
+      "expected_inchikey": "YCIMNLLNPGFGHC-UHFFFAOYSA-N",
+      "expected_formula": "C6H6O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 289,
+        "chebi_id": "CHEBI:18135",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:289",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/289",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18135",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18135",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Central 1,2-dihydroxybenzene ring-cleavage hub in aerobic bacterial mono- and polyaromatic catabolism.",
+      "hint_origin": "Cleaved via ortho-fission (CatA, intradiol Fe3+) or meta-fission (DmpB/XylE, extradiol Fe2+) dioxygenases.",
+      "structural_note": "Unsubstituted ortho-diphenol (C6H6O2, MW 110.1 Da) with two phenolic H-bond donors.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "cholesterol",
+      "name": "Cholesterol",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "primary_metabolite",
+        "core_metabolism"
+      ],
+      "input_isomeric_smiles": "C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(C)CC[C@H]3[C@H]2CC=C4[C@@]3(C)CC[C@@H](O)C4",
+      "expected_standardized_smiles": "CC(C)CCC[C@@H](C)[C@H]1CC[C@H]2[C@@H]3CC=C4C[C@H](O)CC[C@@]4(C)[C@H]3CC[C@@]12C",
+      "expected_inchikey": "HVYWMOMLDIMFJA-PZIGXULQSA-N",
+      "expected_formula": "C27H46O",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 5997,
+        "chebi_id": "CHEBI:16113",
+        "pubchem_matched_inchikey": false
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5997",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5997",
+          "role": "canonical_parent_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16113",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16113",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Tetracyclic sterol lipid regulating eukaryotic plasma membrane order and serving as steroid hormone precursor.",
+      "hint_origin": "Formed by lanosterol synthase / oxidosqualene cyclase chair-boat-chair-boat polycyclization.",
+      "structural_note": "8 chiral centers, 4 fused aliphatic rings, 0 aromatic rings, and extreme lipophilicity (cLogP 7.39).",
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (inverted configuration at one chiral center vs PubChem CID 5997 HVYWMOMLDIMFJA-DPAQBDIFSA-N) to maintain schedule hash parity."
+    },
+    {
+      "id": "ciprofloxacin",
+      "name": "Ciprofloxacin",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "input_isomeric_smiles": "O=C(O)c1cn(C2CC2)c2cc(N3CCNCC3)c(F)cc2c1=O",
+      "expected_standardized_smiles": "O=C(O)c1cn(C2CC2)c2cc(N3CCNCC3)c(F)cc2c1=O",
+      "expected_inchikey": "MYSWGUAQZAJSOK-UHFFFAOYSA-N",
+      "expected_formula": "C17H18FN3O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 2764,
+        "chebi_id": "CHEBI:100241",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:2764",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2764",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:100241",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:100241",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Second-generation fluoroquinolone antibiotic stabilizing the DNA-gyrase / topoisomerase IV cleavage complex.",
+      "hint_origin": "Synthetic 4-quinolone-3-carboxylic acid featuring an N1 cyclopropyl and C7 piperazinyl substituent.",
+      "structural_note": "4-Ring system (2 aromatic bicyclic quinolone + cyclopropyl + piperazine) bearing a single C6 fluorine atom.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "citric_acid",
+      "name": "Citric Acid",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "primary_metabolite",
+        "core_metabolism"
+      ],
+      "input_isomeric_smiles": "O=C(O)CC(O)(CC(=O)O)C(=O)O",
+      "expected_standardized_smiles": "O=C(O)CC(O)(CC(=O)O)C(=O)O",
+      "expected_inchikey": "KRKNYBCHXYNGOX-UHFFFAOYSA-N",
+      "expected_formula": "C6H8O7",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 311,
+        "chebi_id": "CHEBI:30769",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:311",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/311",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:30769",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:30769",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Achiral prochiral tricarboxylic intermediate formed at the entry step of the Krebs / TCA cycle.",
+      "hint_origin": "Produced by aldol-type condensation of oxaloacetate and acetyl-CoA followed by thioester hydrolysis.",
+      "structural_note": "Only completely acyclic compound in the catalog (Rings = 0); symmetric C6 tertiary alcohol with three carboxyl groups.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "curcumin",
+      "name": "Curcumin",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "input_isomeric_smiles": "COc1cc(/C=C/C(=O)CC(=O)/C=C/c2ccc(O)c(OC)c2)ccc1O",
+      "expected_standardized_smiles": "COc1cc(/C=C/C(=O)CC(=O)/C=C/c2ccc(O)c(OC)c2)ccc1O",
+      "expected_inchikey": "VFLDPWHFBUODDF-FCXRPNKRSA-N",
+      "expected_formula": "C21H20O6",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 969516,
+        "chebi_id": "CHEBI:3962",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:969516",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/969516",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:3962",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:3962",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Symmetric diarylheptanoid beta-diketone rhizome pigment and classic medicinal chemistry PAINS benchmark.",
+      "hint_origin": "Isolated from golden ginger-family rhizomes; features two feruloyl arms joined at a central methylene group.",
+      "structural_note": "Symmetric C21 polyphenol bearing two 4-hydroxy-3-methoxyphenyl rings and an alpha,beta-unsaturated 1,3-diketone.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "dopamine",
+      "name": "Dopamine",
+      "aliases": [],
+      "Category": "Neurotransmitter",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "neurotransmitter",
+        "signaling"
+      ],
+      "input_isomeric_smiles": "NCCc1ccc(O)c(O)c1",
+      "expected_standardized_smiles": "NCCc1ccc(O)c(O)c1",
+      "expected_inchikey": "VYFYYTLLBUKUHU-UHFFFAOYSA-N",
+      "expected_formula": "C8H11NO2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 681,
+        "chebi_id": "CHEBI:18243",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:681",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/681",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18243",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18243",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Catecholamine monoamine governing nigrostriatal motor control and mesolimbic reward.",
+      "hint_origin": "Synthesized from L-DOPA by PLP-dependent aromatic L-amino acid decarboxylase.",
+      "structural_note": "Shares a 1,2-dihydroxybenzene ring with a primary 2-aminoethyl side chain at C4.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "fluoxetine",
+      "name": "Fluoxetine",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "input_isomeric_smiles": "CNCCC(Oc1ccc(C(F)(F)F)cc1)c1ccccc1",
+      "expected_standardized_smiles": "CNCCC(Oc1ccc(C(F)(F)F)cc1)c1ccccc1",
+      "expected_inchikey": "RTHCYVBBDHJXIQ-UHFFFAOYSA-N",
+      "expected_formula": "C17H18F3NO",
+      "stereo_status": "racemate",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 3386,
+        "chebi_id": "CHEBI:5118",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3386",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3386",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:5118",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:5118",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Selective monoamine reuptake inhibitor (SSRI) blocking the presynaptic SERT transporter.",
+      "hint_origin": "Developed as diphenhydramine analogue LY110140 with high selectivity for 5-HT over norepinephrine.",
+      "structural_note": "Contains two benzene rings, a secondary methylamine, an aryl ether, and a para-trifluoromethyl (-CF3) group.",
+      "review_status": "verified",
+      "review_notes": "Clinically marketed and biologically dosed as the racemic (R,S)-fluoxetine mixture (PubChem CID 3386)."
+    },
+    {
+      "id": "gentisic_acid",
+      "name": "Gentisic Acid",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "input_isomeric_smiles": "O=C(O)c1cc(O)ccc1O",
+      "expected_standardized_smiles": "O=C(O)c1cc(O)ccc1O",
+      "expected_inchikey": "WXTMDXOMEHJXQO-UHFFFAOYSA-N",
+      "expected_formula": "C7H6O4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 3469,
+        "chebi_id": "CHEBI:17189",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3469",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3469",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:17189",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:17189",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "2,5-Dihydroxybenzoate intermediate cleaved to maleylpyruvate by a cupin-fold 1,2-dioxygenase.",
+      "hint_origin": "Alternative aerobic bacterial ring-fission route for substituted bicyclic aromatics and 3-hydroxybenzoate.",
+      "structural_note": "Constitutional isomer of 3,4-dihydroxybenzoic acid (C7H6O4) with para-hydroquinone (2,5-diol) substitution.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "geosmin",
+      "name": "Geosmin",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "microbial_natural_product",
+        "secondary_metabolism"
+      ],
+      "input_isomeric_smiles": "C[C@H]1CCCC2(C)[C@H]1CC[C@@]2(C)O",
+      "expected_standardized_smiles": "C[C@H]1CCCC2(C)[C@H]1CC[C@@]2(C)O",
+      "expected_inchikey": "SQFNUAVVZSZPMP-XMACVGRKSA-N",
+      "expected_formula": "C12H22O",
+      "stereo_status": "unspecified_legacy",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 29746,
+        "chebi_id": "CHEBI:46703",
+        "pubchem_matched_inchikey": false
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:29746",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/29746",
+          "role": "canonical_parent_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:46703",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:46703",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Trans-decalin sesquiterpene tertiary alcohol responsible for the characteristic scent of wet soil (petrichor).",
+      "hint_origin": "Formed from farnesyl diphosphate by a bifunctional germacradienol synthase (Sco6073) in Streptomyces.",
+      "structural_note": "Fully saturated bicyclic alcohol (C12H22O, Fsp3 = 1.00, 2 aliphatic rings, 3 stereocenters).",
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (legacy connectivity and 1 unspecified chiral center vs PubChem CID 29746 JLPUXFOGCDVKGO-TUAOUCFPSA-N) to maintain schedule hash parity."
+    },
+    {
+      "id": "histamine",
+      "name": "Histamine",
+      "aliases": [],
+      "Category": "Biogenic Amine",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "biogenic_amine",
+        "signaling"
+      ],
+      "input_isomeric_smiles": "NCCc1c[nH]cn1",
+      "expected_standardized_smiles": "NCCc1c[nH]cn1",
+      "expected_inchikey": "NTYJJOPFIAHURM-UHFFFAOYSA-N",
+      "expected_formula": "C5H9N3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 774,
+        "chebi_id": "CHEBI:18295",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:774",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/774",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18295",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18295",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Imidazole biogenic amine mediating mast-cell allergic degranulation and parietal HCl secretion.",
+      "hint_origin": "Generated by single-step alpha-decarboxylation of a basic proteinogenic imidazole amino acid.",
+      "structural_note": "Smallest heteroaromatic biogenic amine in the catalog (111.1 Da), pairing an imidazole ring with an ethylamine tail.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "ibuprofen",
+      "name": "Ibuprofen",
+      "aliases": [],
+      "Category": "Therapeutic Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "input_isomeric_smiles": "CC(C)Cc1ccc(C(C)C(=O)O)cc1",
+      "expected_standardized_smiles": "CC(C)Cc1ccc(C(C)C(=O)O)cc1",
+      "expected_inchikey": "HEFNNWSXXWATRW-UHFFFAOYSA-N",
+      "expected_formula": "C13H18O2",
+      "stereo_status": "racemate",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 3672,
+        "chebi_id": "CHEBI:5855",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:3672",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3672",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:5855",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:5855",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "2-Arylpropionic acid reversible non-selective cyclooxygenase (COX-1/COX-2) analgesic inhibitor.",
+      "hint_origin": "Discovered by Stewart Adams and John Nicholson as a safer propionic acid anti-inflammatory.",
+      "structural_note": "Lipophilic NSAID (cLogP 3.07) with a 4-isobutylphenyl core, an alpha-methyl propanoate group, and zero nitrogens.",
+      "review_status": "verified",
+      "review_notes": "Clinically marketed as the racemic (+-)-ibuprofen mixture with chiral inversion of (R) to (S) in vivo (PubChem CID 3672)."
+    },
+    {
+      "id": "melatonin",
+      "name": "Melatonin",
+      "aliases": [],
+      "Category": "Hormone / Metabolite",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "hormone",
+        "signaling"
+      ],
+      "input_isomeric_smiles": "CC(=O)NCCc1c[nH]c2ccc(OC)cc12",
+      "expected_standardized_smiles": "COc1ccc2[nH]cc(CCNC(C)=O)c2c1",
+      "expected_inchikey": "DRLFMBDRBRZALE-UHFFFAOYSA-N",
+      "expected_formula": "C13H16N2O2",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 896,
+        "chebi_id": "CHEBI:16796",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:896",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/896",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16796",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16796",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Pineal gland methoxy-indole chronobiotic hormone synchronizing circadian rhythms.",
+      "hint_origin": "Formed by arylalkylamine N-acetyltransferase (AANAT) and ASMT O-methylation in the dark phase.",
+      "structural_note": "Replaces a free 5-OH and primary amine with a lipophilic 5-methoxy ether and N-acetyl amide.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "naphthalene",
+      "name": "Naphthalene",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "input_isomeric_smiles": "c1ccc2ccccc2c1",
+      "expected_standardized_smiles": "c1ccc2ccccc2c1",
+      "expected_inchikey": "UFWIBTONFRDIAS-UHFFFAOYSA-N",
+      "expected_formula": "C10H8",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 931,
+        "chebi_id": "CHEBI:16482",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:931",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/931",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16482",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16482",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Simplest fused bicyclic polycyclic aromatic hydrocarbon (PAH) model substrate in biodegradation studies.",
+      "hint_origin": "Oxidized to cis-1,2-dihydrodiol by a multicomponent Rieske non-heme iron dioxygenase (NahAcAd).",
+      "structural_note": "Pure unsubstituted aromatic hydrocarbon (C10H8, TPSA = 0, Fsp3 = 0) with 2 fused benzene rings.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "nicotine",
+      "name": "Nicotine",
+      "aliases": [],
+      "Category": "Alkaloid / Metabolite",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "alkaloid",
+        "specialized_metabolite"
+      ],
+      "input_isomeric_smiles": "CN1CCC[C@H]1c2cccnc2",
+      "expected_standardized_smiles": "CN1CCC[C@H]1c1cccnc1",
+      "expected_inchikey": "SNICXCGAKADSCV-JTQLQIEISA-N",
+      "expected_formula": "C10H14N2",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 89594,
+        "chebi_id": "CHEBI:18723",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:89594",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/89594",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18723",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18723",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Pyridine-pyrrolidine alkaloid agonist of pentameric ligand-gated acetylcholine ion channels.",
+      "hint_origin": "Synthesized in nightshade roots by coupling ornithine-derived N-methylpyrrolinium with pyridine-3-carboxylate.",
+      "structural_note": "(S)-Enantiomer linking 1 aromatic pyridine ring directly to 1 saturated N-methylpyrrolidine ring.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "penicillin_g",
+      "name": "Penicillin G",
+      "aliases": [
+        "Benzylpenicillin"
+      ],
+      "Category": "Therapeutic Drug",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "therapeutic_drug",
+        "pharmacology"
+      ],
+      "input_isomeric_smiles": "CC1(C)S[C@@H]2[C@H](NC(=O)Cc3ccccc3)C(=O)N2[C@H]1C(=O)O",
+      "expected_standardized_smiles": "CC1(C)S[C@@H]2[C@H](NC(=O)Cc3ccccc3)C(=O)N2[C@H]1C(=O)O",
+      "expected_inchikey": "JGSARLDLIJGVTE-MBNYWOFBSA-N",
+      "expected_formula": "C16H18N2O4S",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 5904,
+        "chebi_id": "CHEBI:18208",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5904",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5904",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18208",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18208",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Fused beta-lactam / thiazolidine antibiotic mimicking D-Ala-D-Ala to acylate bacterial transpeptidases.",
+      "hint_origin": "Assembled from L-alpha-aminoadipate, L-Cys, and L-Val by ACV synthetase (NRPS) and IPNS in moulds.",
+      "structural_note": "Contains 1 aromatic phenylacetyl ring + 2 cis-fused aliphatic rings (strained 4-membered beta-lactam + thiazolidine).",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "phenanthrene",
+      "name": "Phenanthrene",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "input_isomeric_smiles": "c1ccc2c(c1)ccc3ccccc23",
+      "expected_standardized_smiles": "c1ccc2c(c1)ccc1ccccc12",
+      "expected_inchikey": "YNPNZTXNASCQKK-UHFFFAOYSA-N",
+      "expected_formula": "C14H10",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 995,
+        "chebi_id": "CHEBI:28851",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:995",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/995",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28851",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:28851",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Angular tricyclic PAH featuring the reactive K-region (C9=C10) and bay-region architecture.",
+      "hint_origin": "Benchmark CANT-HYD marine oil-spill substrate attacked at C3,4 or C9,10 by ring-hydroxylating dioxygenases.",
+      "structural_note": "Angular 3-ring homologue of C10H8 (C14H10, MW 178.2 Da), increasing cLogP from 2.84 to 4.00.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "prodigiosin",
+      "name": "Prodigiosin",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "microbial_natural_product",
+        "secondary_metabolism"
+      ],
+      "input_isomeric_smiles": "CCCCC1=CC(=C(N1)C=C2C=CC(=N2)C3=CC(=CN3)OC)C",
+      "expected_standardized_smiles": "CCCCc1cc(C)c(C=C2C=CC(c3cc(OC)c[nH]3)=N2)[nH]1",
+      "expected_inchikey": "LCNZNMPZJFZRAP-UHFFFAOYSA-N",
+      "expected_formula": "C19H23N3O",
+      "stereo_status": "unspecified_legacy",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 172897611,
+        "chebi_id": "CHEBI:82758",
+        "pubchem_matched_inchikey": false
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:172897611",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/172897611",
+          "role": "canonical_parent_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:82758",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:82758",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Blood-red tripyrrole bacterial secondary metabolite with transmembrane H+/Cl- symporter activity.",
+      "hint_origin": "Biosynthesized via convergent hybrid NRPS-PKS pig/red gene clusters in Serratia and marine Vibrio.",
+      "structural_note": "Three conjugated pyrrole rings (4-methoxy-2,2'-bipyrrole + 2-methyl-3-pentylpyrrole) linked by a methene bridge.",
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (C4 sidechain C19H23N3O and unspecified methine double-bond stereo vs canonical C20H25N3O PubChem CID 172897611) to maintain schedule hash parity."
+    },
+    {
+      "id": "protocatechuic_acid",
+      "name": "Protocatechuic Acid",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "input_isomeric_smiles": "O=C(O)c1ccc(O)c(O)c1",
+      "expected_standardized_smiles": "O=C(O)c1ccc(O)c(O)c1",
+      "expected_inchikey": "YQUVCSBJEUQKSH-UHFFFAOYSA-N",
+      "expected_formula": "C7H6O4",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 72,
+        "chebi_id": "CHEBI:36062",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:72",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/72",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:36062",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:36062",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "3,4-Dihydroxybenzoate funneling hub of the bacterial beta-ketoadipate pathway (PcaHG substrate).",
+      "hint_origin": "Central aerobic catabolic node for lignin-derived ferulate, vanillate, and 4-hydroxybenzoate.",
+      "structural_note": "Positional isomer of 2,5-dihydroxybenzoic acid (both C7H6O4, MW 154.1 Da), bearing a 3,4-ortho-diol.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "pyocyanin",
+      "name": "Pyocyanin",
+      "aliases": [
+        "10-Methylphenazin-2(10H)-one"
+      ],
+      "Category": "Microbial Natural Product",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "microbial_natural_product",
+        "secondary_metabolism"
+      ],
+      "input_isomeric_smiles": "Cn1c2ccccc2nc2ccc(=O)cc21",
+      "expected_standardized_smiles": "Cn1c2cc(=O)ccc-2nc2ccccc21",
+      "expected_inchikey": "HAQCALIJITZJCC-UHFFFAOYSA-N",
+      "expected_formula": "C13H10N2O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_major_tautomer",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 14360019,
+        "chebi_id": "CHEBI:8653",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:14360019",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14360019",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:8653",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:8653",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Blue redox-active tricyclic phenazine zwitterion and quorum-sensing respiratory virulence factor.",
+      "hint_origin": "Secreted by Pseudomonas aeruginosa via the phzABCDEFG/M/S pathway; cycles with cellular NAD(P)H.",
+      "structural_note": "Planar N-methylphenazin-1-one tricyclic heteroaromatic pigment (Fsp3 = 0.08, 3 aromatic rings).",
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 neutral keto-tautomer form (10-methylphenazin-2(10H)-one, PubChem CID 14360019) rather than zwitterionic betaine resonance contributor to maintain schedule hash parity."
+    },
+    {
+      "id": "quinine",
+      "name": "Quinine",
+      "aliases": [],
+      "Category": "Alkaloid / Metabolite",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "alkaloid",
+        "specialized_metabolite"
+      ],
+      "input_isomeric_smiles": "COc1ccc2nccc([C@@H](O)[C@H]3C[C@@H]4CCN3C[C@@H]4C=C)c2c1",
+      "expected_standardized_smiles": "C=C[C@H]1CN2CC[C@H]1C[C@@H]2[C@H](O)c1ccnc2ccc(OC)cc12",
+      "expected_inchikey": "LOUPRKONTZGTKE-AFHBHXEDSA-N",
+      "expected_formula": "C20H24N2O2",
+      "stereo_status": "unspecified_legacy",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 94175,
+        "chebi_id": "CHEBI:15854",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:94175",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/94175",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:15854",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:15854",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Cinchona bark quinoline-quinuclidine alkaloid that inhibits Plasmodium hemozoin biocrystallization.",
+      "hint_origin": "Derived from strictosidine via a tryptophan-terpenoid indole-to-quinoline rearrangement.",
+      "structural_note": "Contains 4 rings (2 aromatic 6-methoxyquinoline + 2 bridged bicyclic quinuclidine) and 4 stereocenters.",
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (matches PubChem CID 94175 epiquinidine / unspecified bridgehead nitrogen rather than canonical Quinine CID 3034034) to maintain schedule hash parity."
+    },
+    {
+      "id": "resveratrol",
+      "name": "Resveratrol",
+      "aliases": [
+        "trans-Resveratrol"
+      ],
+      "Category": "Plant Natural Product",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "input_isomeric_smiles": "Oc1ccc(/C=C/c2cc(O)cc(O)c2)cc1",
+      "expected_standardized_smiles": "Oc1ccc(/C=C/c2cc(O)cc(O)c2)cc1",
+      "expected_inchikey": "LUKBXSAWLPMMSZ-OWOJBTEDSA-N",
+      "expected_formula": "C14H12O3",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 445154,
+        "chebi_id": "CHEBI:27881",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:445154",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/445154",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:27881",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:27881",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Trans-stilbene phytoalexin polyphenol produced in response to fungal infection and UV stress.",
+      "hint_origin": "Assembled from one p-coumaroyl-CoA and three malonyl-CoA extender units by plant type III PKS.",
+      "structural_note": "(E)-Stilbene-3,5,4'-triol with two phenolic rings linked by a conjugated trans-alkene bridge (Fsp3 = 0.00).",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "salicylic_acid",
+      "name": "Salicylic Acid",
+      "aliases": [],
+      "Category": "Hydrocarbon Degradation",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "aromatic_degradation",
+        "environmental_fate"
+      ],
+      "input_isomeric_smiles": "O=C(O)c1ccccc1O",
+      "expected_standardized_smiles": "O=C(O)c1ccccc1O",
+      "expected_inchikey": "YGSDEFSMJLZEOE-UHFFFAOYSA-N",
+      "expected_formula": "C7H6O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 338,
+        "chebi_id": "CHEBI:16914",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:338",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/338",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16914",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16914",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Ortho-hydroxybenzoic intermediate in upper PAH catabolism (NahG substrate) and plant defense signaling.",
+      "hint_origin": "Converted to ortho-diphenol by an FAD-dependent decarboxylative monooxygenase on Pseudomonas NAH7 plasmids.",
+      "structural_note": "2-Hydroxybenzoic acid: forms an intramolecular six-membered H-bond between its ortho-phenol and carboxyl group.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "serotonin",
+      "name": "Serotonin",
+      "aliases": [],
+      "Category": "Neurotransmitter",
+      "primary_class": "bioactive_nitrogen_heterocycle_amine",
+      "role_tags": [
+        "neurotransmitter",
+        "signaling"
+      ],
+      "input_isomeric_smiles": "NCCc1c[nH]c2ccc(O)cc12",
+      "expected_standardized_smiles": "NCCc1c[nH]c2ccc(O)cc12",
+      "expected_inchikey": "QZAYGJVTTNCVMB-UHFFFAOYSA-N",
+      "expected_formula": "C10H12N2O",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 5202,
+        "chebi_id": "CHEBI:28790",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:5202",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5202",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:28790",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:28790",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Indolamine monoamine (5-HT) regulating mood, vascular tone, and gastrointestinal motility.",
+      "hint_origin": "Derived from an essential indole amino acid via 5-hydroxylation and decarboxylation.",
+      "structural_note": "5-Hydroxytryptamine: bears a phenolic hydroxyl at C5 of the indole bicycle and a primary ethylamine chain.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "shikimic_acid",
+      "name": "Shikimic Acid",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "primary_metabolite",
+        "core_metabolism"
+      ],
+      "input_isomeric_smiles": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](O)C1",
+      "expected_standardized_smiles": "O=C(O)C1=C[C@@H](O)[C@@H](O)[C@H](O)C1",
+      "expected_inchikey": "JXOHGGNKMLTUBP-HSUXUTPPSA-N",
+      "expected_formula": "C7H10O5",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 8742,
+        "chebi_id": "CHEBI:16119",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:8742",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/8742",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16119",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16119",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Trihydroxy cyclohexene carboxylate hub in plastidial aromatic amino acid and phenylpropanoid biosynthesis.",
+      "hint_origin": "Abundant in Illicium verum (star anise) pods; industrial chiral pool precursor for neuraminidase inhibitors.",
+      "structural_note": "Non-aromatic cyclohexene-1-carboxylic acid with three contiguous stereocenters (3R,4S,5R-triol).",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "tryptophan",
+      "name": "L-Tryptophan",
+      "aliases": [],
+      "Category": "Primary Metabolite",
+      "primary_class": "core_cellular_metabolite_cofactor",
+      "role_tags": [
+        "primary_metabolite",
+        "core_metabolism"
+      ],
+      "input_isomeric_smiles": "N[C@@H](Cc1c[nH]c2ccccc12)C(=O)O",
+      "expected_standardized_smiles": "N[C@@H](Cc1c[nH]c2ccccc12)C(=O)O",
+      "expected_inchikey": "QIVBCDIJIAJPQS-VIFPVBQESA-N",
+      "expected_formula": "C11H12N2O2",
+      "stereo_status": "defined_stereo",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 6305,
+        "chebi_id": "CHEBI:16828",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:6305",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/6305",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:16828",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:16828",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Largest standard proteinogenic amino acid and biosynthetic precursor to auxin and NAD+.",
+      "hint_origin": "Encoded by the single codon UGG; assembled from indole-3-glycerol phosphate and L-serine.",
+      "structural_note": "(S)-Alpha-amino acid bearing an electron-rich bicyclic indole side chain.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "vanillin",
+      "name": "Vanillin",
+      "aliases": [],
+      "Category": "Plant Natural Product",
+      "primary_class": "botanical_secondary_metabolite_drug",
+      "role_tags": [
+        "plant_natural_product",
+        "specialized_metabolite"
+      ],
+      "input_isomeric_smiles": "COc1cc(C=O)ccc1O",
+      "expected_standardized_smiles": "COc1cc(C=O)ccc1O",
+      "expected_inchikey": "MWOOGOJBHIARFG-UHFFFAOYSA-N",
+      "expected_formula": "C8H8O3",
+      "stereo_status": "achiral",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 1183,
+        "chebi_id": "CHEBI:18346",
+        "pubchem_matched_inchikey": true
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:1183",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1183",
+          "role": "canonical_structure"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:18346",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18346",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Phenolic methoxy-benzaldehyde aroma compound and intermediate in microbial lignin depolymerization.",
+      "hint_origin": "Produced in cured orchid seed pods and by bacterial feruloyl-CoA hydratase/aldolase.",
+      "structural_note": "4-Hydroxy-3-methoxybenzaldehyde: combines an aldehyde, a phenol, and an aryl methyl ether on one benzene ring.",
+      "review_status": "verified",
+      "review_notes": "Verified canonical biological structure matching PubChem CID and ChEBI ontology."
+    },
+    {
+      "id": "violacein",
+      "name": "Violacein",
+      "aliases": [],
+      "Category": "Microbial Natural Product",
+      "primary_class": "microbial_&_aromatic_catabolite",
+      "role_tags": [
+        "microbial_natural_product",
+        "secondary_metabolism"
+      ],
+      "input_isomeric_smiles": "O=C1NC(=C(c2c[nH]c3ccccc23)C1=C1Nc2ccccc2C1=O)c1c[nH]c2ccc(O)cc12",
+      "expected_standardized_smiles": "O=C1NC(c2c[nH]c3ccc(O)cc23)=C(c2c[nH]c3ccccc23)C1=C1Nc2ccccc2C1=O",
+      "expected_inchikey": "PJAOXHSAWDWRMO-UHFFFAOYSA-N",
+      "expected_formula": "C28H18N4O3",
+      "stereo_status": "unspecified_legacy",
+      "protonation_policy": "neutral_canonical",
+      "game_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "guess_eligibility": [
+        "learn",
+        "ranked"
+      ],
+      "structure_refs": {
+        "pubchem_cid": 11053,
+        "chebi_id": "CHEBI:131914",
+        "pubchem_matched_inchikey": false
+      },
+      "evidence_refs": [
+        {
+          "source": "PubChem",
+          "id": "CID:11053",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/11053",
+          "role": "canonical_parent_reference"
+        },
+        {
+          "source": "ChEBI",
+          "id": "CHEBI:131914",
+          "url": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:131914",
+          "role": "ontology_classification"
+        }
+      ],
+      "hint_role": "Deep-violet bis-indole bacterial pigment with antiprotozoal and Gram-positive antibacterial activity.",
+      "hint_origin": "Assembled from two indole amino acid units by the five-enzyme VioABCDE oxidative cascade.",
+      "structural_note": "Five-ring conjugated system (5-hydroxyindole + oxindole + central pyrrolidone + indole, Fsp3 = 0.00).",
+      "review_status": "baseline_legacy",
+      "review_notes": "Preserved v0.2.2 Ranked SMILES (extra indole substituent C28H18N4O3 and unspecified double bond vs canonical C20H13N3O3 PubChem CID 11053) to maintain schedule hash parity."
+    }
+  ]
+}

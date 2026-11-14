@@ -1756,6 +1756,33 @@
             <div><b>Standardization:</b> ${stdBadge}</div>
             <div><b>InChIKey:</b> <code>${escapeHtml(t.inchikey)}</code> · <b>SVG SHA-256:</b> <code>${escapeHtml(t.svg_sha256)}</code></div>
             <div><b>Canonical SMILES:</b> <code>${escapeHtml(t.canonical_smiles)}</code></div>
+            ${
+              t.structure_refs || t.review_status
+                ? `<div style="margin-top:5px;padding-top:5px;border-top:1px dashed var(--border);">
+                    <div>
+                      <b>Provenance &amp; Curation:</b>
+                      <span class="badge ${t.review_status === "verified" ? "badge-emerald" : "badge-amber"}">${escapeHtml(t.review_status || "legacy")}</span>
+                      · <b>Stereo:</b> <code>${escapeHtml(t.stereo_status || "unknown")}</code>
+                      · <b>Protonation:</b> <code>${escapeHtml(t.protonation_policy || "neutral_canonical")}</code>
+                    </div>
+                    ${
+                      Array.isArray(t.evidence_refs) && t.evidence_refs.length
+                        ? `<div><b>References:</b> ${t.evidence_refs
+                            .map(
+                              (ref) =>
+                                `<a href="${escapeHtml(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.source)} ${escapeHtml(ref.id)}</a>`
+                            )
+                            .join(" · ")}</div>`
+                        : ""
+                    }
+                    ${
+                      t.review_notes
+                        ? `<div style="margin-top:2px;"><b>Curation Note:</b> ${escapeHtml(t.review_notes)}</div>`
+                        : ""
+                    }
+                  </div>`
+                : ""
+            }
           </div>
         </div>
       `;

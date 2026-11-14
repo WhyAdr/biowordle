@@ -657,14 +657,31 @@ class TestBioWordleAudit(unittest.TestCase):
             compute_seqle_schedule_hash,
         )
 
+        from rdkit.Chem import rdMolDescriptors
+        from chem_engine import standardize_and_audit
+
+        ext_smi = "CC(=CCC/C(=C/C=C/C(=C/C=C/C(=C/C=C/C=C(/C=C/C=C(/C=C/C=C(/CCC=C(C)C)\\C)\\C)\\C)/C)/C)/C)C"
+        ext_mol, ext_std = standardize_and_audit(ext_smi)
         learn_extreme = {
             "id": "synthetic_lycopene_probe",
             "name": "Synthetic Polyene Extreme",
+            "aliases": [],
             "Category": "Plant Natural Product",
-            "smiles": "CC(=CCC/C(=C/C=C/C(=C/C=C/C(=C/C=C/C=C(/C=C/C=C(/C=C/C=C(/CCC=C(C)C)\\C)\\C)\\C)/C)/C)/C)C",
+            "primary_class": "botanical_secondary_metabolite",
+            "role_tags": ["pigment", "polyene_fixture"],
+            "input_isomeric_smiles": ext_smi,
+            "expected_standardized_smiles": ext_std["canonical_smiles"],
+            "expected_inchikey": ext_std["inchikey"],
+            "expected_formula": rdMolDescriptors.CalcMolFormula(ext_mol),
+            "stereo_status": "defined_stereo",
+            "protonation_policy": "neutral_canonical",
+            "structure_refs": {"pubchem_cid": 446925, "chebi_id": "CHEBI:15948", "pubchem_matched_inchikey": True},
+            "evidence_refs": [{"source": "PubChem", "id": "CID:446925", "url": "https://pubchem.ncbi.nlm.nih.gov/compound/446925", "role": "canonical_structure"}],
+            "review_status": "verified",
+            "review_notes": "Synthetic extreme-LogP test fixture.",
             "hint_role": "Lipophilic conjugated hydrocarbon pigment used to test pool separation.",
             "hint_origin": "Test fixture with elevated molecular weight and zero heteroatoms.",
-            "structural_note": "Eleven conjugated trans double bonds with no heteroatoms.",
+            "structural_note": "All-trans conjugated polyene chain with no heteroatoms.",
             "game_eligibility": ["learn"],
             "guess_eligibility": ["learn"],
         }
@@ -711,6 +728,127 @@ class TestBioWordleAudit(unittest.TestCase):
         bad_raw[0]["guess_eligibility"] = ["learn"]
         with self.assertRaises(ValueError):
             build_all(feedback_spec, chemle_raw_compounds=bad_raw)
+
+    def test_16_chemle_manifest_validation_and_negative_cases(self):
+        """Verify offline manifest validation, provenance checks, and all required negative/positive fixtures."""
+        import copy
+        from rdkit.Chem import rdMolDescriptors
+        from build_puzzles import load_chemle_manifest
+        from chem_engine import (
+            standardize_and_audit,
+            validate_chemle_manifest,
+            validate_chemle_manifest_entry,
+        )
+
+        manifest = load_chemle_manifest()
+        self.assertEqual(len(manifest), 36)
+        validate_chemle_manifest(manifest)
+
+        # Every verified/baseline_legacy manifest entry surfaces provenance fields in compiled puzzles.json
+        for rec in self.data["chemle"]:
+            self.assertIn(rec.get("review_status"), ("verified", "baseline_legacy"))
+            self.assertTrue(rec.get("structure_refs", {}).get("pubchem_cid"))
+            self.assertTrue(rec.get("structure_refs", {}).get("chebi_id"))
+            self.assertTrue(rec.get("evidence_refs"))
+
+        by_id = {m["id"]: copy.deepcopy(m) for m in manifest}
+
+        # 1. Invalid SMILES
+        bad_smi = copy.deepcopy(by_id["caffeine"])
+        bad_smi["input_isomeric_smiles"] = "NOT_A_VALID_SMILES((("
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest_entry(bad_smi)
+
+        # 2. Disconnected multi-fragment salt input
+        bad_salt = copy.deepcopy(by_id["ibuprofen"])
+        bad_salt["input_isomeric_smiles"] = "CC(C)Cc1ccc(C(C)C(=O)O)cc1.[Na+]"
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest_entry(bad_salt)
+
+        # 3. Duplicate single-ion salt/conjugate base resolving to the same uncharged parent InChIKey
+        ibu_mol, ibu_std = standardize_and_audit("CC(C)Cc1ccc(C(C)C(=O)[O-])cc1")
+        dup_parent = copy.deepcopy(by_id["ibuprofen"])
+        dup_parent["id"] = "ibuprofen_anion"
+        dup_parent["name"] = "Ibuprofen Anion"
+        dup_parent["input_isomeric_smiles"] = "CC(C)Cc1ccc(C(C)C(=O)[O-])cc1"
+        dup_parent["expected_standardized_smiles"] = ibu_std["canonical_smiles"]
+        dup_parent["expected_inchikey"] = ibu_std["inchikey"]
+        dup_parent["expected_formula"] = rdMolDescriptors.CalcMolFormula(ibu_mol)
+        dup_parent["protonation_policy"] = "zwitterion_neutral_net"
+        # Wait: formally charged anion fails either net_q != 0 OR parent_ik collision!
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest([by_id["ibuprofen"], dup_parent])
+
+        # 4. Wrong E/Z double-bond or stereoisomer against pinned expected_inchikey (cis vs trans-resveratrol)
+        wrong_ez = copy.deepcopy(by_id["resveratrol"])
+        wrong_ez["input_isomeric_smiles"] = "Oc1ccc(/C=C\\c2cc(O)cc(O)c2)cc1"
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest_entry(wrong_ez)
+
+        # 5. Label/graph conflict (wrong formula declared for caffeine graph)
+        bad_formula = copy.deepcopy(by_id["caffeine"])
+        bad_formula["expected_formula"] = "C7H8N4O2"
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest_entry(bad_formula)
+
+        # 6. Misleading stereo_status='racemate' on achiral molecule
+        bad_rac = copy.deepcopy(by_id["caffeine"])
+        bad_rac["stereo_status"] = "racemate"
+        bad_rac["review_notes"] = "Invalid racemate claim on achiral purine."
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest_entry(bad_rac)
+
+        # 7. Duplicate ID and duplicate expected_inchikey
+        dup_id = copy.deepcopy(by_id["caffeine"])
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest([by_id["caffeine"], dup_id])
+
+        dup_ik = copy.deepcopy(by_id["caffeine"])
+        dup_ik["id"] = "caffeine_clone"
+        dup_ik["name"] = "1,3,7-Trimethylxanthine"
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest([by_id["caffeine"], dup_ik])
+
+        # 8. Unreviewed playable record
+        unreviewed = copy.deepcopy(by_id["caffeine"])
+        unreviewed["review_status"] = "pending"
+        with self.assertRaises(ValueError):
+            validate_chemle_manifest_entry(unreviewed)
+
+        # 9. Positive case: legitimate enantiomer pair (R- vs S-2-butanol) + regioisomer pair (o- vs p-xylene) pass!
+        iso_specs = [
+            ("r_2butanol", "(R)-2-Butanol", "CC[C@@H](C)O", "BTANRVKWQNVYAZ-SCSAIBSYSA-N", "defined_stereo", 6568, "CHEBI:41236"),
+            ("s_2butanol", "(S)-2-Butanol", "CC[C@H](C)O", "BTANRVKWQNVYAZ-BYPYZUCNSA-N", "defined_stereo", 6568, "CHEBI:41237"),
+            ("o_xylene", "o-Xylene", "Cc1ccccc1C", "CTQNGGLPUBDAKN-UHFFFAOYSA-N", "achiral", 7237, "CHEBI:28413"),
+            ("p_xylene", "p-Xylene", "Cc1ccc(C)cc1", "URLKBWYHVLBVBO-UHFFFAOYSA-N", "achiral", 7809, "CHEBI:28633"),
+        ]
+        iso_entries = []
+        for mid, mname, smi, _, st, pcid, chid in iso_specs:
+            mol, std = standardize_and_audit(smi)
+            iso_entries.append({
+                "id": mid,
+                "name": mname,
+                "aliases": [],
+                "Category": "Plant Natural Product",
+                "primary_class": "isomer_pair",
+                "role_tags": ["isomer_test"],
+                "input_isomeric_smiles": smi,
+                "expected_standardized_smiles": std["canonical_smiles"],
+                "expected_inchikey": std["inchikey"],
+                "expected_formula": rdMolDescriptors.CalcMolFormula(mol),
+                "stereo_status": st,
+                "protonation_policy": "neutral_canonical",
+                "game_eligibility": ["learn"],
+                "guess_eligibility": ["learn"],
+                "structure_refs": {"pubchem_cid": pcid, "chebi_id": chid, "pubchem_matched_inchikey": True},
+                "evidence_refs": [{"source": "PubChem", "id": f"CID:{pcid}", "url": f"https://pubchem.ncbi.nlm.nih.gov/compound/{pcid}", "role": "canonical_structure"}],
+                "hint_role": "Isomer test fixture verifying legitimate isomer pairs coexist cleanly.",
+                "hint_origin": "Synthetic pair test.",
+                "structural_note": "Distinct InChIKeys allow both isomers in the manifest.",
+                "review_status": "verified",
+                "review_notes": "Positive isomer pair check.",
+            })
+        validate_chemle_manifest(iso_entries)
 
 
 if __name__ == "__main__":

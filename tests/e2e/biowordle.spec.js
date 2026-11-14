@@ -292,6 +292,21 @@ test.describe("BioWordle v0.2.2 E2E Suite", () => {
     await checkPostReveal("INFEK", [/Verified UniProt Instance/, /Parent Sequence Window/, /260/]);
     await checkPostReveal("PPPVP", [/Context-only evidence/, /1GBR/]);
     await checkPostReveal("DSGLD", [/9T9W/], ["1P22"]);
+
+    // Post-reveal Chemle manifest provenance & stereo badges (strictly hidden pre-reveal)
+    await page.addInitScript(() => {
+      window.__BIOWORDLE_TEST_LEARN_TARGETS__ = { chemle: "caffeine" };
+    });
+    await page.goto("/?profile=learn");
+    await expect(page.locator("#chemle-full-props")).toBeHidden();
+    await page.locator("#btn-giveup").click();
+    const chemFullText = await page.locator("#chemle-full-props").innerText();
+    expect(chemFullText).toMatch(/Provenance & Curation/);
+    expect(chemFullText).toContain("verified");
+    expect(chemFullText).toContain("achiral");
+    expect(chemFullText).toContain("PubChem CID:2519");
+    expect(chemFullText).toContain("CHEBI:27732");
+
     expect(pageErrors).toEqual([]);
   });
 
