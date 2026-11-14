@@ -1147,7 +1147,7 @@ def build_all(
     return {
         "metadata": {
             "schema_version": SCHEMA_VERSION,
-            "release_version": "0.3.2-dev",
+            "release_version": "0.3.2",
             "chemle_rules_hash": compute_chemle_rules_hash(chemle_records, similarity_matrix, feedback_spec),
             "chemle_challenge_roster_hash": chemle_challenge_roster_hash,
             "generator": "BioWordle Independent RDKit Build Compiler (chem_engine.py)",

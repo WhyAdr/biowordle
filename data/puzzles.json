@@ -1,7 +1,7 @@
 {
   "metadata": {
     "schema_version": "0.2.2",
-    "release_version": "0.3.2-dev",
+    "release_version": "0.3.2",
     "chemle_rules_hash": "7edd1b8864c9",
     "chemle_challenge_roster_hash": "d3466b7b90f3",
     "generator": "BioWordle Independent RDKit Build Compiler (chem_engine.py)",

@@ -1340,7 +1340,7 @@
         ? `🎓 Classroom Seed (${state.customSeed})`
         : "🏆 Ranked Profile"
       : isChallenge
-      ? "⚗️ Challenge Practice (Exp.)"
+      ? "⚗️ Challenge Practice (78)"
       : "🎓 Learn Profile";
     if (chemProfBadge) {
       chemProfBadge.textContent = chemBadgeLabel;

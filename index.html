@@ -34,7 +34,7 @@
         <span class="stat-pill" title="Completed puzzles in Seqle">Seqle: <strong id="stat-seq">0</strong></span>
         <span class="stat-pill" title="Consecutive UTC days with a Ranked Daily win">Streak: <strong id="stat-streak">0</strong> 🔥 <small id="utc-countdown" style="opacity:0.75;margin-left:4px;"></small></span>
         <button id="btn-playstyle" class="btn btn-primary" title="Switch between Ranked Daily (UTC, k-anonymous clues, tight feedback) and Learn Mode (pack filter, scaffold hints, rich feedback)">🏆 Profile: Ranked (UTC)</button>
-        <button id="btn-challenge-practice" class="btn" title="Experimental 78-compound Challenge Practice (Chemle-only, isolated from Ranked stats &amp; daily streak)">⚗️ Challenge (78)</button>
+        <button id="btn-challenge-practice" class="btn" title="78-compound Challenge Practice (Chemle-only, isolated from Ranked stats &amp; daily streak)">⚗️ Challenge (78)</button>
         <button id="btn-new-puzzle" class="btn" title="Roll a random new puzzle in Learn Mode (disabled in Ranked Daily)">🎲 Random</button>
         <button id="btn-hint" class="btn" title="Unlock next clue in the progressive Clue Ladder">💡 Hint</button>
         <button id="btn-share" class="btn" title="Copy color-independent emoji &amp; ASCII share card to clipboard">📋 Share</button>
@@ -68,15 +68,15 @@
           </div>
         </div>
 
-        <div id="chemle-challenge-bar" class="challenge-bar" style="display:none;" role="region" aria-label="Experimental Challenge Practice status">
+        <div id="chemle-challenge-bar" class="challenge-bar" style="display:none;" role="region" aria-label="Challenge Practice status">
           <div class="challenge-bar-top">
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-              <span class="badge badge-violet">⚗️ Experimental Challenge Practice (78)</span>
+              <span class="badge badge-violet">⚗️ Challenge Practice (78)</span>
               <span id="chemle-challenge-seed-pill" class="stat-pill">Seed: <strong>—</strong></span>
             </div>
             <button id="btn-new-challenge" type="button" class="btn">🎲 New Seed</button>
           </div>
-          <p class="challenge-caveat">Chemle-only practice across all 78 compounds (isolated from Ranked stats &amp; daily streak). Neutral canonical representations (zwitterions, free bases, tautomers) may differ from cellular/solution species. Target narrative hints stay hidden; solver gates only — not human-playtested.</p>
+          <p class="challenge-caveat">Chemle-only practice across all 78 compounds (isolated from Ranked stats &amp; daily streak). Neutral canonical representations (zwitterions, free bases, tautomers) may differ from cellular/solution species. Target narrative hints stay hidden; solver-calibrated only (not human-playtested).</p>
         </div>
 
         <div id="chemle-banner" class="toast-banner" role="status" aria-live="polite"></div>
